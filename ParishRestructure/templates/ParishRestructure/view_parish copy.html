@@ -1,0 +1,89 @@
+{% extends 'ParishRestructure/base.html' %}
+{% include 'ParishRestructure/head.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+
+
+{% block content %}
+
+<div class="container">
+    <div class="d-flex justify-content-end ">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'parish_dashboard' %}">Home</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'view_parishes' %}">ViewParish list</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Parish</li>
+            </ol>
+          </nav>
+    </div>
+    <h3 class="text-light text-bg-primary mb-4">
+        <strong>CCC {{parish.parish.name}}</strong>
+    </h3>
+    <div class="cardd">
+        <div class="card-body">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="parish-details-card">
+                <div class="row">
+                    <div class="col-md-12 mb-3  ">
+                        <div class="gallery">
+                            <div id="product-preview">
+                                <div class="zoomed-image"></div>
+                                <div class="parishImg">
+                                    <img class="img-fluid d-block small-preview" src="{% static 'assets/img/Celestial-Church-of-Christ-CCC.jpg' %}" />
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info">
+                            <p>Parish Details<p>
+                            <div class="parish-info-body">
+                               <div class="parishinfo">
+                                    <i class="fa-regular fa-church"></i>
+                                    <span>CCC {{parish.parish.name}}</span>
+                                </div>
+                                <div class="parishinfo">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span>{{parish.address}}</span>
+                                </div> 
+                                <div class="parishinfo">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                    <span>{{parish.location}}</span>
+                                </div>
+                            </div>
+                            
+                           
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                       <div class="map">
+                        <iframe 
+                            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&q={{parish.address}}"
+                            width="400px" 
+                            height="300px" 
+                            style="border: 1px;; border-radius: 10px;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                       </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

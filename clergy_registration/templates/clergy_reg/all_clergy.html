@@ -1,0 +1,73 @@
+{% extends 'clergy_reg/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% include 'clergy_reg/head.html' %}
+
+
+
+{% block content %}
+
+<body>
+    <div class="container">
+        <h3 class="text-light text-bg-primary mb-4"
+            style="padding-left: 14px;font-family: Nunito, sans-serif;border-radius: 13px;padding-top: 6px;padding-bottom: 6px;">
+            <strong>VIEW ALL CLERGY DETAILS</strong>
+        </h3>
+        {% if all_clergy %}
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive ">
+                    <table id="clergyTable" class="table table-striped nowrap clergyTable" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th class="text-center ">Actions</th>
+                                <th class="text-center ">Last Name</th>
+                                <th class="text-center ">First Name</th>
+
+                                <th class="text-center ">Registration No</th>
+                                <th class="text-center ">Email</th>
+                                <th class="text-center ">Mobile Number</th>
+                                <th class="text-center ">Present Annointment</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for clergy in all_clergy %}
+                            <tr>
+                                <td class="d-flex">
+                                    <a href="{% url 'view_clergy' clergy.clergy_id %}" class="btn btn-primary btn pe-3  me-1" title="View clergys data"> <i class="fa-solid fa-eye fa-beat fa-xs"></i></a>
+                                    <a href="{% url 'edit_clergy' clergy.clergy_id %}" class="btn btn-success btn pe-3 me-1" title="Edit clergys data"> <i class="fa-solid fa-pen-to-square fa-beat fa-xs"></i></a>
+                                    <a href="{% url 'delete_clergy' clergy.clergy_id %}" onclick="return confirm('Are you sure you want to delete this clergy? ')" class="btn btn-danger btn-sm pe-3 " title="Delete clergys data"> <i class="fa-solid fa-trash fa-beat fa-xs"></i></a>
+                                </td>
+                                <td>{{ clergy.last_name }}</td>
+                                <td>{{ clergy.first_name }}</td>
+
+                                <td>{{ clergy.reg_number }}</td>
+                                <td>{{ clergy.email_address }}</td>
+                                <td>{{ clergy.telephone}}</td>
+                                <td>{{ clergy.present_annointment }}</td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+    <div class="alert alert-warning ms-4 me-4">
+        <strong>Warning!</strong> No clergy found.
+    </div>
+    {% endif %}
+
+    </div>
+    {% endblock %}
+</body>
+
+</html>
