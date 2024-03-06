@@ -9,7 +9,6 @@ django-widget-tweaks==1.5.0
 djangorestframework==3.14.0
 fontawesomefree==6.5.1
 mysql-connector-python==8.2.0
-# mysqlclient==2.2.0
 Pillow==10.1.0
 protobuf==4.21.12
 pydantic==2.5.2
