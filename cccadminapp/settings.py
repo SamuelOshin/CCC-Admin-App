@@ -96,6 +96,18 @@ WSGI_APPLICATION = 'cccadminapp.wsgi.application'
 #     }
 # }
 
+#Railway DB
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'railway',
+        'USER': 'root',
+        'PASSWORD': 'SZhOsqnSUaXfalyIwuYFovPfpNPLFitn',
+        'HOST': 'monorail.proxy.rlwy.net',  
+        'PORT': '59193',       
+    }
+}
+
 
 
 # Password validation
