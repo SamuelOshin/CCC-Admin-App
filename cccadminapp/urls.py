@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import path, include
 from clergy_registration import views
 from ParishRestructure import urls
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
 
@@ -13,3 +14,6 @@ urlpatterns = [
 
     
 ]
+
+
+urlpatterns += staticfiles_urlpatterns()
