@@ -15,4 +15,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cccadminapp.settings')
 
 application = get_wsgi_application()
 
-app= application
+
