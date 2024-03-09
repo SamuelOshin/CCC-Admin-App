@@ -1,0 +1,457 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+html,
+body {
+  height: 100%;
+}
+
+.container > h3 {
+  padding-left: 14px;
+  font-family: Nunito, sans-serif;
+  border-radius: 13px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-radius: 13px;
+}
+
+.picBg {
+  background-color: rgb(255, 255, 255);
+}
+
+#page-content {
+  flex: 1 0 auto;
+  height: 100vh;
+}
+
+#sticky-footer {
+  flex-shrink: none;
+}
+
+#content {
+  margin-left: 224px;
+}
+
+.content-wrapper {
+  padding-left: 0px;
+  transition: margin-left .3s ease-in-out;
+  height: 100%;
+}
+
+footer {
+  /* margin-top: 10px; */
+  background-color: #fff;
+  transition: margin-left .3s ease-in-out;
+  /* margin-left: 224px; */
+  border-top: 1px solid #dee2e6;
+  color: rgb(75, 75, 239);
+}
+
+.xbtn{
+    color: #ffffff;
+    background-color: #4e73df;
+    border-color: #160fa7;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
+.sidebar {
+  background-image: linear-gradient(180deg, #2222ddd1 10%, #d0185f 100%);
+    background-size: cover;
+}
+
+.text-bg-primary{
+  color: #ffffff;
+  background-color: rgba(75, 75, 239, 0.8);
+  background-image: linear-gradient(180deg, #2222ddd1 10%, #d0185f 100%);
+}
+.hr{
+  margin-top: 0px;
+  margin-bottom: 0px;
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+  background-color: #ffffff;
+  width: inherit;
+}
+
+.sidebar-brand-text{
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dropdown .dropdown-menu {
+  font-size: 15px;
+  padding: 10px 10px 10px 0px;
+}
+
+.content {
+  grid-template-columns: repeat(2, 1fr);
+  display: grid;
+  grid-gap: 30px;
+  margin-bottom: 30px;
+}
+
+.dashcont {
+  background-color: #fff;
+  border-radius: 10px;
+  -webkit-transition: .5s;
+  transition: .5s;
+  padding: 43px 30px;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+.parish-content{
+  grid-template-columns: repeat(2, 1fr);
+  display: grid;
+  grid-gap: 40px;
+  margin: 10px 0;
+}
+
+.parish-card{
+  background-color: #fff;
+  background-image: -webkit-linear-gradient(90deg, #3f5efb 0%, #fc466b 100%);
+  border-radius: 10px;
+  -webkit-transition: .5s;
+  transition: .5s;
+  padding: 50px 20px;
+  box-shadow: 0px 6px 7px -4px rgba(0,0,0,0.2);
+}
+
+.parish-card:hover{
+  box-shadow: 0px 0px 8px 10px rgba(59,67,59,0.2);
+  cursor: pointer;
+  
+}
+
+td{
+  text-align: center;
+}
+
+
+.parish-content > a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.p-div{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.full-width {
+  grid-column: 1 / -1;
+  padding: 57px 78px;
+}
+.nav-link{
+  /* font-size: 16px; */
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.nav{
+  margin: 10px 0;
+}
+
+.nav > .nav-item > .nav-link.active {
+  color: #ffffff;
+  background-color: #4e73df;
+  border-radius: 10px;
+}
+
+.nav > .nav-item > .nav-link >i {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.plus-icon > i {
+  font-size: 50px;
+  color: #440dda;
+  font-weight: 700;
+}
+
+.plus-icon:hover{
+  box-shadow: 0px 0px 8px 10px rgba(59,67,59,0.2);
+}
+.plus-icon{
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 10px 20px;
+}
+.nav{
+  width: inherit;
+}
+
+#bg-blue{
+  background-color: #440dda;
+  color: #fff;
+}
+.intl-tel-input,
+.iti {
+  width: 100%;
+}
+
+#text-blue{
+  color: #440dda;
+
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+
+
+#phone {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn {
+  border-color: #357EBD;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.btn:active {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+}
+
+.alert {
+  padding: 15px;
+  margin-top: 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.alert-info {
+  border-color: #bce8f1;
+  color: #31708f;
+  background-color: #d9edf7;
+}
+
+.alert-error {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}
+
+
+
+.nav-items {
+  font-size: 13.6px;
+  font-weight: bold;
+}
+
+
+.remove-margin {
+  margin-right: 10px;
+}
+
+
+#id_spoken_languages label {
+  font-size: 16.6px;
+  color: rgb(94, 94, 106);
+}
+
+#id_spoken_languages input {
+  color: rgb(47, 47, 49)
+}
+
+.remove-button {
+  margin-left: 10px;
+  border-radius: 20px;
+  color: white;
+  background: red;
+  border-width: 0px;
+}
+
+.clists {
+  margin: 5px;
+}
+
+#content-wrapper{
+  overflow-x: hidden  ;
+}
+
+.toggled{
+  display: inline!important;
+}
+
+.parish-details-card{
+  /* border-radius: 10px; */
+  /* box-shadow: 3px 8px 15px rgba(0,0,0,.35); */
+  transition: all .3s ease;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  font-family: Montserrat, sans-serif;
+}
+.info{
+  border-radius: 10px;
+  box-shadow: 3px 8px 15px rgba(0, 0, 0, 0.35);
+  transition: all .3s ease;
+  background-color: #fff;
+  color: #000000;
+  padding: 20px 12px;
+}
+
+.cardd{
+  border-radius: 10px;
+  box-shadow: 3px 8px 15px rgba(121, 121, 122, 0.35);
+  transition: all .3s ease;
+  background-color: #fff;
+  padding: 20px 30px;
+  font-family: Montserrat, sans-serif;
+  color: #141313;
+  font-weight: 500;
+}
+.parishImg{
+  border-radius: 5px;
+  /* box-shadow: 3px 8px 15px rgba(0,0,0,.35); */
+  transition: all .3s ease;
+  background-color: #fff;
+  padding: 20px 30px;
+}
+
+.parishImg > img {
+  margin: 0px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  max-width: 100%;
+  height: auto;
+  width: 300px;
+}
+
+div.info p {
+  font-weight: 700;
+  color: #440dda;
+}
+
+.parish-info-body{
+ display: flex;
+ flex-direction: column;
+}
+.parishinfo > span {
+  font-weight: 600;
+  margin-left: 15px;
+}
+.parishinfo >i {
+  color: #440dda;
+}
+.parishinfo{
+  display: flex;
+  margin: 2px 7px 0px 7px;
+}
+
+.fw-3{
+  font-weight: 400;
+}
+.aprvBtn{
+  background-color: #0d911d;
+  color: #fff;
+  border-color: #28e00c;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 20px;
+  
+}
+
+.aprvBtn:hover{
+  background-color: #2abf13;
+  color: #fff;
+  border-color: #28e00c;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 20px;
+}
+
+.rejBtn{
+  background-color: #e00c0c;
+  color: #fff;
+  border-color: #e00c0c;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 20px;
+}
+
+.rejBtn:hover{
+  background-color: #ff4545;
+  color: #fff;
+  border-color: #ef2b2b;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 20px;
+}
+
+.action{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.viewparish{
+  font-size: 12px;
+  color: #440dda;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.clergyTable{
+  font-size: 15px;
+}
+.docH{
+  color: #440dda;
+}
+
+div.parishinfo p{
+  font-size: 14px;
+  color: #000000;
+  margin-bottom: 2px;
+  margin-right: 5px;
+}
+footer > .container > strong{
+  font-weight: 600;
+}
+@media screen and (max-width: 922px){
+  footer{
+    display: none;
+  }
+  
+  .content-wrapper{
+    margin-left: 0px;
+  }
+  .sidebar{
+    width: 11rem;
+  }
+}
