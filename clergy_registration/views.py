@@ -5,56 +5,18 @@ from django.http import HttpResponseRedirect
 from django.views.generic import CreateView
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required
 
 
-# def handle_clergy_registration(request):
-#     if request.method == 'POST':
-#         form = ClergyRegistrationForm(request.POST)
-#         if form.is_valid():
-#             # Save the form data to create the first clergy instance
-#             first_clergy_data = form.save(commit=False)
-#             first_clergy_data.save()
-            
-#             # Retrieve the clergy_id of the first clergy instance
-#             clergy_id = first_clergy_data.pk
-            
-#             # Create new clergy instances with the remaining form data and associate them with the first clergy record
-#             for data in form.cleaned_data['additional_data']:
-#                 new_clergy_data = ClergyDetails(clergy_id=clergy_id, additional_data=data)
-#                 new_clergy_data.save()
-            
-#             # Redirect to a success page or another URL
-#             return HttpResponseRedirect('/success/')  # Replace '/success/' with your desired success URL
-#         else:
-#             print(form.errors)
-#     else:
-#         form = ClergyRegistrationForm()
-    
-#     return render(request, 'clergy_reg/profile.html', {'form': form})
 
 
-# def handle_clergy_registration(request):
-#     if request.method == 'POST':
-#         form = ClergyRegistrationForm(request.POST)
-#         if form.is_valid():
-#             # Save the data from the form to the database
-#             form.save()
-
-#             # Redirect to a new URL:
-#             return HttpResponseRedirect('/thanks/')
-#         else:
-#             # The form is invalid, redisplay it
-#             print(form.errors)
-#     else:
-#         # Render the form
-#         form = ClergyRegistrationForm()
-#         return render(request, 'clerg_registration/index.html', {'form': form})
-# def register_clergy(request):
-#     return render(request, 'clergy_reg/profile.html')
-
+@user_passes_test(lambda u: u.groups.filter(name='Clergyadmin').exists())
+@login_required
 def dashboard(request):
     return render(request, 'clergy_reg/index.html')
 
+@login_required
 class register_clergy(CreateView):
     def get(self, request):
         form = ClergyRegistrationForm()
@@ -72,11 +34,14 @@ class register_clergy(CreateView):
             print(form.errors)
             return render(request, 'clergy_reg/add_clergy.html', {'form': form})
         
+
+@login_required
 def all_clergy(request):
     all_clergy = ClergyDetails.objects.all()
     return render(request, 'clergy_reg/all_clergy.html', {'all_clergy': all_clergy})
 
 
+@login_required
 def view_clergy(request, id):
     # Retrieve the ClergyDetails object based on the clergy_id
     clergy = get_object_or_404(ClergyDetails, clergy_id=id)
@@ -84,6 +49,7 @@ def view_clergy(request, id):
     # Pass the retrieved object to the template context
     return render(request, 'clergy_reg/view_clergy.html', {'clergy': clergy})
 
+@login_required
 def edit_clergy(request, id):
     # Retrieve the ClergyDetails object based on the clergy_id
     clergy = get_object_or_404(ClergyDetails, clergy_id=id)

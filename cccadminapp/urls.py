@@ -3,18 +3,22 @@ from django.contrib import admin
 from django.urls import path, include
 from clergy_registration import views
 from ParishRestructure import urls
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.conf.urls.static import static
+from django.conf import settings
 
 
 
 urlpatterns = [
-    path('clergy/', include('clergy_registration.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('users.urls')),
+    path('clergy/', include('clergy_registration.urls')),
     path('', include('ParishRestructure.urls')),
     
+    
+    
+    
+    
+    
 
     
-]
-
-
-urlpatterns += staticfiles_urlpatterns()
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

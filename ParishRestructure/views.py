@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from .forms import ParishForm, LocationForm, ParishRegForm, ParishDirectoryForm, ParishRegForm1
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.http import JsonResponse
@@ -15,6 +16,7 @@ class ParishDirectoryViewSet(viewsets.ModelViewSet):
     queryset = ParishDirectory.objects.all()
     serializer_class = ParishDirectorySerializer
 #endapi    
+@login_required    
 def restructure_parish(request):
     if request.method == 'POST':
         form = ParishForm(request.POST)
@@ -34,6 +36,7 @@ def restructure_parish(request):
     return render(request, 'ParishRestructure/restructure.html', {'form': form})
 
 
+@login_required  
 def get_regions_and_areas(request):
     if request.method == 'GET':
         diocese_id = request.GET.get('diocese_id')  # Extract diocese ID from query parameters
@@ -52,9 +55,12 @@ def get_regions_and_areas(request):
         # Return JSON response with regions and areas data
         return JsonResponse({'regions': serialized_regions, 'areas': serialized_areas})
 
+@login_required  
+@user_passes_test(lambda u: not u.groups.filter(name='Clergyadmin').exists())
 def parish_dashboard(request):
     return render(request, 'ParishRestructure/parish_dashboard.html')
 
+@login_required  
 def add_location(request):
     if request.method == 'POST':
         form = LocationForm(request.POST)
@@ -83,7 +89,7 @@ def get_all_parishes_in_children(location):
 
 
 
-
+@login_required  
 def view_parishes(request):
     locations = Location.objects.all()
     if request.method == 'POST':
@@ -101,6 +107,7 @@ def view_parishes(request):
         'locations': locations, 
         })
 
+@login_required  
 def edit_parish_reg(request, pk):
     parish = get_object_or_404(ParishDirectory, pk=pk)
     # parishinfo = get_object_or_404(ParishRegistration, parish=parish)
@@ -121,6 +128,7 @@ def edit_parish_reg(request, pk):
         
     return render(request, 'ParishRestructure/reg_parish.html', {'parish_form': parish_form})
 
+@login_required  
 def edit_parish(request, pk):
     parish = get_object_or_404(ParishRestructure, pk=pk)
     if request.method == 'POST':
@@ -142,6 +150,7 @@ def edit_parish(request, pk):
     return render(request, 'ParishRestructure/edit_parish.html', {'form': form})
 
 # Delete Parish fo all parish data table
+@login_required  
 def delete_parish(request, pk):
     parish = get_object_or_404(ParishDirectory, pk=pk)
     parish.delete()
@@ -149,19 +158,21 @@ def delete_parish(request, pk):
     return redirect('parish_dashboard')
 
 # View Parish fo all parish data table
+@login_required  
 def view_parish(request, pk):
     """View a single parish."""
     parish = get_object_or_404(ParishDirectory, pk=pk)
     
     return render(request, 'ParishRestructure/view_parish.html', {'parish': parish})
 
+@login_required  
 def view_parishh(request, pk):
     """View a single parish."""
     parish = get_object_or_404(ParishRestructure, pk=pk)
     
     return render(request, 'ParishRestructure/view_parish copy.html', {'parish': parish})
 
-
+@login_required  
 def reg_parish(request):
     parish = ParishDirectory.objects.all()
     if  request.method=='POST':
@@ -180,6 +191,7 @@ def reg_parish(request):
         
     return render(request,'ParishRestructure/reg_parish.html', {'parish_form': parish_form, 'preg_form': preg_form})
 
+@login_required  
 def edit_reg_parish(request, pk):
     
     parish = get_object_or_404(ParishRegistration, pk=pk)
@@ -201,6 +213,7 @@ def edit_reg_parish(request, pk):
     return render(request, 'ParishRestructure/edit_regparish.html', {'form': form})
 
 
+@login_required  
 def regparish(request):
     if request.method == 'POST':
         preg_form = ParishRegForm1(request.POST)
@@ -217,11 +230,15 @@ def regparish(request):
         
     return render(request, 'ParishRestructure/regparish.html', {'preg_form': preg_form})
 
+
+@login_required  
 def all_parish(request):
     parishes = ParishDirectory.objects.all()
     return render(request, 'ParishRestructure/view_allparish.html', {'parishes': parishes})
 
 
+
+@login_required  
 def accept_parish_registration(request, pk):
     parish_registration = get_object_or_404(ParishRegistration, pk=pk)
     parish_directory = parish_registration.parish
@@ -237,6 +254,8 @@ def accept_parish_registration(request, pk):
     messages.info(request, 'Parish has been successfully registered!')
     return redirect('approved')
 
+
+@login_required  
 def reject_parish_registration(request, pk):
     parishinfo = get_object_or_404(ParishRegistration, pk=pk)
     parishinfo.parish.register_status = False
@@ -244,15 +263,20 @@ def reject_parish_registration(request, pk):
     messages.info(request, 'Parish has been sucessfully declined!')
     return redirect('parish_dashboard')
 
+
+@login_required  
 def approval_queue(request):
     parishes = ParishRegistration.objects.filter(date_approved=None)
     return render(request, 'ParishRestructure/approval_queue.html', {'parishes': parishes})
     
+
+@login_required      
 def approved(request):
     parishes = ParishRegistration.objects.filter(date_approved__isnull=False)
     return render(request, 'ParishRestructure/approved.html', {'parishes': parishes})
 
 
+@login_required  
 def view_regparish(request, pk):
     """View a single parish."""
     parish = get_object_or_404(ParishRegistration, pk=pk)

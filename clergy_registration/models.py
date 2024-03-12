@@ -7,7 +7,7 @@ from multiselectfield import MultiSelectField
 
 class ClergyDetails(models.Model):
     clergy_id = models.AutoField(primary_key=True)
-    profile_picture = models.ImageField(upload_to='clergy_registration/profile_pics', default='static/assets/img/User/circled_user_male_skin_type_5_480px.png')
+    profile_picture = models.ImageField(upload_to='parish_pic', default='parish_pic/Celestial-Church-of-Christ-CCC.jpg')
     reg_number = models.IntegerField()
     trg_number = models.IntegerField()
     first_name = models.CharField(max_length=50)
@@ -374,8 +374,7 @@ class ClergyDetails(models.Model):
     children_info = models.CharField(max_length=255, error_messages={'required': 'Please enter the children info.'})
 
     class Meta:
-        managed = True
-        db_table = 'clergydetails'  # Specify your existing table name here
+        db_table = 'clergydetails'
 
     def __str__(self):
         return self.first_name + " " + self.last_name
