@@ -789,7 +789,7 @@ progress {
     padding-right: calc(var(--bs-gutter-x) * .5);
     padding-left: calc(var(--bs-gutter-x) * .5);
     margin-right: auto;
-    margin-left: auto
+    margin-left: auto;
 }
 
 @media(min-width: 576px) {
@@ -815,7 +815,7 @@ progress {
     .container-md,
     .container-sm,
     .container {
-        max-width: 960px
+        max-width: 960px;
     }
 }
 
@@ -826,7 +826,7 @@ progress {
     .container-md,
     .container-sm,
     .container {
-        max-width: 1140px
+        max-width: 1140px;
     }
 }
 
@@ -1364,7 +1364,7 @@ progress {
 
     .col-md-6 {
         flex: 0 0 auto;
-        width: 50%
+        width: 50%;
     }
 
     .col-md-7 {
@@ -4560,7 +4560,7 @@ fieldset:disabled .btn {
     display: flex;
     flex-wrap: inherit;
     align-items: center;
-    justify-content: space-between
+    justify-content: space-between;
 }
 
 .navbar-brand {
@@ -8442,7 +8442,7 @@ fieldset:disabled .btn {
 }
 
 .d-flex {
-    display: flex !important
+    display: flex !important;
 }
 
 .d-inline-flex {
@@ -8748,7 +8748,7 @@ fieldset:disabled .btn {
 }
 
 .w-50 {
-    width: 50% !important
+    width: 34% !important;
 }
 
 .w-75 {
@@ -8816,7 +8816,7 @@ fieldset:disabled .btn {
 }
 
 .flex-column {
-    flex-direction: column !important
+    flex-direction: column !important;
 }
 
 .flex-row-reverse {
@@ -8868,7 +8868,7 @@ fieldset:disabled .btn {
 }
 
 .justify-content-between {
-    justify-content: space-between !important
+    justify-content: space-between !important;
 }
 
 .justify-content-around {
@@ -8888,7 +8888,7 @@ fieldset:disabled .btn {
 }
 
 .align-items-center {
-    align-items: center !important
+    align-items: center !important;
 }
 
 .align-items-baseline {
@@ -9039,7 +9039,7 @@ fieldset:disabled .btn {
 
 .mx-auto {
     margin-right: auto !important;
-    margin-left: auto !important
+    margin-left: auto !important;
 }
 
 .my-0 {
@@ -9094,11 +9094,11 @@ fieldset:disabled .btn {
 }
 
 .mt-4 {
-    margin-top: 1.5rem !important
+    margin-top: 1.5rem !important;
 }
 
 .mt-5 {
-    margin-top: 3rem !important
+    margin-top: 3rem !important;
 }
 
 .mt-auto {
@@ -9635,7 +9635,7 @@ fieldset:disabled .btn {
 
 .text-muted {
     --bs-text-opacity: 1;
-    color: var(--bs-secondary-color) !important
+    color: var(--bs-secondary-color) !important;
 }
 
 .text-black-50 {

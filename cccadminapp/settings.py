@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'clergy_registration',
     'ParishRestructure',
+    'users',
     'widget_tweaks',
     'fontawesomefree',
     'rest_framework',
@@ -68,7 +69,7 @@ ROOT_URLCONF = 'cccadminapp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -87,28 +89,28 @@ WSGI_APPLICATION = 'cccadminapp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'clergydb',
+        'USER': 'root',
+        'PASSWORD': 'Terigbade@1',
+        'HOST': '127.0.0.1',  # or 'localhost'
+        'PORT': '3306',       # MySQL default port
+    }
+}
+
+#Railway DB
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'clergydb',
 #         'USER': 'root',
-#         'PASSWORD': 'Terigbade@1',
-#         'HOST': 'localhost',  # or 'localhost'
-#         'PORT': '3306',       # MySQL default port
+#         'PASSWORD': 'SZhOsqnSUaXfalyIwuYFovPfpNPLFitn',
+#         'HOST': 'monorail.proxy.rlwy.net',  
+#         'PORT': '59193',       
 #     }
 # }
-
-#Railway DB
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'railway',
-        'USER': 'root',
-        'PASSWORD': 'SZhOsqnSUaXfalyIwuYFovPfpNPLFitn',
-        'HOST': 'monorail.proxy.rlwy.net',  
-        'PORT': '59193',       
-    }
-}
 
 
 
@@ -148,12 +150,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STORAGES = {
-    # ...
-    "staticfiles": {
-        "BACKEND": 'whitenoise.storage.CompressedStaticFilesStorage',
-    },
-}
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'cccadminapp/static')
 ]
@@ -165,3 +162,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URLS ='/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'OPTIONS': {
+            'location': MEDIA_ROOT,
+        },
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}

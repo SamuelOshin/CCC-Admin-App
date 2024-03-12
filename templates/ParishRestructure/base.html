@@ -1,0 +1,405 @@
+{% include 'ParishRestructure/head.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+<body id="page-top">
+    <div id="wrapper" style="width: 100%;">
+        <nav
+            class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark fixed-nav">
+            <div class="container-fluid d-flex flex-column p-1 flex-shrink-0"><a
+                    class="navbar-brand d-flex justify-content-between  align-items-center sidebar-brand" href="#">
+                    <div class="sidebar-brand-icon rotate-n-15"><img class="img-fluid" width="100" height="100"
+                            src="{% static 'assets/img/777899999.png' %}" style="transform: rotate(18deg);">
+                    </div>
+
+                    <button class="xbtn btn-link d-md-none rounded-circle" id="sidebarToggleTop" type="button">
+                        <i class="fa-solid fa-xmark fa-xs"></i>
+                    </button>
+                </a>
+                <div class="sidebar-brand-text mx-3">CCC Admin App</div>
+
+                <div class="hr mt-2"></div>
+
+                <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
+
+                    <li class="nav-item mb-1 ">
+                        <li class="nav-item"> <a href="{% url 'parish_dashboard' %}" class="nav-link"><i class="fa-solid fa-church"></i>Parish
+                            Dashboard</a></li>
+                    </li>
+                    
+                    <div class="hr"></div>
+                    <li class="nav-item mb-1 ">
+                        <li class="nav-item"> <a href="{% url 'all-parish' %}" class="nav-link"><i class="fa-solid fa-database"></i>Parish Directory</a></li>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link  btn btn-toggle x align-items-center border-1 rounded "
+                            data-bs-toggle="collapse" data-bs-target="#parish" aria-expanded="true" aria-current="page"
+                            data-bss-hover-animate="pulse">
+                            <i class="fas fa-user"></i>Parish Registration</a>
+                        <div class="collapse " id="parish">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li class="nav-item"> <a href="{% url 'parish-registration' %}" class="nav-link">Register a Parish</a></li>
+                                <li class="nav-item"><a href="{% url 'approval_queue'  %}" class="nav-link">Pending Registration</a></li>
+                                <li class="nav-item"><a href="{% url 'approved'  %}" class="nav-link">Approved Registration</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link  btn btn-toggle x align-items-center border-1 rounded "
+                            data-bs-toggle="collapse" data-bs-target="#parishreg" aria-expanded="true" aria-current="page"
+                            data-bss-hover-animate="pulse">
+                            <i class="fas fa-layer-group"></i>Parish Restructuring</a>
+                        <div class="collapse " id="parishreg">
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <li class="nav-item"> <a href="{% url 'add_parish' %}" class="nav-link">Parish Restructure</a></li>
+                                <li class="nav-item"><a href="{% url 'add_location'  %}" class="nav-link">Add a location</a></li>
+                                <li class="nav-item"><a href="{% url 'view_parishes'  %}" class="nav-link">View Parish Categorically</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                <hr class="sidebar-divider my-0">
+
+                <div class="d-flex d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle"
+                        type="button"></button></div>
+            </div>
+        </nav>
+        <div class="content-wrapper" id="content-wrapper" style="padding-left: 0px;">
+            <div>
+                <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3"
+                            id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <form class="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
+                            <div class="input-group"><input class="bg-light form-control border-0 small me-sm-0"
+                                    type="text" placeholder="Search for ..."><button class="btn btn-primary py-0"
+                                    type="button" style="background: #255cfe;"><i class="fas fa-search"></i></button>
+                            </div>
+                        </form>
+                        <ul class="navbar-nav flex-nowrap me-auto">
+                            <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link"
+                                    aria-expanded="false" data-bs-toggle="dropdown" href="#"><i
+                                        class="fas fa-search"></i></a>
+                                <div class="dropdown-menu dropdown-menu-end p-3 animated--grow-in"
+                                    aria-labelledby="searchDropdown">
+                                    <form class="me-auto navbar-search w-100">
+                                        <div class="input-group"><input class="bg-light form-control border-0 small"
+                                                type="text" placeholder="Search for ...">
+                                            <div class="input-group-append"><button class="btn btn-primary py-0"
+                                                    type="button"><i class="fas fa-search"></i></button></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown no-arrow mx-1">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                        aria-expanded="false" data-bs-toggle="dropdown" href="#"><span
+                                            class="badge bg-danger badge-counter">3+</span><i
+                                            class="fas fa-bell fa-fw"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
+                                        <h6 class="dropdown-header">alerts center</h6><a
+                                            class="dropdown-item d-flex align-items-center" href="#">
+                                            <div class="me-3">
+                                                <div class="bg-primary icon-circle"><i
+                                                        class="fas fa-file-alt text-white"></i></div>
+                                            </div>
+                                            <div><span class="small text-gray-500">December 12, 2019</span>
+                                                <p>A new monthly report is ready to download!</p>
+                                            </div>
+                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
+                                            <div class="me-3">
+                                                <div class="bg-success icon-circle"><i
+                                                        class="fas fa-donate text-white"></i></div>
+                                            </div>
+                                            <div><span class="small text-gray-500">December 7, 2019</span>
+                                                <p>$290.29 has been deposited into your account!</p>
+                                            </div>
+                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
+                                            <div class="me-3">
+                                                <div class="bg-warning icon-circle"><i
+                                                        class="fas fa-exclamation-triangle text-white"></i></div>
+                                            </div>
+                                            <div><span class="small text-gray-500">December 2, 2019</span>
+                                                <p>Spending Alert: We've noticed unusually high spending for your
+                                                    account.</p>
+                                            </div>
+                                        </a><a class="dropdown-item text-center small text-gray-500" href="#">Show All
+                                            Alerts</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown no-arrow mx-1">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                        aria-expanded="false" data-bs-toggle="dropdown" href="#"><span
+                                            class="badge bg-danger badge-counter">7</span><i
+                                            class="fas fa-envelope fa-fw"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in">
+                                        <h6 class="dropdown-header">alerts center</h6><a
+                                            class="dropdown-item d-flex align-items-center" href="#">
+                                            <div class="dropdown-list-image me-3"><img class="rounded-circle"
+                                                    src="{% static 'assets/img/avatars/avatar4.jpeg' %}">
+                                                <div class="bg-success status-indicator"></div>
+                                            </div>
+
+                                            <div class="fw-bold">
+                                                <div class="text-truncate"><span>Hi there! I am wondering if you can
+                                                        help me with a problem I've been having.</span></div>
+                                                <p class="small text-gray-500 mb-0">Emily Fowler - 58m</p>
+                                            </div>
+                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
+                                            <div class="dropdown-list-image me-3"><img class="rounded-circle"
+                                                    src="{% static 'assets/img/avatars/avatar2.jpeg' %}">
+                                                <div class="status-indicator"></div>
+                                            </div>
+                                            <div class="fw-bold">
+                                                <div class="text-truncate"><span>I have the photos that you ordered last
+                                                        month!</span></div>
+                                                <p class="small text-gray-500 mb-0">Jae Chun - 1d</p>
+                                            </div>
+                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
+                                            <div class="dropdown-list-image me-3"><img class="rounded-circle"
+                                                    src="{% static 'assets/img/avatars/avatar3.jpeg' %}">
+                                                <div class="bg-warning status-indicator"></div>
+                                            </div>
+                                            <div class="fw-bold">
+                                                <div class="text-truncate"><span>Last month's report looks great, I am
+                                                        very happy with the progress so far, keep up the good
+                                                        work!</span></div>
+                                                <p class="small text-gray-500 mb-0">Morgan Alvarez - 2d</p>
+                                            </div>
+                                        </a><a class="dropdown-item d-flex align-items-center" href="#">
+                                            <div class="dropdown-list-image me-3"><img class="rounded-circle"
+                                                    src="{% static 'assets/img/avatars/avatar5.jpeg' %}">
+                                                <div class="bg-success status-indicator"></div>
+                                            </div>
+                                            <div class="fw-bold">
+                                                <div class="text-truncate"><span>Am I a good boy? The reason I ask is
+                                                        because someone told me that people say this to all dogs, even
+                                                        if they aren't good...</span></div>
+                                                <p class="small text-gray-500 mb-0">Chicken the Dog · 2w</p>
+                                            </div>
+                                        </a><a class="dropdown-item text-center small text-gray-500" href="#">Show All
+                                            Alerts</a>
+                                    </div>
+                                </div>
+                                <div class="shadow dropdown-list dropdown-menu dropdown-menu-end"
+                                    aria-labelledby="alertsDropdown"></div>
+                            </li>
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link"
+                                        aria-expanded="false" data-bs-toggle="dropdown" href="#"><span
+                                            class="d-none d-lg-inline me-2 text-primary  small">{{request.user.username}}</span><img
+                                            class="border rounded-circle img-profile"
+                                            src="{% static 'assets/img/avatars/customer_480px.png' %}"></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a
+                                            class="dropdown-item" href="#"><i
+                                                class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Profile</a><a
+                                            class="dropdown-item" href="#"><i
+                                                class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Settings</a><a
+                                            class="dropdown-item" href="#"><i
+                                                class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Activity
+                                            log</a>
+                                        <div class="dropdown-divider"></div><a class="dropdown-item" href="{% url 'logout' %}"><i
+                                                class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Logout</a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid" style="min-height:100vh;">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+
+            </div>
+            {% include 'ParishRestructure/footer.html' %}
+        </div>
+
+        <a class="border rounded d-inline scroll-to-top" href="#page-top">
+            <i class="fas fa-angle-up"></i>
+        </a>
+
+    </div>
+    
+    <script src="{% static 'assets/js/jquery-3.7.0.js' %}"></script>
+
+
+    <script src="{% static 'assets/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'assets/js/buttons.bootstrap4.min.js' %}"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/js/bs-init.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+    <script src="{% static 'assets/js/number.js' %}"></script>
+    <script src="{% static 'assets/js/theme.js' %}"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&libraries=places&callback=initAutocomplete"
+        async defer></script>
+
+    <script>
+
+        $(document).ready(function () {
+            $('#clergyTable').DataTable({
+                scrollX: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel', 'pdf'
+                ]
+            });
+        });
+
+        $(document).ready(function () {
+            $('#allparish').DataTable({
+                scrollX: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel', 'pdf'
+                ],
+                columns: [
+                    null,
+                    { "searchable": true },
+                    null,
+                    null,
+                    null
+                ]
+            });
+        });
+
+
+
+
+        $(document).ready(function () {
+            $('#id_profile_picture').change(function () {
+                const file = this.files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#profileImage').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+
+        document.getElementById("id_parish").addEventListener("change", function () {
+            var selectedParishId = this.value;
+            fetchParishAddress(selectedParishId);
+        });
+
+        function fetchParishAddress(parishId) {
+            fetch(`/api/parish/${parishId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("id_address").value = data.address;
+                })
+                .catch(error => console.error('Error:', error));
+            console.log('Error:', error);
+        }
+
+        //Script to get region and area 
+        document.addEventListener('DOMContentLoaded', function () {
+            var dioceseSelect = document.getElementById('id_diocese');
+            var regionSelect = document.getElementById('id_region');
+            var areaSelect = document.getElementById('id_area');
+
+            dioceseSelect.addEventListener('change', function () {
+                var dioceseId = this.value;
+
+
+                // Fetch regions for the selected diocese
+                fetch(`/get_regions_and_areas/?diocese_id=${dioceseId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Received data:', data); // Debugging: Log received data
+
+                        // Populate regions select
+                        data.regions.forEach(region => {
+                            var option = document.createElement('option');
+                            option.value = region.id;
+                            option.text = region.name;
+                            regionSelect.appendChild(option);
+                        });
+
+                        // Populate areas select (optional)
+                        // You can implement this if needed
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+
+            regionSelect.addEventListener('change', function () {
+                var regionId = this.value;
+
+
+                // Fetch areas for the selected region
+                fetch(`/get_regions_and_areas/?region_id=${regionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Received data:', data); // Debugging: Log received data
+
+                        // Populate areas select
+                        data.areas.forEach(area => {
+                            var option = document.createElement('option');
+                            option.value = area.id;
+                            option.text = area.name;
+                            areaSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+
+
+        let autocomplete;
+
+        function initAutocomplete() {
+            autocomplete = new google.maps.places.Autocomplete(
+                document.getElementById('id_address'),
+                {
+                    types: ['establishment'],
+                    componentRestrictions: { country: ['ng', 'us'] }, // Use an array for multiple country codes
+                    fields: ['place_id', 'geometry', 'name']
+                }
+            );
+
+            // When the user selects an address, get the place details and fill in the form
+            autocomplete.addListener("place_changed", onPlaceChanged);
+        }
+
+        function onPlaceChanged() {
+            let place = autocomplete.getPlace();
+            if (!place.geometry) {
+                // User did not select a prediction; reset the field
+                document.getElementById('id_address').value = ''; // Clear the input field
+                return; // Exit the function early
+            }
+
+            // Display details about the valid place
+            document.getElementById('details').innerHTML = place.name;
+        }    
+            
+        //     var parishNames = {{ name|safe }};
+        // var input = document.getElementById('id_parish_name');
+        // new Awesomplete(input, { list: parishNames });    
+        // document.getElementById("myForm").addEventListener("submit", function(event) {
+        //     event.preventDefault(); // Prevent form submission
+
+        //     // Update the display property of the desired element
+        //     var element = document.getElementById("myElement");
+        //     element.style.display = "none";
+        // }); 
+    </script>
+
+
+</body>
+
+</html>

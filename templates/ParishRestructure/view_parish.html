@@ -1,0 +1,164 @@
+{% extends 'ParishRestructure/base.html' %}
+{% include 'ParishRestructure/head.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+
+
+
+{% block content %}
+
+<div class="container">
+    <div class="d-flex justify-content-end ">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'parish_dashboard' %}">Home</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'all-parish' %}">Parish Directory</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Parish</li>
+            </ol>
+          </nav>
+    </div>
+    <h3 class="text-light text-bg-primary mb-4">
+        <strong>CCC {{parish.name}}</strong>
+    </h3>
+    <div class="cardd">
+        <div class="card-body">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="parish-details-card">
+                <div class="row">
+                    <div class="col-md-12 mb-3  ">
+                        <div class="gallery">
+                            <div id="product-preview">
+                                <div class="zoomed-image"></div>
+                                <div class="parishImg">
+                                    <img class="img-fluid d-block small-preview" src="{% static 'assets/img/Celestial-Church-of-Christ-CCC.jpg' %}" />
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info">
+                            <p>Parish Details</p>
+                            <div class="parish-info-body">
+                               <div class="parishinfo">
+                                    <i class="fa-regular fa-church"></i>
+                                    <span>CCC {{parish.name}}</span>
+                                </div>
+                                <div class="parishinfo">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    <span>{{parish.address}}</span>
+                                </div> 
+                                <div class="mt-4">
+                                    <p class="mt-3">Registration Status</p>
+                                    <div class="parishinfo">
+                                        {% if parish.register_status %}
+                                        <span class="badge text-bg-success text-white ">Registered</span>
+                                        {% else %}
+                                        <div class="badge text-bg-danger">Not Registered!</div>
+                                        <div class="ms-2  "><a href="{% url 'reg-old-parish' %}">Register</a></div>
+                                        {% endif %}
+                                    </div>
+                                </div>    
+                            </div>
+                            
+                           
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                       <div class="map">
+                        <iframe 
+                            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&q={{parish.address}}"
+                            width="400px" 
+                            height="300px" 
+                            style="border: 1px;; border-radius: 10px;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                       </div>
+                    </div>
+                    {% if parish.parish.register_status %}
+                    <div class="col-md-6 mt-2 ">
+                        <div class="info">
+                            <p>Documents Submitted<p>
+                            <div class="parish-info-body">
+                               
+                                
+                                <div class="parishinfo">
+                                    {% if parish.application_for_registration %}
+                                    <p>Parish Application for Registration</p><div class="badge text-bg-success text-white ">Submitted</div>
+                                    {% else %}
+                                    <p>Parish Application for Registration:</p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                                <div class="parishinfo">
+                                    {% if parish.original_receipt_of_land %}
+                                    <p>Original Receipt of Land: </p><span class="badge text-bg-success text-white ">Submitted</span>
+                                    {% else %}
+                                    <p>Original Receipt of Land: </p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                                <div class="parishinfo">
+                                    {% if parish.original_survey_plan %}
+                                    <p>Original Survey Plan: </p><span class="badge text-bg-success text-white ">Submitted</span>
+                                    {% else %}
+                                    <p>Original Survey Plan: </p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                                <div class="parishinfo">
+                                    {% if parish.building_plan %}
+                                    <p>Building Plan: </p><span class="badge text-bg-success text-white ">Submitted</span>
+                                    {% else %}
+                                    <p>Building Plan: </p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                                <div class="parishinfo">
+                                    {% if parish.sworn_affidavit %}
+                                    <p>Sworn Affidavit: </p><span class="badge text-bg-success text-white ">Submitted</span>
+                                    {% else %}
+                                    <p>Sworn Affidavit: </p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                                <div class="parishinfo">
+                                    {% if parish.passport_photograph %}
+                                    <p>Passport photograph:</p><span class="badge text-bg-success text-white ">Submitted</span>
+                                    {% else %}
+                                    <p>Passport photograph:</p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                                <div class="parishinfo">
+                                    {% if parish.payment_proof_of_auditorium %}
+                                    <p>Proof of Payment of Auditorium:</p><span class="badge text-bg-success text-white ">Submitted</span>
+                                    {% else %}
+                                    <p>Proof of Payment of Auditorium:</p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                                <div class="parishinfo">
+                                    {% if parish.approval_from_government_diaspora %}
+                                    <p>Approval from Government Diaspora:</p><span class="badge text-bg-success text-white ">Submitted</span>
+                                    {% else %}
+                                    <p>Approval from Government Diaspora:</p><div class="badge text-bg-danger">Not Submitted!</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                           
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

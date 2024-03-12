@@ -1,10 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-html,
-body {
+body, html {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
+
 
 .container > h3 {
   padding-left: 14px;
@@ -37,7 +39,12 @@ body {
   transition: margin-left .3s ease-in-out;
   height: 100%;
 }
-
+.loginbody{
+  background-color: #fff;
+  background-image: linear-gradient(111deg, #2222ddd1 10%, #d0185f 100%);
+  /* overflow-y: scroll; */
+  height: 100vh;
+}
 footer {
   /* margin-top: 10px; */
   background-color: #fff;
@@ -45,8 +52,33 @@ footer {
   /* margin-left: 224px; */
   border-top: 1px solid #dee2e6;
   color: rgb(75, 75, 239);
+  bottom: 1px;
+  width: 100%;
+  /* position: fixed; */
 }
 
+.pic-card {
+  border-radius: 10px 0px 0px 10px;
+  background-color: rgb(237, 232, 232);
+  /* Set the background image */
+  background-image: url("/static/assets/img/paper_clouds.jpg");
+  /* Set background size and other properties */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 98%;
+
+  /* Apply the blur effect */
+  backdrop-filter: blur(10px);
+  padding: 10px;
+  border-left: 5px solid blue;
+}
+
+.b-l{
+  border-right: 5px solid #440dda;
+  border-radius: 0 10px 10px 0;
+  border-left: 5px solid #4b16dc22;
+}
 .xbtn{
     color: #ffffff;
     background-color: #4e73df;
@@ -130,8 +162,48 @@ footer {
 td{
   text-align: center;
 }
+.login-card{
+  box-shadow: 3px 8px 15px rgba(121, 121, 122, 0.35);
+  font-family: Montserrat, sans-serif;
+  color: #141313;
+  font-weight: 500;
+  background-color: #fff;
+  border-radius: 10px;
+  -webkit-transition: .5s;
+  transition: .5s;
+  padding: 30px 2px;
+  width: 70%;
+  margin: 2em auto;
+  background-color: #ffffff;
+  max-height: 100%;
+  overflow-y: auto;
+}
 
+.fieldWrapper > i {
+  color: #440dda;
+  font-size: 25px;
+}
 
+.errorlist{
+  color: red;
+  text-decoration: none;
+}
+.logC{
+  margin-top: 20px;
+}
+.loginTxt{
+  font-size: 32px;
+  font-weight: 700;
+  color: #440dda;
+  font-style: italic;
+  
+}
+
+.loginpic{
+  width: 409px;
+  height: 100%;
+  margin: auto -10px;
+  }
 .parish-content > a {
   text-decoration: none;
   color: #fff;
@@ -235,6 +307,7 @@ body {
   border: 1px solid transparent;
   border-radius: 4px;
   font-weight: 500;
+  font-size: small;
 }
 
 .alert-info {
