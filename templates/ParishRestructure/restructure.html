@@ -38,17 +38,22 @@
                     {% for field in form %}
                     <div class="fieldWrapper mb-1">
                         {% if field.field.widget.input_type != 'checkbox' %}
-                            {{ field.label_tag }}
+                        {{ field.label_tag }}
+                        {% if field.field.widget.input_type == 'select' %}
+                            {{ field|add_class:"mb-2 form-select" }}
+                        {% else %}
                             {{ field|add_class:"form-control" }}
-                            {{field.errors}}
-                            {% else %}
-                            <div class="form-check">
-                                {{ field.label_tag }}
-                                {{ field.field.widget.attrs.checked }}
-                                {{ field|add_class:"form-check-input" }}
-                                {{ field.errors }}
-                            </div>
                         {% endif %}
+                        {{ field.errors }}
+                    {% else %}
+                        <div class="form-check">
+                            {{ field.label_tag }}
+                            {{ field.field.widget.attrs.checked }}
+                            {{ field|add_class:"form-check-input" }}
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                    
                     </div>
                     {% endfor %}
                     <button type="submit" class="btn btn-primary mt-2">Submit</button>
