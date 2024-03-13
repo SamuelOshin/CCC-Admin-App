@@ -51,22 +51,6 @@ class ParishRegistration(models.Model):
     approval_from_government_diaspora = models.BooleanField(default=False)
     payment_proof_of_auditorium = models.BooleanField(default=False)
 
-    # @property
-    # def is_registered(self):
-    #     return self.parish.register_status if self.parish else False
-
-    # def approve(self, user):
-    #     self.parish.register_status = True
-    #     self.parish.save()
-    #     self.date_approved = timezone.now()
-    #     self.save()
-    #     Notifications.success(user, "Parish registration approved", f"{self.parish.name} has been approved for registration")
-    #     ApprovalNotification(user, self).send()
-        
-    # class Meta:
-    #     verbose_name = "Parish Registration"
-    #     verbose_name_plural = "Parish Registrations"
-
     
     
 
