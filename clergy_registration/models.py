@@ -7,7 +7,7 @@ from multiselectfield import MultiSelectField
 
 class ClergyDetails(models.Model):
     clergy_id = models.AutoField(primary_key=True)
-    profile_picture = models.ImageField(upload_to='parish_pic', default='parish_pic/Celestial-Church-of-Christ-CCC.jpg')
+    profile_picture = models.ImageField(upload_to='profile_pics', null=True, blank=True)
     reg_number = models.IntegerField()
     trg_number = models.IntegerField()
     first_name = models.CharField(max_length=50)
