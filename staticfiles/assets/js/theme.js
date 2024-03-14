@@ -6,7 +6,6 @@
 
   if (sidebar) {
 
-    var collapseEl = sidebar.querySelector('.collapse');
     var collapseElementList = [].slice.call(document.querySelectorAll('.sidebar .collapse'))
     var sidebarCollapseList = collapseElementList.map(function (collapseEl) {
       return new bootstrap.Collapse(collapseEl, { toggle: false });
@@ -63,7 +62,7 @@
 
     // Scroll to top button appear
     window.addEventListener('scroll', function () {
-      var scrollDistance = window.pageYOffset;
+      var scrollDistance = window.scrollY;
 
       //check if user is scrolling up
       if (scrollDistance > 100) {
@@ -155,4 +154,18 @@ function onPlaceChanged() {
   document.getElementById('details').innerHTML = place.name;
 }
 
+// Fetch address of the selected parish id
+document.getElementById("id_parish").addEventListener("change", function () {
+  var selectedParishId = this.value;
+  fetchParishAddress(selectedParishId);
+});
 
+function fetchParishAddress(parishId) {
+  fetch(`/api/parish/${parishId}/`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_address").value = data.address;
+    })
+    .catch(error => console.error('Error:', error));
+  console.log('Error:', error);
+}

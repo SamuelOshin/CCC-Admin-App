@@ -239,7 +239,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
     <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets/js/bs-init.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
     <script src="{% static 'assets/js/number.js' %}"></script>
     <script src="{% static 'assets/js/theme.js' %}"></script>
@@ -251,7 +251,7 @@
     <script>
 
         $(document).ready(function () {
-            $('.clergyTable').DataTable({
+            $('#clergyTable').DataTable({
                 scrollX: true,
                 dom: 'Bfrtip',
                 buttons: [
@@ -290,113 +290,8 @@
             });
     
 
-        document.getElementById("id_parish").addEventListener("change", function () {
-            var selectedParishId = this.value;
-            fetchParishAddress(selectedParishId);
-        });
-
-        function fetchParishAddress(parishId) {
-            fetch(`/api/parish/${parishId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("id_address").value = data.address;
-                })
-                .catch(error => console.error('Error:', error));
-            console.log('Error:', error);
-        }
-
-        //Script to get region and area 
-        document.addEventListener('DOMContentLoaded', function () {
-            var dioceseSelect = document.getElementById('id_diocese');
-            var regionSelect = document.getElementById('id_region');
-            var areaSelect = document.getElementById('id_area');
-
-            dioceseSelect.addEventListener('change', function () {
-                var dioceseId = this.value;
-
-
-                // Fetch regions for the selected diocese
-                fetch(`/get_regions_and_areas/?diocese_id=${dioceseId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Received data:', data); // Debugging: Log received data
-
-                        // Populate regions select
-                        data.regions.forEach(region => {
-                            var option = document.createElement('option');
-                            option.value = region.id;
-                            option.text = region.name;
-                            regionSelect.appendChild(option);
-                        });
-
-                        // Populate areas select (optional)
-                        // You can implement this if needed
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-
-            regionSelect.addEventListener('change', function () {
-                var regionId = this.value;
-
-
-                // Fetch areas for the selected region
-                fetch(`/get_regions_and_areas/?region_id=${regionId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Received data:', data); // Debugging: Log received data
-
-                        // Populate areas select
-                        data.areas.forEach(area => {
-                            var option = document.createElement('option');
-                            option.value = area.id;
-                            option.text = area.name;
-                            areaSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-        });
-
-
-
-        let autocomplete;
-
-        function initAutocomplete() {
-            autocomplete = new google.maps.places.Autocomplete(
-                document.getElementById('id_address'),
-                {
-                    types: ['establishment'],
-                    componentRestrictions: { country: ['ng', 'us'] }, // Use an array for multiple country codes
-                    fields: ['place_id', 'geometry', 'name']
-                }
-            );
-
-            // When the user selects an address, get the place details and fill in the form
-            autocomplete.addListener("place_changed", onPlaceChanged);
-        }
-
-        function onPlaceChanged() {
-            let place = autocomplete.getPlace();
-            if (!place.geometry) {
-                // User did not select a prediction; reset the field
-                document.getElementById('id_address').value = ''; // Clear the input field
-                return; // Exit the function early
-            }
-
-            // Display details about the valid place
-            document.getElementById('details').innerHTML = place.name;
-        }    
-            
-        //     var parishNames = {{ name|safe }};
-        // var input = document.getElementById('id_parish_name');
-        // new Awesomplete(input, { list: parishNames });    
-        // document.getElementById("myForm").addEventListener("submit", function(event) {
-        //     event.preventDefault(); // Prevent form submission
-
-        //     // Update the display property of the desired element
-        //     var element = document.getElementById("myElement");
-        //     element.style.display = "none";
-        // }); 
+       
+        
     </script>
 
 
