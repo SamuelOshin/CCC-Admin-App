@@ -32,6 +32,8 @@
             {% endif %}
             <form method="post"  enctype = “multipart/form-data”>
                 {% csrf_token %}
+                
+                <em class="docH">Tick the submitted Documents where necessary</em>
                 {{ form.non_field_errors }}                    
                 
 
