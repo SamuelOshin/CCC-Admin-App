@@ -113,7 +113,7 @@ def edit_parish_reg(request, pk):
     # parishinfo = get_object_or_404(ParishRegistration, parish=parish)
     
     if request.method == 'POST':
-        parish_form = ParishDirectoryForm(request.POST, instance=parish)
+        parish_form = ParishDirectoryForm(request.POST, request.FILES, instance=parish)
         # preg_form = ParishRegForm(request.POST, instance=parish.parishregistration)
         if parish_form.is_valid(): 
             parish = parish_form.save(commit=False) 
@@ -176,8 +176,8 @@ def view_parishh(request, pk):
 def reg_parish(request):
     parish = ParishDirectory.objects.all()
     if  request.method=='POST':
-        parish_form = ParishDirectoryForm(request.POST)
-        preg_form = ParishRegForm(request.POST)
+        parish_form = ParishDirectoryForm(request.POST, request.FILES)
+        preg_form = ParishRegForm(request.POST, request.FILES)
         if parish_form.is_valid() and preg_form.is_valid(): 
             parish = parish_form.save()
             parish_details = preg_form.save(commit=False)
@@ -197,17 +197,21 @@ def edit_reg_parish(request, pk):
     parish = get_object_or_404(ParishRegistration, pk=pk)
     
     if request.method == 'POST':
-        form = ParishRegForm1(request.POST, instance=parish)
-        if form.is_valid(): 
+        print(request.POST)  # Print the POST data
+        print(request.FILES)  # Print the FILES data (file uploads)
+        form = ParishRegForm1(request.POST, request.FILES, instance=parish)
+        if form.is_valid():
+            # Form is valid, process the data
             parish = form.save(commit=False) 
             parish.save()
-            
             messages.success(request, 'Parish updated successfully.')
             return redirect('approved')  # Redirect to success page or any other URL
         else:
-            messages.error(request, 'Something went wrong, Please try again.')
+            # Form is invalid, print errors for debugging
+            print(form.errors)  # This will print validation errors to the console
+            messages.error(request, 'Form validation failed. Please check the errors below.')
     else:
-        form = ParishRegForm1(instance=parish)  # Define parish_form for non-POST requests
+        form = ParishRegForm1(instance=parish)
         
         
     return render(request, 'ParishRestructure/edit_regparish.html', {'form': form})
@@ -216,7 +220,7 @@ def edit_reg_parish(request, pk):
 @login_required  
 def regparish(request):
     if request.method == 'POST':
-        preg_form = ParishRegForm1(request.POST)
+        preg_form = ParishRegForm1(request.POST, request.FILES)
         if preg_form.is_valid(): 
             parishinfo = preg_form.save(commit=False)
             parishinfo.save()
