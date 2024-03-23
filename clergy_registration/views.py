@@ -11,19 +11,18 @@ from django.contrib.auth.decorators import login_required
 
 
 
-@user_passes_test(lambda u: u.groups.filter(name='Clergyadmin').exists())
+def is_clergy_admin(user):
+    return user.groups.filter(name='Clergyadmin').exists() or user.is_superuser
+
+@user_passes_test(is_clergy_admin)
 @login_required
 def dashboard(request):
     return render(request, 'clergy_reg/index.html')
 
 @login_required
-class register_clergy(CreateView):
-    def get(self, request):
-        form = ClergyRegistrationForm()
-        return render(request, 'clergy_reg/add_clergy.html', {'form': form})
-    
-    def post(self, request):
-        form = ClergyRegistrationForm(request.POST)
+def register_clergy(request):
+    if request.method == 'POST':
+        form = ClergyRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             # save the form data to the ClergyDetails model
             clergy_data = form.save(commit=False)
@@ -33,6 +32,10 @@ class register_clergy(CreateView):
         else:
             print(form.errors)
             return render(request, 'clergy_reg/add_clergy.html', {'form': form})
+    else:
+        form = ClergyRegistrationForm()
+        return render(request, 'clergy_reg/add_clergy.html', {'form': form})
+
         
 
 @login_required
@@ -45,9 +48,10 @@ def all_clergy(request):
 def view_clergy(request, id):
     # Retrieve the ClergyDetails object based on the clergy_id
     clergy = get_object_or_404(ClergyDetails, clergy_id=id)
+    form = ClergyRegistrationForm(instance=clergy)
     
     # Pass the retrieved object to the template context
-    return render(request, 'clergy_reg/view_clergy.html', {'clergy': clergy})
+    return render(request, 'clergy_reg/view_clergy.html', {'clergy': clergy, 'form': form})
 
 @login_required
 def edit_clergy(request, id):

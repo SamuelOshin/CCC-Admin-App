@@ -91,9 +91,9 @@ def get_all_parishes_in_children(location):
 
 @login_required  
 def view_parishes(request):
-    locations = Location.objects.all()
+    locations = LocationForm(request.POST)
     if request.method == 'POST':
-        location_id = request.POST.get('location')
+        location_id = request.POST.get('parent')
         selected_location = Location.objects.get(pk=location_id)
         parishes = get_all_parishes_in_children(selected_location)
         

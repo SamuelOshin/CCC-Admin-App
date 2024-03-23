@@ -11,11 +11,8 @@
 
             <form method="post" action="{% url 'view_parishes' %}" id="myForm">
                 {% csrf_token %}
-                <select name="location" class="form-select border-primary border-3  ">
-                    {% for location in locations %}
-                        <option value="{{ location.id }}">{{ location.name }}</option>
-                    {% endfor %}
-                </select>
+                <label class="form-label fw-bold " >Select One</label>
+                {% render_field locations.parent class="form-select" %}
                 <button type="submit" class="btn btn-primary my-2">Submit</button>
             </form>
 
@@ -65,7 +62,7 @@
                     </div>
                 </div>   
                 
-            
+                
 
             {% endif %}
             {% if messages %}
