@@ -41,7 +41,7 @@ class ParishRegistration(models.Model):
     date_approved = models.DateTimeField(null=True, blank=True)
     date_issued_certificate = models.DateTimeField(null=True, blank=True)
     notes = models.CharField(max_length=255, null=True, blank=True)
-    parish_picture = models.ImageField(upload_to='parish_pic', null=True, blank=True)
+    parish_picture = models.ImageField(upload_to='parish_pic', null=True, blank=True, default='parish_pic/default.jpg')
     application_for_registration = models.BooleanField(default=False)
     original_receipt_of_land = models.BooleanField(default=False)
     original_survey_plan = models.BooleanField(default=False)

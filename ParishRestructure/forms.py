@@ -1,5 +1,6 @@
 from django import forms
 from .models import Location, ParishRestructure, ParishRegistration, ParishDirectory
+from django.db.models import Q
 
 class ParishDirectoryForm(forms.ModelForm):
     # name = forms.ModelChoiceField(queryset=ParishDirectory.objects.all(), empty_label=None)
@@ -9,34 +10,30 @@ class ParishDirectoryForm(forms.ModelForm):
         model = ParishDirectory
         fields = ['name', 'address']
 
+from django import forms
+from .models import ParishRestructure, ParishDirectory, Location
+
 class ParishForm(forms.ModelForm):
     parish = forms.ModelChoiceField(queryset=ParishDirectory.objects.order_by('name'))
     diocese = forms.ModelChoiceField(queryset=Location.objects.filter(level='diocese'), empty_label="Select Diocese")
     region = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Region", required=False)
     area = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Area", required=False)
+    district = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select District", required=False)
+    circuit = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Circuit", required=False)
 
     class Meta:
         model = ParishRestructure
         fields = ['parish', 'address']
 
-    def clean(self):
-        cleaned_data = super().clean()
-        diocese = cleaned_data.get('diocese')
-        region = cleaned_data.get('region')
-        area = cleaned_data.get('area')
-
-        if not region and not area and diocese:
-            # If diocese is selected and no region or area is selected, set location to diocese
-            cleaned_data['location'] = diocese
-
-        elif not area and region:
-            # If region is selected but no area is selected, set location to region
-            cleaned_data['location'] = region
-
-        return cleaned_data
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['region'].queryset = Location.objects.none()
+        self.fields['area'].queryset = Location.objects.none()
+         # Modify region field queryset to include special option
+        self.fields['district'].queryset = Location.objects.filter(
+            Q(level='district') | Q(name='Special District')
+        )
+        self.fields['circuit'].queryset = Location.objects.none()
 
         if 'diocese' in self.data:
             try:
@@ -53,6 +50,43 @@ class ParishForm(forms.ModelForm):
                 self.fields['area'].queryset = areas
             except (ValueError, TypeError):
                 pass
+
+        if 'area' in self.data:
+            try:
+                area_id = int(self.data.get('area'))
+                districts = Location.objects.filter(parent_id=area_id, level='district')
+                self.fields['district'].queryset = districts
+            except (ValueError, TypeError):
+                pass
+
+        if 'district' in self.data:
+            try:
+                district_id = int(self.data.get('district'))
+                circuits = Location.objects.filter(parent_id=district_id, level='circuit')
+                self.fields['circuit'].queryset = circuits
+            except (ValueError, TypeError):
+                pass
+
+    def clean(self):
+        cleaned_data = super().clean()
+        diocese = cleaned_data.get('diocese')
+        region = cleaned_data.get('region')
+        area = cleaned_data.get('area')
+        district = cleaned_data.get('district')
+        circuit = cleaned_data.get('circuit')
+
+        if not region and not area and not district and not circuit and diocese:
+            cleaned_data['location'] = diocese
+        elif not area and not district and not circuit and region:
+            cleaned_data['location'] = region
+        elif not district and not circuit and area:
+            cleaned_data['location'] = area
+        elif not circuit and district:
+            cleaned_data['location'] = district
+        elif circuit:
+            cleaned_data['location'] = circuit
+
+        return cleaned_data
 
 
 
