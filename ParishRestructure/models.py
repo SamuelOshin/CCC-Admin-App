@@ -4,10 +4,12 @@ class Location(models.Model):
     LEVEL_CHOICES = [
         ('continent', 'Continent'),
         ('diocese', 'Diocese'),
+        ('archdiocese', 'Arch Diocese'),
         ('region', 'Region'),
         ('state', 'State'),
         ('area', 'Area'),
         ('district', 'District'),
+        ('specialdistrict', 'Special District'),
         ('circuit', 'Circuit'),
         ('parish', 'Parish'),
     ]

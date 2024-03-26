@@ -19,6 +19,7 @@ urlpatterns = [
     path('view_parishes/', views.view_parishes, name='view_parishes'),
     path('edit_parish/<int:pk>/', views.edit_parish, name='edit_parish'),   
     path('delete_parish/<int:pk>/', views.delete_parish, name='delete_parish'),
+    path('delete_p/<int:pk>/', views.delete_restructure, name='delete_p'),
     path('get_regions_and_areas/', views.get_regions_and_areas, name='get_regions_and_areas'),
     path('view_parish/<int:pk>/', views.view_parish, name='view_parish'),
     path('view/<int:pk>/', views.view_parishh, name='view_parishh'),

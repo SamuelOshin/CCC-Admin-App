@@ -22,13 +22,20 @@
                 <form method="POST" enctype="multipart/form-data" class="form-group">
                     {% csrf_token %}
                     <div class="row">
+                        {{ form.non_field_errors }}                    
+                    
+
                         {% for field in form %}
-                    <div class="fieldWrapper mb-1">
-                        {% if field.field.widget.input_type != 'checkbox' %}
+                        <div class="fieldWrapper mb-1">
+                            {% if field.field.widget.input_type != 'checkbox' %}
                             {{ field.label_tag }}
-                            {{ field|add_class:"form-control" }}
-                            {{field.errors}}
+                            {% if field.field.widget.input_type == 'select' %}
+                                {{ field|add_class:"mb-2 form-select" }}
                             {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+                            {{ field.errors }}
+                        {% else %}
                             <div class="form-check">
                                 {{ field.label_tag }}
                                 {{ field.field.widget.attrs.checked }}
@@ -36,8 +43,9 @@
                                 {{ field.errors }}
                             </div>
                         {% endif %}
-                    </div>
-                    {% endfor %}
+                        
+                        </div>
+                        {% endfor %}
                     </div>
                     <button type="submit"  value="Submit" class="btn btn-primary mt-3">Submit</button>
                     <a href="{% url 'view_parishes' %}" class="btn btn-danger  mt-3">Cancel</a>
