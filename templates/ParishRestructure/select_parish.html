@@ -50,7 +50,7 @@
                                                    <td>
                                                         <a href="{% url 'edit_parish' parish.id %}" title="Edit Parish" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen-to-square fa-xs"></i></a>
                                                         <a href="{% url 'view_parishh' parish.id %}" title="View Parish" class="btn btn-primary btn-sm"><i class="fa-solid fa-eye fa-xs"></i></a>
-                                                        <a href="{% url 'delete_parish' parish.id %}" title="Delete" onclick="return confirm('Are you sure you want to delete this parish? ')" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash fa-xs"></i></a>
+                                                        <a href="{% url 'delete_p' parish.id %}" title="Delete" onclick="return confirm('Are you sure you want to delete this parish? ')" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash fa-xs"></i></a>
                                                     </td>
                                                 </tr>
                                             {% endfor %}

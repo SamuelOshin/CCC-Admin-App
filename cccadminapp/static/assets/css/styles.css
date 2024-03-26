@@ -539,4 +539,8 @@ footer > .container > strong{
 .plus-icon{
   padding: 5px;
 }
+.pic-card{
+  display: none;
+}
+
 }

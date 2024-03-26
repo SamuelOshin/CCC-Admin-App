@@ -15,7 +15,7 @@ from .models import ParishRestructure, ParishDirectory, Location
 
 class ParishForm(forms.ModelForm):
     parish = forms.ModelChoiceField(queryset=ParishDirectory.objects.order_by('name'))
-    diocese = forms.ModelChoiceField(queryset=Location.objects.filter(level='diocese'), empty_label="Select Diocese")
+    diocese = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Diocese")
     region = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Region", required=False)
     area = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Area", required=False)
     district = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select District", required=False)
@@ -27,11 +27,14 @@ class ParishForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['diocese'].queryset = Location.objects.filter(
+            Q(name='Arch Diocese') | Q(level='diocese')
+        ).order_by('name')
         self.fields['region'].queryset = Location.objects.none()
         self.fields['area'].queryset = Location.objects.none()
          # Modify region field queryset to include special option
         self.fields['district'].queryset = Location.objects.filter(
-            Q(level='district') | Q(name='Special District')
+            Q(name='Special District') | Q(level='district')
         )
         self.fields['circuit'].queryset = Location.objects.none()
 

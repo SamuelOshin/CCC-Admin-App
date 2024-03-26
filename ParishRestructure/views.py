@@ -74,18 +74,27 @@ def add_location(request):
 def get_all_parishes_in_children(location):
     parishes = []
     
-    # Recursively traverse the hierarchy of child locations
-    for child_location in location.children.all():
-        # Retrieve all parishes associated with the current child location
-        child_location_parishes = child_location.parishrestructure_set.all()
+    # Check if the location is "Arch Diocese" or "Special District"
+    if location.level in ['archdiocese', 'specialdistrict']:
+        # Retrieve all parishes associated with the current location
+        location_parishes = location.parishrestructure_set.all()
         
-        # Extend the list of parishes with the parishes from the current child location
-        parishes.extend(child_location_parishes)
-        
-        # Recursively collect parishes from the child location's children
-        parishes.extend(get_all_parishes_in_children(child_location))
+        # Extend the list of parishes with the parishes from the current location
+        parishes.extend(location_parishes)
+    else:
+        # Recursively traverse the hierarchy of child locations
+        for child_location in location.children.all():
+            # Retrieve all parishes associated with the current child location
+            child_location_parishes = child_location.parishrestructure_set.all()
+            
+            # Extend the list of parishes with the parishes from the current child location
+            parishes.extend(child_location_parishes)
+            
+            # Recursively collect parishes from the child location's children
+            parishes.extend(get_all_parishes_in_children(child_location))
     
     return parishes
+
 
 
 
@@ -132,7 +141,7 @@ def edit_parish_reg(request, pk):
 def edit_parish(request, pk):
     parish = get_object_or_404(ParishRestructure, pk=pk)
     if request.method == 'POST':
-        form = ParishForm(request.POST)
+        form = ParishForm(request.POST, instance=parish)
         if form.is_valid(): 
             parish_instance = form.save(commit=False)
 
@@ -149,12 +158,20 @@ def edit_parish(request, pk):
     form = ParishForm(instance=parish)
     return render(request, 'ParishRestructure/edit_parish.html', {'form': form})
 
+
+def delete_restructure(request, pk):
+    parish = get_object_or_404(ParishRestructure, pk=pk)
+    parish.delete()
+    messages.warning(request, 'Parish deleted successfully.')
+    return redirect('view_parishes')
+
+
 # Delete Parish fo all parish data table
 @login_required  
 def delete_parish(request, pk):
     parish = get_object_or_404(ParishDirectory, pk=pk)
     parish.delete()
-    messages.success(request, 'Parish deleted successfully.')
+    messages.warning(request, 'Parish deleted successfully.')
     return redirect('parish_dashboard')
 
 # View Parish fo all parish data table
