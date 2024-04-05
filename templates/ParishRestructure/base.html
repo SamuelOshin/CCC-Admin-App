@@ -75,7 +75,7 @@
                                     type="button" style="background: #255cfe;"><i class="fas fa-search"></i></button>
                             </div>
                         </form>
-                        <ul class="navbar-nav flex-nowrap me-auto">
+                        <ul class="navbar-nav flex-nowrap">
                             <li class="nav-item dropdown d-sm-none no-arrow"><a class="dropdown-toggle nav-link"
                                     aria-expanded="false" data-bs-toggle="dropdown" href="#"><i
                                         class="fas fa-search"></i></a>
@@ -190,11 +190,11 @@
                                         aria-expanded="false" data-bs-toggle="dropdown" href="#"><span
                                             class="d-none d-lg-inline me-2 text-primary  small">{{request.user.username}}</span><img
                                             class="border rounded-circle img-profile"
-                                            src="{% static 'assets/img/avatars/customer_480px.png' %}"></a>
+                                            src="{{ user.userprofile.pic.url }}" ></a>
                                     <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a
-                                            class="dropdown-item" href="#"><i
+                                            class="dropdown-item" href="{% url 'edit_profile' %}"><i
                                                 class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Profile</a><a
-                                            class="dropdown-item" href="#"><i
+                                            class="dropdown-item" href="{% url 'edit_profile' %}"><i
                                                 class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Settings</a>
                                                 {% if request.user.is_superuser %}
                                                 <a class="dropdown-item" href="{% url 'dashboard' %}"><i
@@ -249,51 +249,48 @@
         async defer>
     </script>
 
-    <script>
-
-        $(document).ready(function () {
+<script>
+    $(document).ready(function () {
             $('#clergyTable').DataTable({
                 scrollX: true,
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy', 'excel', 'pdf'
-                ]
+                dom: 'Bflrtip',
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
             });
+        
+
+       
+        $('#allparish').DataTable({
+                scrollX: true,
+                dom: 'Bflrtip',
+                columns: [null, { "searchable": true }, null, null, null],
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            });
+        
+
+        // Handle change event for file input inside #id_profile_picture
+        $('#id_profile_picture ').change(function () {
+            const file = this.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#profileImage').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
         });
 
-       
-            $('#allparish').DataTable({
-                scrollX: true,
-                dom: 'Bfrtip',
-                buttons: [
-                    'copy', 'excel', 'pdf'
-                ],
-                columns: [
-                    null,
-                    { "searchable": true },
-                    null,
-                    null,
-                    null
-                ]
-            });
+        // Handle change event for file input with ID #id_pic 
+        $('#id_pic').change(function () {
+            const file = this.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Handle the file change event as desired
+                $('#userImage').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
 
 
-
-
-        
-            $('#id_profile_picture').change(function () {
-                const file = this.files[0];
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#profileImage').attr('src', e.target.result);
-                }
-                reader.readAsDataURL(file);
-            });
-    
-
-       
-        
-    </script>
 
 
 </body>
