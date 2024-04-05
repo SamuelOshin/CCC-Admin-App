@@ -37,6 +37,13 @@
         }
       };
     });
+
+    // Hide sidebar on devices with a maximum width of 996px
+    var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    if (vw <= 996) {
+      document.body.classList.add('sidebar-toggled');
+      sidebar.classList.add('toggled');
+    }
   }
 
   // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
@@ -74,6 +81,7 @@
   }
 
 })(); // End of use strict
+
 
 document.addEventListener('DOMContentLoaded', function () {
   var dioceseSelect = document.getElementById('id_diocese');

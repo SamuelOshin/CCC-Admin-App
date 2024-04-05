@@ -92,6 +92,7 @@ footer {
 .sidebar {
   background-image: linear-gradient(180deg, #2222ddd1 10%, #d0185f 100%);
     background-size: cover;
+    transform: translateX(0);
 }
 
 .text-bg-primary{
@@ -516,9 +517,7 @@ footer > .container > strong{
   .content-wrapper{
     margin-left: 0px;
   }
-  .sidebar{
-    width: 11rem;
-  }
+
 
 .parish-content > a {
     text-decoration: none;
