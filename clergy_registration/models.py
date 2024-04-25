@@ -378,3 +378,104 @@ class ClergyDetails(models.Model):
 
     def __str__(self):
         return self.first_name + " " + self.last_name
+    
+
+
+class AnnointmentGazzette(models.Model):
+    clergy = models.ForeignKey(ClergyDetails, on_delete=models.PROTECT, null=True)
+    rank = models.CharField(max_length=50, choices=[
+            ('MALE RANK', (
+            ('', '--select--'),
+            ('Asst. Elder Bro', 'Asst. Elder Bro'),
+            ('Full. Elder Bro', 'Full. Elder Bro'),
+            ('Cape Elde Bro', 'Cape Elde Bro'),
+            ('Lace Elder Bro', 'Lace Elder Bro'),
+            ('Snr Elder Bro', 'Snr Elder Bro'),
+            ('Sup. Snr. Elder Brp', 'Sup. Snr. Elder Brp'),
+            ('Asst. Leader', 'Asst. Leader'),
+            ('Full Leader', 'Full Leader'),
+            ('Senior Leader', 'Senior Leader'),
+            ('Superior Leader', 'Superior Leader'),
+            ('Superior Snr. Leader', 'Superior Snr. Leader'),
+            ('Asst. Evangelist', 'Asst. Evangelist'),
+            ('Full Evngelist', 'Full Evngelist'),
+            ('Senior Evang', 'Senior Evang'),
+            ('Most Snr. Evangelist', 'Most Snr. Evangelist'),
+            ('Ven. Snr. Evang', 'Ven. Snr. Evang'),
+            ('Asst. Sup Evangelist', 'Asst. Sup Evangelist'),
+            ('Ven. Sup Evang', 'Ven. Sup Evang'),
+            ('Asst. Most Sup Evang', 'Asst. Most Sup Evang'),
+            ('Most Sup Evang', 'Most Sup Evang'),
+        )),
+        ('PROPHETS', (
+            ('One Cross Prophet', 'One Cross Prophet'),
+            ('Cape Prophet', 'Cape Prophet'),
+            ('Lace Prophet', 'Lace Prophet'),
+            ('Snr Prophet(Wolider)', 'Snr Prophet(Wolider)'),
+            ('Sup Prophet(Wolider)', 'Sup Prophet(Wolider)'),
+            ('Sup. Snr Prophet(Wolider)', 'Sup. Snr Prophet(Wolider)'),
+        )),
+        ('FEMALE RANK', (
+            ('Asst. Elder Sister', 'Asst. Elder Sister'),
+            ('Elder Sister', 'Elder Sister'),
+            ('Cape Elder Sister', 'Cape Elder Sister'),
+            ('Lace Elder Sister', 'Lace Elder Sister'),
+            ('Snr Elder Sister', 'Snr Elder Sister'),
+            ('Sup. Snr Elder Sister', 'Sup. Snr Elder Sister'),
+            ('lace Sup Elder Sister', 'lace Sup Elder Sister'),
+            ('Lace Sup. Snr Elder Sister', 'Lace Sup. Snr Elder Sister'),
+            ('Mother Celestial', 'Mother Celestial'),
+        )),
+        ('PROPHETESS', (
+            ('One Cross Prophetess', 'One Cross Prophetess'),
+            ('Cape Prophetess', 'Cape Prophetess'),
+            ('Lace Prophetess', 'Lace Prophetess'),
+            ('Snr Prophetess(Wolima)', 'Snr Prophetess(Wolima)'),
+            ('Sup Prophetess(Wolima)', 'Sup Prophetess(Wolima)'),
+            ('Sup. Snr. Prophetess(Wolima)', 'Sup. Snr. Prophetess(Wolima)'),
+        )),
+    ], error_messages={'required': 'Please select the first annointment.'})
+    year_of_annointment = models.IntegerField()
+    month_of_annointment  = models.CharField(max_length=20, choices=[
+        ('January','January'),
+        ('February','February'),
+        ('March','March'),
+        ('April','April'),
+        ('May','May'),
+        ('June','June'),
+        ('July','July'),
+        ('August','August'),
+        ('September','September'),
+        ('October','October'),  
+        ('November','November'),
+        ('December','December'),
+    ], error_messages={'required': 'Please enter the month of your annointing.'})
+    place_of_annoitment = models.CharField(max_length=50, choices=[
+        (None,'--- Please Select ---'),
+        ("CCC Int'l Hqtrs",  "CCC International Headquarters"),
+        ("CCC National Hqtrs", "CCC National Headquarters"),
+        ("CCC W/W Hqtrs", "CCC Worldwide Headquarters"),
+        ("CCC Supreme Hqqtrs", "CCC Supreme Headquarters"),
+        ("United Kingdom", "UK - London"),
+        ("USA","United State of America"),
+        ("Canada","Canada"),
+        ("U.A.E", "United Arab Emirates"),
+        ("Europe", "Europe"),
+        ("Francophone", "France / Francophone Africa"),
+        ("SA", "South Africa"),
+        ("Egypt", "Egypt"),
+        ("Isreal", "Isreal"),
+    ])
+    annoiter = models.CharField(max_length=40, choices=[
+        (None,"--- Please Enter Annoiter Name ---"),
+        ("Rev. Founder S.J.B Oshoffa", "Rev. Founder S.J.B Oshoffa"),
+        ("Rev A.A Bada",  "Rev. A.A Bada"),
+        ("Rev. P.H Ajose", "Rev. P.H Ajose"),
+        ("Rev. EMF Oshoffa", "Rev. EMF Oshoffa"),
+    ])
+
+    class Meta:
+        db_table = 'AnnointmentGazzette'
+
+    def __str__(self):
+        return f" Annointment Gazzette for {self.rank} on {self.year_of_annointment}"

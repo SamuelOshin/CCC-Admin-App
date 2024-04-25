@@ -10,8 +10,10 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('all_clergy', views.all_clergy, name="all_clergy"),
     path('<int:id>', views.view_clergy, name='view_clergy'),
+    path('save/<int:id>', views.view_profile, name='view_profile'),
     path('edit/<int:id>', views.edit_clergy, name='edit_clergy'),
     path('delete/<int:id>', views.delete_clergy, name='delete_clergy'),
+    path('view-annointments/<int:id>', views.view_and_add_annointment, name='view-and-add-annointment'),
     
     # path('submit/', views.handle_clergy_registration, name='submit_form'),
 

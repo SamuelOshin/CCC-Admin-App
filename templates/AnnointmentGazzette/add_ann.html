@@ -1,0 +1,50 @@
+{% load widget_tweaks %}
+<div class="col-md-12 ">
+    <div class="card shadow mb-3">
+        <div class="card-header py-3">
+            <p class="m-0 fw-bold" id="text-blue">Add Anointment Detail for {{ clergy }}</p>
+        </div>
+        <div class="cardd">
+            <div class="card-body">
+                <form method="post"  enctype = "multipart/form-data">
+                    {% csrf_token %}
+                    
+                   
+                    {{ annform.non_field_errors }}                    
+                    
+                    
+                    {% for field in annform %}
+                    <div class="fieldWrapper mb-1">
+                        {% if field.field.widget.input_type != 'checkbox' %}
+                            {{ field.label_tag }}
+                            {% if field.field.widget.input_type == 'date' %}
+                                {{ field|add_class:"form-control" }}
+                                {{ field.field.widget.attrs|add:'type:date' }}
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+                            {{ field.errors }}
+                        {% else %}
+                            <div class="form-check">
+                                {{ field.label_tag }}
+                                {{ field.field.widget.attrs.checked }}
+                                {{ field|add_class:"form-check-input" }}
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}    
+                    <button type="submit" class="btn btn-primary mt-2">Add</button>
+                    <a href="{% url 'parish_dashboard' %}" class="btn btn-danger  mt-2">Cancel</a>
+                
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>    
+        
+    
+</div>
+</div>  
+</form>  
