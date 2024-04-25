@@ -29,6 +29,7 @@
                                 <th class="text-center ">Email</th>
                                 <th class="text-center ">Mobile Number</th>
                                 <th class="text-center ">Present Annointment</th>
+                                <th class="text-center">Annontments</th>
                                 
                             </tr>
                         </thead>
@@ -36,7 +37,7 @@
                             {% for clergy in all_clergy %}
                             <tr>
                                 <td class="d-flex">
-                                    <a href="{% url 'view_clergy' clergy.clergy_id %}" class="btn btn-primary btn pe-3  me-1" title="View clergys data"> <i class="fa-solid fa-eye  fa-xs"></i></a>
+                                    <a href="{% url 'view_profile' clergy.clergy_id %}" class="btn btn-primary btn pe-3  me-1" title="View clergys data"> <i class="fa-solid fa-eye  fa-xs"></i></a>
                                     <a href="{% url 'edit_clergy' clergy.clergy_id %}" class="btn btn-success btn pe-3 me-1" title="Edit clergys data"> <i class="fa-solid fa-pen-to-square fa-xs"></i></a>
                                     <a href="{% url 'delete_clergy' clergy.clergy_id %}" onclick="return confirm('Are you sure you want to delete this clergy? ')" class="btn btn-danger btn-sm pe-3 " title="Delete clergys data"> <i class="fa-solid fa-trash fa-xs"></i></a>
                                 </td>
@@ -47,6 +48,7 @@
                                 <td>{{ clergy.email_address }}</td>
                                 <td>{{ clergy.telephone}}</td>
                                 <td>{{ clergy.present_annointment }}</td>
+                                <td><a href="{% url 'view-and-add-annointment' clergy.clergy_id %}">View annointment Details</a></td>
                                 
                             </tr>
                             {% endfor %}

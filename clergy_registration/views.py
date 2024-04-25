@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
-from .forms import ClergyRegistrationForm
-from .models import ClergyDetails
+from .forms import ClergyRegistrationForm, AnnointmentForm
+from .models import ClergyDetails, AnnointmentGazzette
 from django.http import HttpResponseRedirect
 from django.views.generic import CreateView
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 
@@ -90,3 +91,46 @@ def delete_clergy(request, id):
     
     # Redirect to a new URL:
     return redirect('all_clergy')
+
+
+def view_profile(request, id):
+    # Retrieve the ClergyDetails object based on the clergy_id
+    clergy = get_object_or_404(ClergyDetails, clergy_id=id)
+    form = ClergyRegistrationForm(instance=clergy)
+    
+    # Pass the retrieved object to the template context
+    return render(request, 'clergy_reg/profile.html', {'clergy': clergy, 'form': form})
+
+
+def view_and_add_annointment(request, id):
+    # Get clergy details
+    clergy = get_object_or_404(ClergyDetails, clergy_id=id)
+    
+    if request.method == 'POST':
+        # If it's a POST request, handle the form submission
+        annform = AnnointmentForm(request.POST, request.FILES)
+        if annform.is_valid():
+            # Save the annointment details
+            anninfo = annform.save(commit=False)
+            anninfo.clergy = clergy  # Associate the annointment with the clergy
+            anninfo.save()
+            messages.success(request, 'Annointment Detail added Successfully.')
+            return redirect('view-and-add-annointment', id=id)  # Redirect to the same page after successful submission
+        else:
+            # If form is not valid, show error messages
+            messages.error(request, 'Something went wrong, Please try again.')
+    else:
+        # If it's a GET request, display the annointment details and form
+        annform = AnnointmentForm(initial={'clergy': clergy})
+    
+    # Get all the annointments associated with the clergy
+    annointments = AnnointmentGazzette.objects.filter(clergy=clergy)
+    
+
+    context = {
+        'clergy': clergy,
+        'annointments': annointments,
+        'annform': annform,
+    }
+    
+    return render(request, 'AnnointmentGazzette/view_ann.html', context)

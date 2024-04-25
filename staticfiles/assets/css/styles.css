@@ -152,6 +152,10 @@ footer {
   
 }
 
+.form-control{
+  font-size: .86rem;
+}
+
 td{
   text-align: center;
 }
@@ -358,11 +362,8 @@ body {
 }
 
 .parish-details-card{
-  /* border-radius: 10px; */
-  /* box-shadow: 3px 8px 15px rgba(0,0,0,.35); */
   transition: all .3s ease;
   background-color: #fff;
-  display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px;

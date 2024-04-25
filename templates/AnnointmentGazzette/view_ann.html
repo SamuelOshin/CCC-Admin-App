@@ -1,0 +1,116 @@
+{% extends 'clergy_reg/base.html' %}
+{% include 'clergy_reg/head.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <div class="container">
+        <h3 class="text-light text-bg-primary mb-4">
+                <strong>ANNOINTMENT GAZZETTE</strong> 
+        </h3>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-body text-center shadow">
+                            <img class="rounded-circle mb-3 mt-4" src="{{ clergy.profile_picture.url  }}" width="160" height="160">
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-lg-8">
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="text-primary m-0 fw-bold">Bio Data</p>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="mb-3"><label class="form-label" for="reg_number"><strong>Registration Number</strong></label><input type="text" id="reg_number" class="form-control" name="reg_number" value="{{ clergy.reg_number }}" readonly></div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="mb-3"><label class="form-label" for="email"><strong>Email Address</strong></label><input type="text" class="form-control" value="{{ clergy.email_address }}" readonly></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="mb-3"><label class="form-label" for="first_name"><strong>First Name</strong></label><input type="text" class="form-control" value="{{ clergy.first_name }}" readonly></div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="mb-3"><label class="form-label" for="last_name"><strong>Last Name</strong></label><input type="text" class="form-control" value="{{ clergy.last_name}}" readonly></div>
+                                    </div>
+                                   
+                                </div>
+                                <div class="row>">
+                                    <div class="col">
+                                        <div class="mb-3"><label class="form-label" for="id_present_annointment"><strong>Present Annointment</strong></label><input type="text" class="form-control" value="{{ clergy.present_annointment}}" readonly></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+    
+                </div>
+                <div class="col-12 ">
+                    
+                    
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <p class="m-0 fw-bold" id="text-blue">Anointment Details for {{ clergy }}</p>
+                        </div>
+                        
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered  clergyTable" id="clergyTable" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center ">S/N</th>
+                                                <th class="text-center ">Rank</th>
+                                                <th class="text-center ">Month of Annointment</th>
+                                                <th class="text-center ">Year of Annointment</th>
+                                                <th class="text-center ">Place of Annointment</th>
+                                                <th class="text-center ">Annointer</th>
+                                                <th class="text-center ">Action</th>
+                                                
+                                            </tr>
+                                        </thead> 
+                                        {% for annointment in annointments %}
+                                        <tbody>
+                                            
+                                       
+                                            <td class="fw-3">{{ forloop.counter }}</td>
+                                            <td class="text-center fw-3">{{ annointment.rank }}</td>
+                                            <td class="text-center fw-3">{{ annointment.month_of_annointment }}</td>
+                                            <td class="text-center fw-3">{{ annointment.year_of_annointment }}</td>
+                                            <td class="text-center fw-3">{{ annointment.place_of_annoitment }}</td>
+                                            <td class="text-center fw-3">{{ annointment.annoiter }}</td>
+                                            <td class="text-center fw-3">Action button/link here</td> 
+                                        
+                                        </tbody>
+                                        {% endfor %}
+                                    </table>
+                                  
+                            </div>
+                        
+                        
+                    </div>
+                        
+                    
+                </div>  
+</div>
+{% include 'AnnointmentGazzette/add_ann.html' %}
+{% endblock %}
