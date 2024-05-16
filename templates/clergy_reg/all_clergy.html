@@ -22,13 +22,11 @@
                         <thead>
                             <tr>
                                 <th class="text-center ">Actions</th>
-                                <th class="text-center ">Last Name</th>
-                                <th class="text-center ">First Name</th>
+                                <th class="text-center ">Name</th>
 
                                 <th class="text-center ">Registration No</th>
                                 <th class="text-center ">Email</th>
                                 <th class="text-center ">Mobile Number</th>
-                                <th class="text-center ">Present Annointment</th>
                                 <th class="text-center">Annontments</th>
                                 
                             </tr>
@@ -36,18 +34,24 @@
                         <tbody>
                             {% for clergy in all_clergy %}
                             <tr>
-                                <td class="d-flex">
+                                <td class="">
                                     <a href="{% url 'view_profile' clergy.clergy_id %}" class="btn btn-primary btn pe-3  me-1" title="View clergys data"> <i class="fa-solid fa-eye  fa-xs"></i></a>
                                     <a href="{% url 'edit_clergy' clergy.clergy_id %}" class="btn btn-success btn pe-3 me-1" title="Edit clergys data"> <i class="fa-solid fa-pen-to-square fa-xs"></i></a>
                                     <a href="{% url 'delete_clergy' clergy.clergy_id %}" onclick="return confirm('Are you sure you want to delete this clergy? ')" class="btn btn-danger btn-sm pe-3 " title="Delete clergys data"> <i class="fa-solid fa-trash fa-xs"></i></a>
                                 </td>
-                                <td>{{ clergy.last_name }}</td>
-                                <td>{{ clergy.first_name }}</td>
+                                <td>
+                                    <div class="">
+                                        <div class="position-relative me-3">
+                                            <img class="rounded-circle" src="{{ clergy.profile_picture.url }}" style="max-width: 30px; max-height: 100px;">
+                                            
+                                        </div>
+                                        <p class="fw-semibold ">{{ clergy }}</p>
+                                    </div>
+                                </td>
 
                                 <td>{{ clergy.reg_number }}</td>
                                 <td>{{ clergy.email_address }}</td>
                                 <td>{{ clergy.telephone}}</td>
-                                <td>{{ clergy.present_annointment }}</td>
                                 <td><a href="{% url 'view-and-add-annointment' clergy.clergy_id %}">View annointment Details</a></td>
                                 
                             </tr>

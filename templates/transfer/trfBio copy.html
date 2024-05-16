@@ -1,0 +1,53 @@
+<div class="card-body">
+    <div class="row mb-3">
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-body text-center shadow">
+                    <img class="rounded-circle mb-3 mt-4" src="{{ clergy.profile_picture.url }}" width="160"
+                        height="160">
+                    <p class="text-black fw-semibold fs-6 ">Name: {{clergy.first_name}} {{clergy.last_name}}</p>
+                    <p class="text-black fw-semibold fs-6 ">Reg No: {{clergy.reg_number}}</p>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col">
+            <div class="cardd shadow mb-3">
+                <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3"><label class="form-label" for="id_username"><strong>Email
+                                            Address</strong></label><input type="text" class="form-control"
+                                        value="{{ clergy.email_address }}" readonly></div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3"><label class="form-label" for="email"><strong>Phone
+                                            Number</strong></label><input type="text" class="form-control"
+                                        value="{{ clergy.telephone }}" readonly></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3"><label class="form-label"><strong>Rank</strong></label><input
+                                        type="text" class="form-control" value="{{ clergy.present_annointment }}"
+                                        readonly></div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3"><label class="form-label"><strong>DOB</strong></label><input
+                                        type="text" class="form-control" value="{{ clergy.dob }}" readonly></div>
+                            </div>
+
+                        </div>
+                        
+                </div>
+                
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+</div>

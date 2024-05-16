@@ -24,7 +24,9 @@ class ParishForm(forms.ModelForm):
     class Meta:
         model = ParishRestructure
         fields = ['parish', 'address']
-
+        widgets = {
+        'parish': forms.Select(attrs={'class': 'form-control parishSelect'}),
+        }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['diocese'].queryset = Location.objects.filter(
@@ -127,6 +129,10 @@ class ParishRegForm(forms.ModelForm):
     class Meta:
         model = ParishRegistration
         fields = [ 'country', 'state', 'city', 'diocese', 'founding_patron','date_of_establishment', 'name_of_shepherd', 'phone', 'email', 'parish_picture', 'application_for_registration', 'original_receipt_of_land', 'original_survey_plan', 'building_plan', 'sworn_affidavit', 'passport_photograph', 'approval_from_government_diaspora', 'payment_proof_of_auditorium' ]
+        widgets = {
+            'parish': forms.Select(attrs={'class': 'form-control parishSelect'}),
+            'parish_picture': forms.FileInput(attrs={'accept': 'image/*'})
+        }
     def __init__(self, *args, **kwargs):
          super().__init__(*args, **kwargs) 
 
@@ -139,6 +145,7 @@ class ParishRegForm1(forms.ModelForm):
         model = ParishRegistration
         fields = [ 'parish', 'country', 'state', 'city', 'diocese', 'founding_patron','date_of_establishment', 'name_of_shepherd', 'phone', 'email', 'parish_picture', 'application_for_registration', 'original_receipt_of_land', 'original_survey_plan', 'building_plan', 'sworn_affidavit', 'passport_photograph', 'approval_from_government_diaspora', 'payment_proof_of_auditorium' ]
         widgets = {
+            'parish': forms.Select(attrs={'class': 'form-control parishSelect'}),
             'parish_picture': forms.FileInput(attrs={'accept': 'image/*'})
         }
         enctype = 'multipart/form-data'
@@ -149,14 +156,3 @@ class ParishRegForm1(forms.ModelForm):
 
 
         
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['parent'].queryset = Location.objects.filter(level='continent')
-    #     self.fields['level'].widget.attrs['readonly'] = True
-    #     self.fields['level'].widget.attrs['disabled'] = True
-    #     self.fields['level'].widget.attrs['value'] = 'region'
-    #     self.fields['level'].initial = 'region'
-    #     self.fields['level'].disabled = True
-    #     self.fields['level'].required = False
-    #     self.fields['level'].widget.attrs['required'] = False
-    #     self.fields['level'].widget.attrs['hidden'] = True

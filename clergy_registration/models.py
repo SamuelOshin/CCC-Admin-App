@@ -2,6 +2,7 @@
 
 from django.db import models
 from multiselectfield import MultiSelectField
+from django.apps import apps
 
 
 
@@ -205,7 +206,7 @@ class ClergyDetails(models.Model):
             ('Cape Elde Bro', 'Cape Elde Bro'),
             ('Lace Elder Bro', 'Lace Elder Bro'),
             ('Snr Elder Bro', 'Snr Elder Bro'),
-            ('Sup. Snr. Elder Brp', 'Sup. Snr. Elder Brp'),
+            ('Sup. Snr. Elder Bro', 'Sup. Snr. Elder Bro'),
             ('Asst. Leader', 'Asst. Leader'),
             ('Full Leader', 'Full Leader'),
             ('Senior Leader', 'Senior Leader'),
@@ -391,7 +392,7 @@ class AnnointmentGazzette(models.Model):
             ('Cape Elde Bro', 'Cape Elde Bro'),
             ('Lace Elder Bro', 'Lace Elder Bro'),
             ('Snr Elder Bro', 'Snr Elder Bro'),
-            ('Sup. Snr. Elder Brp', 'Sup. Snr. Elder Brp'),
+            ('Sup. Snr. Elder Bro', 'Sup. Snr. Elder Bro'),
             ('Asst. Leader', 'Asst. Leader'),
             ('Full Leader', 'Full Leader'),
             ('Senior Leader', 'Senior Leader'),

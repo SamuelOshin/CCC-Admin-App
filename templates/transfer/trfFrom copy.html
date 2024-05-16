@@ -1,0 +1,25 @@
+<div class="cardd">
+    <div class="card-body ">
+        <div class="row mb-3">
+            
+                <div class="col-10">
+                    <label class="form-label ">Parish</label>
+                    <input type="text" class="form-control" value="{{ transfer_form.instance.parishFrm }}" readonly>
+                    
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Parish Address</label>
+                    <input type="text" name="address" maxlength="500" class="form-control pac-target-input" required="" value="{{transfer_form.instance.parishFrm.address}}"  autocomplete="off" readonly>
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Parish Status</label>
+                    <input type="text" name="location" maxlength="500" class="form-control pac-target-input" required="" value="{{transfer_form.instance.parishFrm.location}}" placeholder="" autocomplete="off" readonly>
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Designation</label>
+                    {{transfer_form.designation_frm}}
+                </div>
+        
+        </div>
+    </div>
+</div>

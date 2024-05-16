@@ -12,7 +12,7 @@
             <form method="post" action="{% url 'view_parishes' %}" id="myForm">
                 {% csrf_token %}
                 <label class="form-label fw-bold " >Select One</label>
-                {% render_field locations.parent class="form-select" %}
+                {% render_field locations.parent class="form-select parishSelect" %}
                 <button type="submit" class="btn btn-primary my-2">Submit</button>
             </form>
 

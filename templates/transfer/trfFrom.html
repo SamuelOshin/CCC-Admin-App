@@ -1,0 +1,33 @@
+<div class="cardd">
+    <div class="card-body ">
+        <div class="row mb-3">
+            
+                <div class="col-10">
+                    <label class="form-label ">Parish</label>
+                    <select id="parishFrmId" class="parishSelect" name="parishFrm">
+                        <option>Select a parish</option>
+                        {% for parish in parishes %}
+                        <option value="{{ parish.id }}">{{ parish.parish }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" id="id_parishFrm" name="parishFrm">
+                    
+                    
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Parish Address</label>
+                    <input type="text" name="address" maxlength="500" class="form-control pac-target-input" required="" id="id_address"  autocomplete="off" readonly>
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Parish Status</label>
+                    <input type="text" name="location" maxlength="500" class="form-control pac-target-input" required="" id="id_location" placeholder="" autocomplete="off" readonly>
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Designation</label>
+                    {{transfer_form.designation_frm}}
+                </div>
+                
+            
+        </div>
+    </div>
+</div>

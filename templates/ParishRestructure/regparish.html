@@ -44,6 +44,8 @@
                         {% if field.field.widget.input_type == 'date' %}
                             {{ field|add_class:"form-control" }}
                             {{ field.field.widget.attrs|add:'type:date' }}
+                        {% elif field.field.widget.input_type == 'select' %}
+                            {{ field|add_class:"mb-2 form-select parishSelect" }}    
                         {% else %}
                             {{ field|add_class:"form-control" }}
                         {% endif %}

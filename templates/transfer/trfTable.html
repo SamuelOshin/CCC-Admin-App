@@ -1,0 +1,108 @@
+{% extends 'transfer/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="container">
+        <h3 class="text-light text-bg-primary mb-4">
+                <strong>Recently Transferred Clergy</strong>
+        </h3>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+           
+            
+                
+                <div class="row justify-content-center align-items-start">
+                    <div class="col-md-12">
+                        <div class="">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover table-bordered clergyTable" id="clergyTable">
+                                        <thead>
+                                            <tr>
+                                                <th>S/N</th>
+                                                <th>Name</th>
+                                                <th>Parish From</th>
+                                                <th>Designation</th>
+                                                <th>Parish To</th>
+                                                <th>Designation</th>
+                                                <th>Date Transferred</th>
+                                                <th>Status</th>
+                                                <th>Duration</th>
+                                                <th>Duration Left</th>
+                                                <th>Extended</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for transfer in trf_data_with_clergy %}
+                                            <tr>
+                                                <td>{{forloop.counter}}</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center flex-wrap justify-content-center ">
+                                                        <div class="position-relative me-3">
+                                                            <img class="rounded-circle" src="{{ transfer.clergy.profile_picture.url }}" style="max-width: 40px; max-height: 100px;">
+                                                            {% if transfer.trf_status == 'Pending' %}
+                                                            <div class="bg-warning status-indicator"></div>
+                                                            {% elif transfer.trf_status == 'Approved' %}
+                                                            <div class="bg-success status-indicator"></div>
+                                                            {% else %}
+                                                            <div class="bg-danger status-indicator"></div>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div><p class="fw-semibold ">{{ transfer.clergy }}</p></div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ transfer.parishFrm }}</td>
+                                                <td>{{ transfer.designation_frm }}</td>
+                                                <td>{{ transfer.parishTo }}</td>
+                                                <td>{{ transfer.designation_to }}</td>
+                                                <td>{{ transfer.date_transfered }}</td>
+                                                <td>
+                                                    {% if transfer.trf_status == 'Pending' %}
+                                                        <span class="badge text-bg-warning text-white">{{transfer.trf_status}}</span>
+                                                    {% elif transfer.trf_status == 'Approved' %}
+                                                        <span class="badge text-bg-success text-white">{{transfer.trf_status}}</span>
+                                                    {% else %}
+                                                        <span class="badge text-bg-danger text-white">{{transfer.trf_status}}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ transfer.days_in_position }} days</td>
+                                                <td>{{ transfer.days_left }} days</td>
+                                                {% if transfer.trf_extended %}
+                                                    <td><span class="badge text-bg-success  text-white">Yes</span></td>
+                                                {% else %}
+                                                    <td><span class="badge text-bg-danger text-white">No</span></td>
+                                                {% endif %}
+                                                <td>
+                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'update_transfer' transfer.id %}">Update</a> <!-- Add Update button/link -->
+                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'new_transfer' transfer.id %}">New</a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>   
+                
+            
+
+            
+                  
+        <div class="row justify-content-end">
+            <a href="{% url 't_dashboard' %}" class="btn btn-primary mt-3">Back to dashboard</a>
+        </div>
+    </div>
+
+    
+{% endblock %}
+

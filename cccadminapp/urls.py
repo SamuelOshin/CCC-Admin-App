@@ -12,6 +12,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('users.urls')),
     path('clergy/', include('clergy_registration.urls')),
+    path('transfer/',include("transfer.urls")),
     path('', include('ParishRestructure.urls')),
     
     

@@ -3,8 +3,11 @@ asgiref==3.7.2
 Brotli==1.1.0
 Django==4.2.5
 django-adminlte3==0.1.6
+django-appconf==1.0.6
+django-autocomplete-light==3.11.0
 django-bootstrap-datepicker-plus==5.0.5
 django-multiselectfield==0.1.12
+django-select2==8.1.2
 django-unfold==0.20.2
 django-widget-tweaks==1.5.0
 djangorestframework==3.14.0

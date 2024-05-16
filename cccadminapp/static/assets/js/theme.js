@@ -161,11 +161,36 @@ function onPlaceChanged() {
   // Display details about the valid place
   document.getElementById('details').innerHTML = place.name;
 }
-
 // Fetch address of the selected parish id
-document.getElementById("id_parish").addEventListener("change", function () {
-  var selectedParishId = this.value;
-  fetchParishAddress(selectedParishId);
+$('#parishFrmId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishAddresss(selectedParishId); // Fetch parish address
+});
+$('#parishToId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishAddresssTo(selectedParishId); // Fetch parish address
+});
+
+$('#parishFrmId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishLocation(selectedParishId); // Fetch parish address
+});
+$('#parishToId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishLocationI(selectedParishId); // Fetch parish address
+});
+$('#parishFrmId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParish(selectedParishId); // Fetch parish address
+});
+$('#parishToId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishI(selectedParishId); // Fetch parish address
+});
+
+$('#id_parish').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishAddress(selectedParishId); // Fetch parish address
 });
 
 function fetchParishAddress(parishId) {
@@ -175,5 +200,80 @@ function fetchParishAddress(parishId) {
       document.getElementById("id_address").value = data.address;
     })
     .catch(error => console.error('Error:', error));
-  console.log('Error:', error);
 }
+
+function fetchParishAddresss(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_address").value = data.address;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+function fetchParishAddresssTo(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_address_to").value = data.address;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+
+function fetchParishLocation(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_location").value = data.location;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+function fetchParishLocationI(parishToId) {
+  fetch(`transfer/api/parish/${parishToId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_location_to").value = data.location;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+function fetchParish(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_parishFrm").value = data.id;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+function fetchParishI(parishToId) {
+  fetch(`transfer/api/parish/${parishToId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_parishTo").value = data.id;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const alerts = document.querySelectorAll(".alert");
+  alerts.forEach(function(alert) {
+      setTimeout(function() {
+          alert.style.display = 'none';
+      }, 5000);
+  });
+});
+

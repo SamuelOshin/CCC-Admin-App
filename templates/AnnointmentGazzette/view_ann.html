@@ -6,6 +6,15 @@
 {% block content %}
 
     <div class="container">
+        <div class="d-flex justify-content-end ">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{% url 'all_clergy' %}">Clergy Directory</a></li>
+                
+                  <li class="breadcrumb-item active" aria-current="page">Annointment Gazzette</li>
+                </ol>
+              </nav>
+        </div>
         <h3 class="text-light text-bg-primary mb-4">
                 <strong>ANNOINTMENT GAZZETTE</strong> 
         </h3>
@@ -70,15 +79,16 @@
                     
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <p class="m-0 fw-bold" id="text-blue">Anointment Details for {{ clergy }}</p>
+                            <p class="m-0 fw-bold" id="text-blue">Anointment Details Table</p>
                         </div>
                         
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered  clergyTable" id="clergyTable" style="width:100%">
-                                        <thead>
+                                    <table class="table   clergyTable caption-top" id="clergyTable" style="width:100%">
+                                        <caption class="fw-bold " id="text-blue">Anointment Details for {{ clergy }}</caption>
+                                        <thead class="table-light">
                                             <tr>
-                                                <th class="text-center ">S/N</th>
+                                                <th class="text-center "></th>
                                                 <th class="text-center ">Rank</th>
                                                 <th class="text-center ">Month of Annointment</th>
                                                 <th class="text-center ">Year of Annointment</th>
@@ -89,7 +99,7 @@
                                             </tr>
                                         </thead> 
                                         {% for annointment in annointments %}
-                                        <tbody>
+                                        <tbody class="">
                                             
                                        
                                             <td class="fw-3">{{ forloop.counter }}</td>
@@ -98,7 +108,7 @@
                                             <td class="text-center fw-3">{{ annointment.year_of_annointment }}</td>
                                             <td class="text-center fw-3">{{ annointment.place_of_annoitment }}</td>
                                             <td class="text-center fw-3">{{ annointment.annoiter }}</td>
-                                            <td class="text-center fw-3">Action button/link here</td> 
+                                            <td class="text-center fw-3"><a href="#">View</a></td> 
                                         
                                         </tbody>
                                         {% endfor %}
