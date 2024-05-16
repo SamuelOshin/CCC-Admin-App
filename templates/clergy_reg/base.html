@@ -21,6 +21,74 @@
 
                 <div class="hr mt-2"></div>
 
+                {% if user.is_authenticated and 'TransferAdmin' in user.groups.values_list %}
+                <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
+
+                    <li class="nav-item mb-1 ">
+                        <li class="nav-item"> <a class="nav-link " data-bss-hover-animate="pulse" href="{% url 't_dashboard' %}"><i
+                            class="fas fa-desktop"></i><span class="nav-items">Dashboard</span></a>
+                    </li>
+                    
+                    <div class="hr"></div>
+                   
+                    <li class="nav-item mb-1">
+                        <a class="nav-link btn btn-toggle x align-items-center border-1 rounded "
+                        data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true"
+                        aria-current="page" data-bss-hover-animate="pulse" >
+                        <i class="fas fa-user"></i>Transfer</a>
+                    <div class="collapse " id="home-collapse">
+                        <ul class="btn-toggle-nav list-unstyled text-bg-primary w-90 fw-normal pb-1 small">
+                            <li class="nav-item"> <a href="{% url 'clergy' %}" class="nav-link">New Transfer</a></li>
+                            <li class="nav-item"><a href="{% url 'trfTable'  %}" class="nav-link">Recently Transferred Clergy</a></li>
+
+                        </ul>
+                        </div>
+                    </li>
+                    
+                </ul>
+                {% endif %}
+                {% if user.is_authenticated and 'Parish Restructure Admin' in user.groups.values_list %}
+                <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
+
+                    <li class="nav-item mb-1 ">
+                        <li class="nav-item"> <a href="{% url 'parish_dashboard' %}" class="nav-link"><i class="fa-solid fa-church"></i>Parish
+                            Dashboard</a></li>
+                    </li>
+                    
+                    <div class="hr"></div>
+                    <li class="nav-item mb-1 ">
+                        <li class="nav-item"> <a href="{% url 'all-parish' %}" class="nav-link"><i class="fa-solid fa-database"></i>Parish Directory</a></li>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link  btn btn-toggle x align-items-center border-1 rounded "
+                            data-bs-toggle="collapse" data-bs-target="#parish" aria-expanded="true" aria-current="page"
+                            data-bss-hover-animate="pulse">
+                            <i class="fas fa-user"></i>Parish Registration</a>
+                        <div class="collapse " id="parish">
+                            <ul class="btn-toggle-nav list-unstyled text-bg-primary w-90 fw-normal pb-1 small">
+                                <li class="nav-item"> <a href="{% url 'parish-registration' %}" class="nav-link">Register a Parish</a></li>
+                                <li class="nav-item"><a href="{% url 'approval_queue'  %}" class="nav-link">Pending Registration</a></li>
+                                <li class="nav-item"><a href="{% url 'approved'  %}" class="nav-link">Approved Registration</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a class="nav-link  btn btn-toggle x align-items-center border-1 rounded "
+                            data-bs-toggle="collapse" data-bs-target="#parishreg" aria-expanded="true" aria-current="page"
+                            data-bss-hover-animate="pulse">
+                            <i class="fas fa-layer-group"></i>Parish Restructuring</a>
+                        <div class="collapse " id="parishreg">
+                            <ul class="btn-toggle-nav list-unstyled text-bg-primary w-90 fw-normal pb-1 small">
+                                <li class="nav-item"> <a href="{% url 'add_parish' %}" class="nav-link">Parish Restructure</a></li>
+                                <li class="nav-item"><a href="{% url 'add_location'  %}" class="nav-link">Add a location</a></li>
+                                <li class="nav-item"><a href="{% url 'view_parishes'  %}" class="nav-link">View Parish Categorically</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                {% endif %}
+                {% if user.is_authenticated and 'ClergyAdmin' in user.groups.values_list %}
+
                 <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
 
                     <li class="nav-item mb-1 ">
@@ -47,6 +115,38 @@
                     </li>
                     
                 </ul>
+                {% endif %}
+                {% if user.is_authenticated and user.is_superuser %}
+
+                <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
+
+                    <li class="nav-item mb-1 ">
+                        <li class="nav-item"> <a class="nav-link " data-bss-hover-animate="pulse" href="{% url 'dashboard' %}"><i
+                            class="fas fa-desktop"></i><span class="nav-items">Dashboard</span></a>
+                    </li>
+                    
+                    <div class="hr"></div>
+                   
+                    <li class="nav-item mb-1">
+                        <a class="nav-link btn btn-toggle x align-items-center border-1 rounded "
+                        data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true"
+                        aria-current="page" data-bss-hover-animate="pulse" href="{% url 'register_clergy' %} ">
+                        <i class="fas fa-user"></i>Clergy Registration</a>
+                    <div class="collapse " id="home-collapse">
+                        <ul class="btn-toggle-nav list-unstyled text-bg-primary w-90 fw-normal pb-1 small">
+                            <li class="nav-item"> <a href="{% url 'register_clergy' %}" class="nav-link">Add New
+                                    Clergy</a></li>
+                            <li class="nav-item"><a href="{% url 'all_clergy'  %}" class="nav-link">View All
+                                    Clergy</a></li>
+
+                        </ul>
+                        </div>
+                    </li>
+                    
+                </ul>
+                {% endif %}
+
+                
                 <hr class="sidebar-divider my-0">
 
                 <div class="d-flex d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle"
@@ -188,6 +288,8 @@
                                                 {% if request.user.is_superuser %}
                                                 <a class="dropdown-item" href="{% url 'parish_dashboard' %}"><i
                                                 class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Restructure App</a>
+                                                <a class="dropdown-item" href="{% url 't_dashboard' %}"><i
+                                                    class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Transfer App</a>
                                                 {% endif %}
                                         <div class="dropdown-divider"></div><a class="dropdown-item" href="{% url 'logout' %}"><i
                                                 class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Logout</a>
@@ -231,7 +333,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
     <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets/js/bs-init.js' %}"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
     <script src="{% static 'assets/js/number.js' %}"></script>

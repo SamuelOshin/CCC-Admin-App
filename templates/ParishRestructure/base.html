@@ -199,6 +199,8 @@
                                                 {% if request.user.is_superuser %}
                                                 <a class="dropdown-item" href="{% url 'dashboard' %}"><i
                                                 class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Clergy Reg App</a>
+                                                <a class="dropdown-item" href="{% url 't_dashboard' %}"><i
+                                                    class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Transfer App</a>
                                                 {% endif %}
                                         <div class="dropdown-divider"></div><a class="dropdown-item" href="{% url 'logout' %}"><i
                                                 class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Logout</a>
@@ -240,7 +242,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
     <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'assets/js/bs-init.js' %}"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
     <script src="{% static 'assets/js/number.js' %}"></script>
     <script src="{% static 'assets/js/theme.js' %}"></script>
@@ -276,6 +278,8 @@
             }
             reader.readAsDataURL(file);
         });
+
+        $('.parishSelect').select2(); 
 
         // Handle change event for file input with ID #id_pic 
         $('#id_pic').change(function () {

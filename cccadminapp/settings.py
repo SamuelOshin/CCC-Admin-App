@@ -33,10 +33,13 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2', 
     "whitenoise.runserver_nostatic",
-    "unfold",
-    # 'adminlte3',
-    # 'adminlte3_theme',
+    # "unfold",
+    'adminlte3',
+    'adminlte3_theme',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +49,7 @@ INSTALLED_APPS = [
     'clergy_registration',
     'ParishRestructure',
     'users',
+    'transfer',
     'widget_tweaks',
     'fontawesomefree',
     'rest_framework',

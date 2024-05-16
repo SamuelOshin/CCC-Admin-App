@@ -20,8 +20,10 @@ def login_user(request):
                 messages.success(request, 'Login Successful.')
                 if user.groups.filter(name='Clergyadmin').exists():
                     return redirect('dashboard')  # Redirect to clergy dashboard
-                else:
+                elif user.groups.filter(name='Parish Restructure Admin').exists():
                     return redirect('parish_dashboard')  # Redirect to parish dashboard
+                elif user.groups.filter(name='TransferAdmin').exists():
+                    return redirect('t_dashboard')
             else:
                 messages.error(request, 'Invalid username or password.')
         else:

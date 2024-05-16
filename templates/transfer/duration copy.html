@@ -1,0 +1,42 @@
+{% load  widget_tweaks %}
+<div class="cardd">
+    <div class="card-body">
+        <div class="row mb-3">
+            
+                <div class="col-10">
+                    <label class="form-label ">Transfer Start Date</label>
+                    <div>
+                        {{ transfer_form.trf_begin|attr:"type:date" }}
+                    </div>
+
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Transfer End Date</label>
+                    {{ transfer_form.trf_end|attr:"type:date" }}
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Transfer Status</label>
+                    {{ transfer_form.trf_status }}
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Transfer Extended?</label>
+                    {{ transfer_form.trf_extended }}
+                </div>
+                <div id="extended_date_field" style="display: none;" class="col-10">
+                    <label class="form-label ">Extended Date</label>
+                    {{ transfer_form.extended_date }}
+                </div>
+                {% if transfer_form.extended_date.value %}
+                <div id="extended_date_field" class="col-10">
+                    <label class="form-label">Extended Date</label>
+                    {{ transfer_form.extended_date }}
+                </div>
+                {% endif %}
+                <div class="col-10">
+                    <label class="form-label ">Remarks</label>
+                    {{ transfer_form.remarks }}
+                </div>
+
+        </div>
+    </div>
+</div>

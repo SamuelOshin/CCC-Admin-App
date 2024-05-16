@@ -36,6 +36,21 @@ body, html {
   margin-left: 224px;
 }
 
+.select2-container--default .select2-selection--single {
+  border: 1px solid #e3e6f0!important;
+}
+
+.select2-container {
+  width: 100%!important; 
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  border: 1px solid #aaa!important;
+}
+.select2-container .select2-selection--single .select2-selection__rendered {
+  font-size: 15px;
+  font-weight: 400;
+}
 .content-wrapper {
   padding-left: 0px;
   transition: margin-left .3s ease-in-out;
@@ -142,7 +157,7 @@ footer {
   border-radius: 10px;
   -webkit-transition: .5s;
   transition: .5s;
-  padding: 50px 20px;
+  padding: 32px 20px;
   box-shadow: 0px 6px 7px -4px rgba(0,0,0,0.2);
 }
 
@@ -158,6 +173,8 @@ footer {
 
 td{
   text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 .login-card{
   box-shadow: 3px 8px 15px rgba(121, 121, 122, 0.35);
@@ -204,7 +221,7 @@ td{
 .parish-content > a {
   text-decoration: none;
   color: #fff;
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -218,9 +235,7 @@ td{
   padding: 57px 78px;
 }
 .nav-link{
-  /* font-size: 16px; */
   font-weight: 700;
-  color: #ffffff;
 }
 
 .nav{
@@ -239,7 +254,7 @@ td{
 }
 
 .plus-icon > i {
-  font-size: 50px;
+  font-size: 33px;
   color: #440dda;
   font-weight: 700;
 }
@@ -278,6 +293,7 @@ body {
 
 
 
+
 #phone {
   padding-top: 6px;
   padding-bottom: 6px;
@@ -286,12 +302,38 @@ body {
 }
 
 .btn {
-  border-color: #357EBD;
-  font-size: 14px;
+  font-size: 11px;
   outline: none;
   cursor: pointer;
   padding-left: 12px;
   padding-right: 12px;
+}
+.btn-outline-secondary {
+  --bs-btn-color: #0606cdd1;
+  --bs-btn-border-color: #2222ddd1;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #2222ddd1;
+  --bs-btn-hover-border-color: #2222ddd1;
+  --bs-btn-focus-shadow-rgb: 133, 135, 150;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #2222ddd1;
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #2222ddd1;
+  --bs-btn-border-color: #2222ddd1;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #0505ead1;
+  --bs-btn-hover-border-color: #2222ddd1;
+  --bs-btn-focus-shadow-rgb: 105, 136, 228;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #2222ddd1;
+  --bs-btn-active-border-color: #2222ddd1;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #2222ddd1;
+  --bs-btn-disabled-border-color: #2222ddd1;
 }
 
 .btn:active {
@@ -493,9 +535,21 @@ div.info p {
   text-decoration: underline;
   cursor: pointer;
 }
-
+.status-indicator {
+  background-color: #eaecf4;
+  height: .75rem;
+  width: .75rem;
+  border-radius: 100%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: .125rem solid #fff;
+}
+th {
+  text-align: center;
+}
 .clergyTable{
-  font-size: 15px;
+  font-size: 0.85em
 }
 .docH{
   color: #440dda;

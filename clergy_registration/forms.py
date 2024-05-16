@@ -14,8 +14,12 @@ class ClergyRegistrationForm(forms.ModelForm):
 
 
 class AnnointmentForm(forms.ModelForm):
-    # Define choices for the year field
-    year_choices = [(str(year), str(year)) for year in range(1947, datetime.now().year + 1)]
+# Get the current year
+    current_year = datetime.now().year
+
+# Generate the list of year choices
+    year_choices = [(str(year), str(year)) for year in range(current_year, 1946, -1)]
+
     
     # Override year_of_annointment field to use ChoiceField
     year_of_annointment = forms.ChoiceField(
@@ -27,6 +31,7 @@ class AnnointmentForm(forms.ModelForm):
     class Meta:
         model = AnnointmentGazzette
         fields = '__all__'
+        exclude = ['clergy']
 
     def save(self, commit=True):
         instance = super().save(commit=False)

@@ -1,0 +1,28 @@
+{% load  widget_tweaks %}
+<div class="cardd">
+    <div class="card-body">
+        <div class="row mb-3">
+            
+                <div class="col-10">
+                    <label class="form-label ">Transfer Start Date</label>
+                    <div>
+                        {{ transfer_form.trf_begin|attr:"type:date" }}
+                    </div>
+
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Transfer End Date</label>
+                    {{ transfer_form.trf_end|attr:"type:date" }}
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Transfer Status</label>
+                    {{ transfer_form.trf_status }}
+                </div>
+                <div class="col-10">
+                    <label class="form-label ">Remarks</label>
+                    {{ transfer_form.remarks }}
+                </div>
+            
+        </div>
+    </div>
+</div>
