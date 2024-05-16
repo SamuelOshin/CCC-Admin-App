@@ -18,12 +18,14 @@ def login_user(request):
             if user is not None and user.is_active:
                 login(request, user)
                 messages.success(request, 'Login Successful.')
-                if user.groups.filter(name='Clergyadmin').exists():
+                if user.is_superuser:
+                    return redirect('parish_dashboard')  # Redirect superuser to parish dashboard
+                elif user.groups.filter(name='Clergyadmin').exists():
                     return redirect('dashboard')  # Redirect to clergy dashboard
                 elif user.groups.filter(name='Parish Restructure Admin').exists():
                     return redirect('parish_dashboard')  # Redirect to parish dashboard
                 elif user.groups.filter(name='TransferAdmin').exists():
-                    return redirect('t_dashboard')
+                    return redirect('t_dashboard')  # Redirect to transfer admin dashboard
             else:
                 messages.error(request, 'Invalid username or password.')
         else:
@@ -34,6 +36,7 @@ def login_user(request):
     else:
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
+
 #logout a user
 
 
