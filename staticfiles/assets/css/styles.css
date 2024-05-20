@@ -68,7 +68,7 @@ footer {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 98%;
+  height: 100%;
 
   /* Apply the blur effect */
   backdrop-filter: blur(10px);
@@ -159,22 +159,7 @@ footer {
 td{
   text-align: center;
 }
-.login-card{
-  box-shadow: 3px 8px 15px rgba(121, 121, 122, 0.35);
-  font-family: Montserrat, sans-serif;
-  color: #141313;
-  font-weight: 500;
-  background-color: #fff;
-  border-radius: 10px;
-  -webkit-transition: .5s;
-  transition: .5s;
-  padding: 30px 2px;
-  width: 70%;
-  margin: 2em auto;
-  background-color: #ffffff;
-  max-height: 100%;
-  overflow-y: auto;
-}
+
 
 .fieldWrapper > i {
   color: #440dda;
@@ -197,7 +182,7 @@ td{
 }
 
 .loginpic{
-  width: 409px;
+  /* width: 409px; */
   height: 100%;
   margin: auto -10px;
   }

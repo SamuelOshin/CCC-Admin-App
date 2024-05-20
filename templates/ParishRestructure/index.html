@@ -1,0 +1,32 @@
+{% load static %}
+{% include 'clergy_reg/head.html' %}
+
+<body>
+    <main>
+        <div class="row">
+            <div class="area-right col-md-12">
+            <div>
+                <img src="{% static 'assets/img/777899999.png' %}" alt="Logo" class="logo">
+                <h1>Welcome, {{request.user}}<img src="{% static 'assets/img/hello.png' %}" style="width: 50px;"></h1>
+                <p class="whitesmoke">Choose where you're going:</p>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <a href="{% url 'parish_dashboard' %}" class="hover-link">Parish Dashboard <span class="arrow">→</span></a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="{% url 'dashboard' %}" class="hover-link">Clergy Registration Dashboard <span class="arrow">→</span></a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="{% url 't_dashboard' %}" class="hover-link">Transfer Dashboard <span class="arrow">→</span></a>
+                    </li>
+                </ul>
+                
+            </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

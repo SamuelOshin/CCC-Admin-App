@@ -14,7 +14,8 @@ router.register(r'parish', ParishDirectoryViewSet)
 urlpatterns = [
     path('api/', include(router.urls)),
     path('restrucutre/', views.restructure_parish, name='add_parish'),
-    path('', views.parish_dashboard, name='parish_dashboard'),
+    path('dashboard-index', views.main_dashboard, name='admin-dashboard'),
+    path('dashboard/', views.parish_dashboard, name='parish_dashboard'),
     path('location/', views.add_location, name='add_location'),
     path('view_parishes/', views.view_parishes, name='view_parishes'),
     path('edit_parish/<int:pk>/', views.edit_parish, name='edit_parish'),   
@@ -27,9 +28,9 @@ urlpatterns = [
     path('all_parish/' , views.all_parish, name='all-parish'),
     path('edit/<int:pk>/', views.edit_parish_reg, name='edit-parish'),
     path('register0/', views.regparish, name='reg-old-parish'),
-    path('approval_queue/', views.approval_queue, name='approval_queue'),  # for admin only
-    path('approve/<int:pk>/', views.accept_parish_registration, name='approve'),  # for admin only
-    path('reject/<int:pk>/', views.reject_parish_registration, name='reject'),  # for admin only
+    path('approval_queue/', views.approval_queue, name='approval_queue'),
+    path('approve/<int:pk>/', views.accept_parish_registration, name='approve'),  
+    path('reject/<int:pk>/', views.reject_parish_registration, name='reject'),
     path('view-regparish/<int:pk>/', views.view_regparish, name='view-parish'),
     path('approved/', views.approved, name='approved'), 
     path('editreg_parish/<int:pk>', views.edit_reg_parish, name='edit_regparish')
