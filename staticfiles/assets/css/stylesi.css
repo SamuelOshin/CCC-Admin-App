@@ -1,0 +1,78 @@
+body {
+    font-family: "Ubuntu", sans-serif;
+}
+
+header .logo {
+    width: 100px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+.height{
+    height: 100vh;
+}
+.h{
+    max-height: max-content;
+}
+.side-image {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
+.hover-link {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.hover-link:hover {
+    color: #0056b3;
+}
+
+.col-md-6{
+    padding-right: 0px;
+}
+.arrow {
+    opacity: 0;
+    position: absolute;
+    right: -40px;
+    transition: opacity 0.3s, right 0.3s;
+}
+
+.hover-link:hover .arrow {
+    opacity: 1;
+    right: -20px;
+}
+.area-right{
+    display: flex;
+    align-items: center;
+    background-image: url('staticfiles\assets\img\background-image1.jpeg'); /* Replace with your background image URL */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh; /* Make sure it matches the height of the left image */
+    /* Ensures the text is visible on the background image */
+    padding: 40px;
+}
+.area-right::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(6, 42, 149, 0.177); /* Add a semi-transparent overlay */
+    z-index: 1;
+} 
+
+.area-right * {
+    position: relative;
+    z-index: 2;
+}

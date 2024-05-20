@@ -59,6 +59,9 @@ def get_regions_and_areas(request):
 @user_passes_test(lambda u: not u.groups.filter(name='Clergyadmin').exists())
 def parish_dashboard(request):
     return render(request, 'ParishRestructure/parish_dashboard.html')
+@login_required
+def main_dashboard(request):
+    return render(request, 'ParishRestructure/index.html')
 
 @login_required  
 def add_location(request):

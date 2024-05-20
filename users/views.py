@@ -19,7 +19,7 @@ def login_user(request):
                 login(request, user)
                 messages.success(request, 'Login Successful.')
                 if user.is_superuser:
-                    return redirect('parish_dashboard')  # Redirect superuser to parish dashboard
+                    return redirect('admin-dashboard')  # Redirect superuser to parish dashboard
                 elif user.groups.filter(name='Clergyadmin').exists():
                     return redirect('dashboard')  # Redirect to clergy dashboard
                 elif user.groups.filter(name='Parish Restructure Admin').exists():
