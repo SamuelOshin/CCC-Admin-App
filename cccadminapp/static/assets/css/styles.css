@@ -61,6 +61,10 @@ body, html {
   /* background-image: linear-gradient(111deg, #2222ddd1 10%, #d0185f 100%); */
   /* overflow-y: scroll; */
   height: 100vh;
+  background-image: url(/static/assets/img/flames.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 footer {
   /* margin-top: 10px; */
@@ -75,11 +79,7 @@ footer {
 }
 
 .pic-card {
-  border-radius: 10px 0px 0px 10px;
   background-color: rgb(237, 232, 232);
-  /* Set the background image */
-  
-  /* Set background size and other properties */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -93,8 +93,8 @@ footer {
 
 .b-l{
   border-right: 5px solid #440dda;
-  border-radius: 0 10px 10px 0;
-  border-left: 5px solid #4b16dc22;
+  /* border-radius: 0 10px 10px 0;
+  border-left: 5px solid #4b16dc22; */
 }
 .xbtn{
     color: #ffffff;
@@ -207,10 +207,9 @@ td{
   max-width: 100%;
 }
 .loginTxt{
-  font-size: 32px;
-  font-weight: 700;
-  color: #440dda;
-  font-style: italic;
+  font-size: 24px;
+  font-weight: 500;
+  color: #1373be;
   
 }
 
@@ -303,7 +302,7 @@ body {
 }
 
 .btn {
-  font-size: 11px;
+  /* font-size: 11px; */
   outline: none;
   cursor: pointer;
   padding-left: 12px;

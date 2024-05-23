@@ -37,7 +37,8 @@ h1 {
 }
 
 .hover-link:hover {
-    color: #e6e6e6
+    color: #e6e6e6;
+    text-decoration: underline;
 }
 
 .col-md-6{
@@ -59,7 +60,7 @@ h1 {
 .area-right{
     display: flex;
     align-items: center;
-    background-image: url("/static/assets/img/background-image1.jpeg"); /* Replace with your background image URL */
+    background-image: url("/static/assets/img/flames.png"); /* Replace with your background image URL */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -74,7 +75,7 @@ h1 {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgb(29 24 141 / 68%); /* Add a semi-transparent overlay */
+    background: rgb(5 27 117 / 68%);/* Add a semi-transparent overlay */
     z-index: 1;
 } 
 

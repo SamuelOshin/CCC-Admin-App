@@ -16,4 +16,5 @@ urlpatterns = [
     path('clergyTable/', views.clergy_details, name='clergy'),
     path('dashboard', views.transfer_dashboard, name='t_dashboard'),
     path('postingH/<int:id>/', views.view_add_posting, name='posting'),
+    path('transfer/<int:transfer_id>/', views.view_transfer, name='view_transfer'),
 ]

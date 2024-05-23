@@ -115,6 +115,18 @@ def update_transfer(request, transfer_id):
     }    
 
     return render(request, 'transfer/update_transfer.html', context)
+
+def view_transfer(request, transfer_id):
+    # Retrieve all transfer instances
+    transfer_instance = get_object_or_404(TransferData, pk=transfer_id)
+    clergy = transfer_instance.clergy
+    transfer_form = TransferDataForm(instance=transfer_instance)
+    context = {
+        'transfer_form': transfer_form,
+        'clergy': clergy,
+        'transfer_id': transfer_instance.id,
+    }
+    return render(request, 'transfer/view_transfer.html', context)
 @login_required
 def clergy_details(request):
     clergy = ClergyTrfbio.objects.all()
