@@ -81,7 +81,8 @@
                                                     <td><span class="badge text-bg-danger text-white">No</span></td>
                                                 {% endif %}
                                                 <td>
-                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'update_transfer' transfer.id %}">Update</a> <!-- Add Update button/link -->
+                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'view_transfer' transfer.id %}">View</a>
+                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'update_transfer' transfer.id %}">Update</a>
                                                     <a class="btn btn-outline-secondary btn-sm " href="{% url 'new_transfer' transfer.id %}">New</a>
                                                 </td>
                                             </tr>
