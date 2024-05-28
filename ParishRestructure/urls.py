@@ -14,7 +14,7 @@ router.register(r'parish', ParishDirectoryViewSet)
 urlpatterns = [
     path('api/', include(router.urls)),
     path('restrucutre/', views.restructure_parish, name='add_parish'),
-    path('dashboard-index', views.main_dashboard, name='admin-dashboard'),
+    path('', views.main_dashboard, name='admin-dashboard'),
     path('dashboard/', views.parish_dashboard, name='parish_dashboard'),
     path('location/', views.add_location, name='add_location'),
     path('view_parishes/', views.view_parishes, name='view_parishes'),
