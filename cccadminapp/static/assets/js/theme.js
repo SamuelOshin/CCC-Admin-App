@@ -82,15 +82,29 @@
 
 })(); // End of use strict
 
-
+// For Parish Restructure
 document.addEventListener('DOMContentLoaded', function () {
-  var dioceseSelect = document.getElementById('id_diocese');
-  var regionSelect = document.getElementById('id_region');
-  var areaSelect = document.getElementById('id_area');
+  var dioceseSelect = $('#id_diocese');
+  var regionSelect = $('#id_region');
+  var areaSelect = $('#id_area');
+  var districtSelect = $('#id_district');
+  var circuitSelect = $('#id_circuit');
 
-  dioceseSelect.addEventListener('change', function () {
-    var dioceseId = this.value;
+  // Initialize Select2 for each select element
+  dioceseSelect.select2();
+  regionSelect.select2();
+  areaSelect.select2();
+  districtSelect.select2();
+  circuitSelect.select2();
 
+  dioceseSelect.on('change', function () {
+    var dioceseId = $(this).val();
+
+    // Clear previous selections
+    regionSelect.empty().append('<option value="">Select Region</option>').trigger('change');
+    areaSelect.empty().append('<option value="">Select Area</option>').trigger('change');
+    
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
 
     // Fetch regions for the selected diocese
     fetch(`/get_regions_and_areas/?diocese_id=${dioceseId}`)
@@ -100,21 +114,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Populate regions select
         data.regions.forEach(region => {
-          var option = document.createElement('option');
-          option.value = region.id;
-          option.text = region.name;
-          regionSelect.appendChild(option);
+          var option = new Option(region.name, region.id, false, false);
+          regionSelect.append(option);
         });
-
-        // Populate areas select (optional)
-        // You can implement this if needed
+        regionSelect.trigger('change'); // Update Select2
       })
       .catch(error => console.error('Error:', error));
   });
 
-  regionSelect.addEventListener('change', function () {
-    var regionId = this.value;
+  regionSelect.on('change', function () {
+    var regionId = $(this).val();
 
+    // Clear previous selections
+    areaSelect.empty().append('<option value="">Select Area</option>').trigger('change');
+    
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
 
     // Fetch areas for the selected region
     fetch(`/get_regions_and_areas/?region_id=${regionId}`)
@@ -124,15 +138,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Populate areas select
         data.areas.forEach(area => {
-          var option = document.createElement('option');
-          option.value = area.id;
-          option.text = area.name;
-          areaSelect.appendChild(option);
+          var option = new Option(area.name, area.id, false, false);
+          areaSelect.append(option);
         });
+        areaSelect.trigger('change'); // Update Select2
+      })
+      .catch(error => console.error('Error:', error));
+  });
+
+  areaSelect.on('change', function () {
+    var areaId = $(this).val();
+
+    // Clear previous selections
+    
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
+
+    // Fetch districts for the selected area
+    fetch(`/get_regions_and_areas/?area_id=${areaId}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Received data:', data); // Debugging: Log received data
+
+        // Populate districts select
+        data.districts.forEach(district => {
+          var option = new Option(district.name, district.id, false, false);
+          districtSelect.append(option);
+        });
+        districtSelect.trigger('change'); // Update Select2
+      })
+      .catch(error => console.error('Error:', error));
+  });
+
+  districtSelect.on('change', function () {
+    var districtId = $(this).val();
+
+    // Clear previous selections
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
+
+    // Fetch circuits for the selected district
+    fetch(`/get_regions_and_areas/?district_id=${districtId}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Received data:', data); // Debugging: Log received data
+
+        // Populate circuits select
+        data.circuits.forEach(circuit => {
+          var option = new Option(circuit.name, circuit.id, false, false);
+          circuitSelect.append(option);
+        });
+        circuitSelect.trigger('change'); // Update Select2
       })
       .catch(error => console.error('Error:', error));
   });
 });
+
 
 let autocomplete;
 

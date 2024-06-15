@@ -180,3 +180,8 @@ STORAGES = {
         'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }
+
+# Set the session timeout to 30 minutes (1800 seconds)
+SESSION_COOKIE_AGE = 1800
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
