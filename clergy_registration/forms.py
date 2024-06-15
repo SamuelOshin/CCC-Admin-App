@@ -7,7 +7,6 @@ class ClergyRegistrationForm(forms.ModelForm):
     children_info = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'cols': 40}))
     work_experience_ifyes = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'cols': 40}), required=False)
     trg_number = forms.IntegerField(required=False)
-    edu_qualification = forms.CharField(widget=forms.Textarea(attrs={'rows': 2}))
     class Meta:
         model = ClergyDetails
         fields = '__all__'
