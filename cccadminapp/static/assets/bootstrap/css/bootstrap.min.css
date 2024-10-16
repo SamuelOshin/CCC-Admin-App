@@ -79,7 +79,7 @@
     --bs-body-font-size: 1rem;
     --bs-body-font-weight: 400;
     --bs-body-line-height: 1.5;
-    --bs-body-color: #858796;
+    --bs-body-color: #3d3d40;
     --bs-body-color-rgb: 133, 135, 150;
     --bs-body-bg: #fff;
     --bs-body-bg-rgb: 255, 255, 255;
@@ -382,7 +382,7 @@ sup {
 
 a {
     color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
-    text-decoration: underline
+    text-decoration: underline;
 }
 
 a:hover {
@@ -497,7 +497,7 @@ textarea {
     margin: 0;
     font-family: inherit;
     font-size: inherit;
-    line-height: inherit
+    line-height: inherit;
 }
 
 button,
@@ -586,7 +586,7 @@ legend+* {
 
 [type=search] {
     -webkit-appearance: textfield;
-    outline-offset: -2px
+    outline-offset: -2px;
 }
 
 ::-webkit-search-decoration {

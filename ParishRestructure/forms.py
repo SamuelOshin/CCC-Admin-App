@@ -130,8 +130,11 @@ class ParishRegForm(forms.ModelForm):
         model = ParishRegistration
         fields = [ 'country', 'state', 'city', 'diocese', 'founding_patron','date_of_establishment', 'name_of_shepherd', 'phone', 'email', 'parish_picture', 'application_for_registration', 'original_receipt_of_land', 'original_survey_plan', 'building_plan', 'sworn_affidavit', 'passport_photograph', 'approval_from_government_diaspora', 'payment_proof_of_auditorium' ]
         widgets = {
+            'phone' : forms.NumberInput(attrs={'type':'tel' }),
             'parish': forms.Select(attrs={'class': 'form-control parishSelect'}),
-            'parish_picture': forms.FileInput(attrs={'accept': 'image/*'})
+            'state': forms.Select(attrs={'class': 'form-control parishSelect'}),
+            'parish_picture': forms.FileInput(attrs={'accept': 'image/*'}),
+            'country': forms.Select(attrs={'class': 'form-control parishSelect', 'onchange': "print_state('id_state', this.selectedIndex);" })
         }
     def __init__(self, *args, **kwargs):
          super().__init__(*args, **kwargs) 
@@ -139,14 +142,16 @@ class ParishRegForm(forms.ModelForm):
          self.fields['diocese'].queryset = Location.objects.filter(level='diocese')  
 
 class ParishRegForm1(forms.ModelForm):
-    parish = forms.ModelChoiceField(queryset=ParishDirectory.objects.order_by('name'), empty_label=None)
+    # parish = forms.ModelChoiceField(queryset=ParishDirectory.objects.order_by('name'), empty_label=None)
     date_of_establishment = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     class Meta:
         model = ParishRegistration
         fields = [ 'parish', 'country', 'state', 'city', 'diocese', 'founding_patron','date_of_establishment', 'name_of_shepherd', 'phone', 'email', 'parish_picture', 'application_for_registration', 'original_receipt_of_land', 'original_survey_plan', 'building_plan', 'sworn_affidavit', 'passport_photograph', 'approval_from_government_diaspora', 'payment_proof_of_auditorium' ]
         widgets = {
             'parish': forms.Select(attrs={'class': 'form-control parishSelect'}),
-            'parish_picture': forms.FileInput(attrs={'accept': 'image/*'})
+            'state': forms.Select(attrs={'class': 'form-control parishSelect'}),
+            'parish_picture': forms.FileInput(attrs={'accept': 'image/*'}),
+            'country': forms.Select(attrs={'class': 'form-control parishSelect', 'onchange': "print_state('id_state', this.selectedIndex);" })
         }
         enctype = 'multipart/form-data'
     def __init__(self, *args, **kwargs):
