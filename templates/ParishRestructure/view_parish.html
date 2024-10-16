@@ -64,7 +64,7 @@
                                         <span class="badge text-bg-success text-white ">Registered</span>
                                         {% else %}
                                         <div class="badge text-bg-danger">Not Registered!</div>
-                                        <div class="ms-2  "><a href="{% url 'reg-old-parish' %}">Register</a></div>
+                                        <div class="ms-2  "><a href="{% url 'reg-old-parish' parish.id %}">Register</a></div>
                                         {% endif %}
                                     </div>
                                 </div>    

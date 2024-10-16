@@ -37,7 +37,7 @@
                 {{ form.non_field_errors }}                    
                 
 
-                {% for field in parish_form %}
+                {% for field in preg_form %}
                 <div class="fieldWrapper mb-1">
                     {% if field.field.widget.input_type != 'checkbox' %}
                         {{ field.label_tag }}
@@ -45,7 +45,7 @@
                             {{ field|add_class:"form-control" }}
                             {{ field.field.widget.attrs|add:'type:date' }}
                         {% elif field.field.widget.input_type == 'select' %}
-                            {{ field|add_class:"mb-2 form-select parishSelect" }}    
+                            {{ field|add_class:"mb-2 form-control parishSelect" }}    
                         {% else %}
                             {{ field|add_class:"form-control" }}
                         {% endif %}

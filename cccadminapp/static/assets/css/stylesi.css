@@ -1,6 +1,6 @@
-body {
+/* body {
     font-family: "Ubuntu", sans-serif;
-}
+} */
 
  .logo {
     width: 100px;
@@ -47,15 +47,16 @@ h1 {
 .arrow {
     opacity: 0;
     position: absolute;
-    right: -40px;
+    right: -50px;
     transition: opacity 0.3s, right 0.3s;
 }
 
 .hover-link:hover .arrow {
     opacity: 1;
-    right: -10px;
+    right: -35px;
     font-weight: 500;
     font-size: x-large;
+    top: -9px;
 }
 .area-right{
     display: flex;
@@ -80,6 +81,5 @@ h1 {
 } 
 
 .area-right * {
-    position: relative;
     z-index: 2;
 }

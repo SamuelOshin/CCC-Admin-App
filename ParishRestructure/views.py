@@ -238,21 +238,23 @@ def edit_reg_parish(request, pk):
 
 
 @login_required  
-def regparish(request):
-    if request.method == 'POST':
-        preg_form = ParishRegForm1(request.POST, request.FILES)
-        if preg_form.is_valid(): 
-            parishinfo = preg_form.save(commit=False)
-            parishinfo.save()
-            messages.success(request, 'Parish dtails has been submitted successfully for approval.')
-            return redirect('all-parish')  # Redirect to success page or any other URL
-        else:
-            messages.error(request, 'Something went wrong, Please try again.')
+def regparish(request, pk):
+    parish = get_object_or_404(ParishDirectory, pk=pk)
+    if  request.method=='POST':
+        parish_form = ParishDirectoryForm(request.POST, request.FILES, instance=parish)
+        preg_form = ParishRegForm(request.POST, request.FILES)
+        if parish_form.is_valid() and preg_form.is_valid(): 
+            parish = parish_form.save()
+            parish_details = preg_form.save(commit=False)
+            parish_details.parish = parish
+            parish_details.save()
+            messages.success(request, 'Parish details has be submitted succesfully for approval.')
+            return redirect('parish_dashboard')
     else:
-          # Define parish_form for non-POST requests
-        preg_form = ParishRegForm1()  # Define parish_form for non-POST requests
+        preg_form = ParishRegForm()
+        parish_form = ParishDirectoryForm(instance=parish)
         
-    return render(request, 'ParishRestructure/regparish.html', {'preg_form': preg_form})
+    return render(request,'ParishRestructure/reg_parish.html', {'parish_form': parish_form, 'preg_form': preg_form})
 
 
 @login_required  
