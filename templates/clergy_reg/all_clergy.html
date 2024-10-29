@@ -13,12 +13,12 @@
             style="padding-left: 14px;font-family: Nunito, sans-serif;border-radius: 13px;padding-top: 6px;padding-bottom: 6px;">
             <strong>VIEW ALL CLERGY DETAILS</strong>
         </h3>
-        {% if all_clergy %}
+        
 
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive ">
-                    <table id="clergyTable" class="table table-striped nowrap clergyTable" style="width:100%">
+                    <table id="clergyTable" class="table table-striped nowrap clergyTable" style="width:100%" >
                         <thead>
                             <tr>
                                 <th class="text-center ">Actions</th>
@@ -64,12 +64,4 @@
         </div>
 
     </div>
-
-    {% else %}
-    <div class="alert alert-warning ms-4 me-4">
-        <strong>Warning!</strong> No clergy found.
-    </div>
-    {% endif %}
-
-
 {% endblock %}
