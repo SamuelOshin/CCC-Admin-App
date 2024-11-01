@@ -102,6 +102,12 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': '3306',       # MySQL default port
+        'OPTIONS': {
+            'ssl': {
+                'ca': config('DB_SSL_CA'),
+                'disable': config('DB_SSL_DISABLE', 'False') == 'True'
+            }
+        },
     }
 }
 
