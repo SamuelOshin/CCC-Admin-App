@@ -27,7 +27,11 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://ccc-admin-app.onrender.com', 'localhost', '127.0.0.1']
+
+CSRF_TRUSTED_ORIGINS = ['https://ccc-admin-app.onrender.com', 'http://localhost', 'http://127.0.0.1']
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 
 # Application definition
@@ -102,12 +106,12 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': '3306',       # MySQL default port
-        'OPTIONS': {
-            'ssl': {
-                'ca': config('DB_SSL_CA'),
-                'disable': config('DB_SSL_DISABLE', 'False') == 'True'
-            }
-        },
+        # 'OPTIONS': {
+        #     'ssl': {
+        #         'ca': config('DB_SSL_CA'),
+        #         'disable': config('DB_SSL_DISABLE', 'False') == 'True'
+        #     }
+        # },
     }
 }
 
