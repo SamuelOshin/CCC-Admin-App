@@ -27,9 +27,9 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['https://ccc-admin-app.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['ccc-admin-app.onrender.com', 'localhost', '127.0.0.1']
 
-CSRF_TRUSTED_ORIGINS = ['https://ccc-admin-app.onrender.com', 'http://localhost', 'http://127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['ccc-admin-app.onrender.com', 'http://localhost', 'http://127.0.0.1']
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
