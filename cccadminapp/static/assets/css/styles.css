@@ -605,6 +605,7 @@ footer > .container > strong{
 
   .parish-content {
     grid-gap: 20px;
+    grid-template-columns: repeat(1, 1fr);
   }
 
   .plus-icon {

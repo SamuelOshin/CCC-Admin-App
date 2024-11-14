@@ -27,7 +27,7 @@ class ParishDirectory(models.Model):
     register_status = models.BooleanField(default=False, null=True)
 
     def __str__(self):
-        return f" CCC {self.name}"
+        return f"{self.name}"
 class ParishRegistration(models.Model):
     parish = models.OneToOneField(ParishDirectory, on_delete=models.CASCADE, null=True)
     country = models.CharField(max_length=255, null=True, blank=True)
