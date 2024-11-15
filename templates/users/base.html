@@ -1,6 +1,9 @@
 {% include 'head.html' %}
 {% load static %}
 <body class="loginbody">
+  <div id="loading" style="display: none;">
+    <img src="{% static 'icons/loading.gif' %}" alt="Loading...">
+  </div>
     <nav class="navbar navbar-expand-lg d-flex justify-content-center mt-5" data-bs-theme="dark">
         <div class="d-flex ">
           <div class="sidebar-brand-icon rotate-n-15"><img class="img-fluid" width="60" height="auto"

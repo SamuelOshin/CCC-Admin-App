@@ -91,7 +91,7 @@ body, html {
   /* overflow-y: scroll; */
   background-blend-mode: normal;
   height: 100vh;
-  background-image: url(/static/assets/img/flames.png);
+  background-image: url(/static/assets/img/flames1.png);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
