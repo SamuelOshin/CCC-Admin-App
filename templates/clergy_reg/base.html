@@ -4,6 +4,10 @@
 
 
 <body id="page-top">
+    <!-- Loading Screen -->
+  <div id="loading" style="display: none;">
+    <img src="{% static 'icons/loading.gif' %}" alt="Loading...">
+  </div>
     <div id="wrapper" style="width: 100%;">
         <nav
             class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark fixed-nav">
@@ -383,7 +387,7 @@
     
     <script>
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/static/service-worker.js')
+          navigator.serviceWorker.register("{% static 'service-worker.js' %}")
             .then((registration) => {
               console.log('Service Worker registered with scope:', registration.scope);
             }).catch((error) => {

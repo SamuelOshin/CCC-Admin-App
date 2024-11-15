@@ -336,3 +336,24 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
+// Page reload icon
+document.addEventListener('DOMContentLoaded', function() {
+  const loadingScreen = document.getElementById('loading');
+
+  // Show loading screen on page load
+  window.addEventListener('beforeunload', () => {
+    loadingScreen.style.display = 'flex';
+  });
+
+  // Optional: Hide loading screen when page is fully loaded
+  window.addEventListener('load', () => {
+    loadingScreen.style.display = 'none';
+  });
+});
+
+// Show loading screen when a link is clicked
+document.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', function() {
+    loadingScreen.style.display = 'flex';
+  });
+});
