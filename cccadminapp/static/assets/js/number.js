@@ -70,3 +70,4 @@ function updateHiddenInput() {
   // Update the value of the hidden input field with the JSON stringified list of children
   hiddenInput.value = childrenString;
 }
+
