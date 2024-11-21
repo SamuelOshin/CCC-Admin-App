@@ -18,9 +18,17 @@ def login_user(request):
             if user is not None and user.is_active:
                 login(request, user)
                 messages.success(request, 'Login Successful.')
-                next_url = request.session.get('last_visited_url', None)
+                
+                # Check for the next parameter in the request
+                next_url = request.GET.get('next')
+                if not next_url:
+                    # If no next parameter, check for the last visited URL in the session
+                    next_url = request.session.get('last_visited_url')
+                
                 if next_url:
                     return redirect(next_url)
+                
+                # If no next parameter and no last visited URL, use the existing redirection logic
                 if user.is_superuser:
                     return redirect('admin-dashboard')  # Redirect superuser to parish dashboard
                 elif user.groups.filter(name='Clergyadmin').exists():
