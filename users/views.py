@@ -18,6 +18,9 @@ def login_user(request):
             if user is not None and user.is_active:
                 login(request, user)
                 messages.success(request, 'Login Successful.')
+                next_url = request.session.get('last_visited_url', None)
+                if next_url:
+                    return redirect(next_url)
                 if user.is_superuser:
                     return redirect('admin-dashboard')  # Redirect superuser to parish dashboard
                 elif user.groups.filter(name='Clergyadmin').exists():
@@ -31,8 +34,12 @@ def login_user(request):
         else:
             # If form validation fails, display error messages
             for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{error}")
+                if field == '__all__':
+                    for error in errors:
+                        messages.error(request, 'Please enter a correct username and password. Note that both fields may be case-sensitive.')
+                else:
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
     else:
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
