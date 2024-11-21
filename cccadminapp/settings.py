@@ -40,9 +40,9 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2', 
     "whitenoise.runserver_nostatic",
-    # "unfold",
-    'adminlte3',
-    'adminlte3_theme',
+    "unfold",
+    # 'adminlte3',
+    # 'adminlte3_theme',
     
     'django.contrib.admin',
     'django.contrib.auth',
@@ -70,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'cccadminapp.middleware.StoreLastVisitedURLMiddleware',
     # 'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
 
@@ -192,6 +193,6 @@ STORAGES = {
 }
 
 # Set the session timeout to 30 minutes (1800 seconds)
-# SESSION_COOKIE_AGE = 1800
+SESSION_COOKIE_AGE = 1800
 
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

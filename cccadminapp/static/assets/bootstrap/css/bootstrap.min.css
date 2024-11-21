@@ -9202,7 +9202,7 @@ fieldset:disabled .btn {
 }
 
 .p-3 {
-    padding: 1rem !important
+    /* padding: 1rem !important; */
 }
 
 .p-4 {

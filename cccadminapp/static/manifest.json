@@ -4,7 +4,7 @@
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#0055aa",
+    "theme_color": "#2222ddd1",
     "icons": [
       {
         "src": "/static/icons/celeicon.png",
