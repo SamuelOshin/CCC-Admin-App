@@ -1,13 +1,24 @@
-const input = document.querySelector("#id_phone #phone");
-window.intlTelInput(input, {
+const input = document.querySelector("#id_telephone");
+const input1 = document.querySelector("#id_phone");
+const phoneInput = window.intlTelInput(input, {
   initialCountry: "auto",
   geoIpLookup: callback => {
     fetch("https://ipapi.co/json")
       .then(res => res.json())
       .then(data => callback(data.country_code))
-      .catch(() => callback("us"));
+      .catch(() => callback("ng"));
   },
-  utilsScript: "/intl-tel-input/js/utils.js?1701962297307" // just for formatting/placeholders etc
+  
+});
+const phoneInput1 = window.intlTelInput(input1, {
+  initialCountry: "auto",
+  geoIpLookup: callback => {
+    fetch("https://ipapi.co/json")
+      .then(res => res.json())
+      .then(data => callback(data.country_code))
+      .catch(() => callback("ng"));
+  },
+  
 });
 function addChildren() {
   // Get the input element and the list element
@@ -59,3 +70,4 @@ function updateHiddenInput() {
   // Update the value of the hidden input field with the JSON stringified list of children
   hiddenInput.value = childrenString;
 }
+

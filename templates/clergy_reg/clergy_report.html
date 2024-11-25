@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ clergy.first_name }} {{ clergy.last_name }}'s Bio-data</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f6f9;
+
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #565de6;
+            color: white;
+            padding: 10px 20px 100px 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .header h5{
+            margin-bottom: 0;
+            margin-top: -30px;
+            font-style: italic;
+        }
+
+        .header h2 {
+            font-size: 15px;
+            text-transform: uppercase;
+             letter-spacing: 5px; /* Add space between letters */
+            text-transform: uppercase;
+            margin: 0;
+            
+        }
+
+        .profile-pic {
+            text-align: center;
+            margin-top: -90px;
+            margin-bottom: -50px;
+        }
+
+        .profile-pic img {
+            border: 5px solid white;
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+        }
+
+        .section {
+            margin-top: 1px;
+            margin-bottom: 20px;
+            /* background: url("{% static 'assets/img/Untitled-1jj.png' %}") no-repeat center center fixed;
+            background-size: contain;  */
+        }
+
+        .section h3 {
+            border-left: 5px solid #007bff;
+            padding: 10px 10px;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+
+        }
+
+        .section p {
+            margin-bottom: 0px;
+            /* Reduce space between paragraphs */
+            font-size: 12px;
+            /* Increase font size */
+
+        }
+
+        .details {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .details div {
+            flex: 1 1 45%;
+            margin-bottom: 10px;
+        }
+
+        .details strong {
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{% static 'assets/img/777899999.png' %}" alt="Logo"
+                style="width: 100px; height: 100px; display: block; margin: 0 auto;">
+            <h5>THE CELESTIAL CHURCH OF CHRIST</h5>
+            <h1>{{ clergy.first_name }} {{ clergy.last_name }}</h1>
+            <h2>Profile</h2>
+        </div>
+        <div class="profile-pic">
+            <img src="{{ profile_picture }}" alt="Profile Picture">
+        </div>
+        <div class="section">
+            <h3>Identities</h3>
+            <p><strong>Registration Number:</strong> {{ clergy.reg_number }}</p>
+            <p><strong>TRG Number:</strong> {{ clergy.trg_number }}</p>
+        </div>
+        <div class="section">
+            <h3>Bio Data</h3>
+
+            <p><strong>First Name:</strong> {{ clergy.first_name }}</p>
+            <p><strong>Middle Name:</strong> {{ clergy.middle_name }}</p>
+            <p><strong>Last Name:</strong> {{ clergy.last_name }}</p>
+            <p><strong>Alias:</strong> {{ clergy.alias }}</p>
+            <p><strong>Gender:</strong> {{ clergy.get_gender_display }}</p>
+            <p><strong>Marital Status:</strong> {{ clergy.get_marital_status_display }}</p>
+            <p><strong>Date of Birth:</strong> {{ clergy.dob }}</p>
+            <p><strong>Spoken Language(s):</strong> {{ clergy.spoken_languages }}</p>
+            <p><strong>Place of Birth:</strong> {{ clergy.place_of_birth }}</p>
+            <p><strong>Nationality:</strong> {{ clergy.nationality }}</p>
+            <p><strong>State of Origin:</strong> {{ clergy.state_of_origin }}</p>
+            <p><strong>LGA (If Nigerian):</strong> {{ clergy.lga_if_nigerian }}</p>
+
+
+        </div>
+        <div class="section">
+            <h3>Medical Details</h3>
+            <p><strong>Blood Group:</strong> {{ clergy.get_blood_group_display }}</p>
+            <p><strong>Genotype:</strong> {{ clergy.get_genotype_display }}</p>
+            <p><strong>Any Ailment?</strong> {{ clergy.get_any_ailment_display }}</p>
+            <p><strong>Ailment:</strong> {{ clergy.ailment }}</p>
+            <p><strong>Any Disability?</strong> {{ clergy.get_any_disabilities_display }}</p>
+            <p><strong>Disability:</strong> {{ clergy.disability }}</p>
+        </div>
+        <div class="section">
+            <h3>Contact Information/Address</h3>
+            <p><strong>Permanent Address:</strong> {{ clergy.permanent_address }}</p>
+            <p><strong>Resident Address:</strong> {{ clergy.resident_address }}</p>
+            <p><strong>Parish:</strong> {{ clergy.parish }}</p>
+            <p><strong>Parish Address:</strong> {{ clergy.parish_address }}</p>
+            <p><strong>Telephone(s):</strong> {{ clergy.telephone }}</p>
+            <p><strong>Email Address:</strong> {{ clergy.email_address }}</p>
+        </div>
+        <div class="section">
+            <h3>Faith Background</h3>
+            <p><strong>Former Religion:</strong> {{ clergy.former_religion }}</p>
+            <p><strong>Denomination:</strong> {{ clergy.denomination }}</p>
+            <p><strong>Status in Former Religion:</strong> {{ clergy.status_former_religion }}</p>
+            <p><strong>Date of Membership into CCC:</strong> {{ clergy.entry_date_in_ccc }}</p>
+            <p><strong>Name of First Parish into CCC:</strong> {{ clergy.first_parish }}</p>
+            <p><strong>Name of Shepherd who Sanctified You:</strong> {{ clergy.shepherd_who_sanctified_you }}</p>
+            <p><strong>Name of Shepherd who Baptized You:</strong> {{ clergy.shepherd_who_baptized_you }}</p>
+            <p><strong>Date when Baptized:</strong> {{ clergy.date_when_baptized }}</p>
+            <p><strong>Parish where Baptized:</strong> {{ clergy.parish_where_baptized }}</p>
+            <p><strong>First Annointment:</strong> {{ clergy.get_first_annointment_display }}</p>
+            <p><strong>Date of First Annointment:</strong> {{ clergy.date_of_first_annointment }}</p>
+            <p><strong>Present Annointment:</strong> {{ clergy.present_annointment }}</p>
+            <p><strong>Date of Present Annointment:</strong> {{ clergy.date_of_present_annointment }}</p>
+        </div>
+        <div class="section">
+            <h3>Educational Background</h3>
+            <p><strong>Educational Level:</strong> {{ clergy.get_edu_level_display }}</p>
+            <p><strong>Educational Qualifications:</strong> {{ clergy.edu_qualification }}</p>
+            <p><strong>Apprenticeship:</strong> {{ clergy.apprenticeship }}</p>
+            <p><strong>Hobbies:</strong> {{ clergy.hobbies }}</p>
+            <p><strong>Area of Calling:</strong> {{ clergy.area_of_calling }}</p>
+        </div>
+        <div class="section">
+            <h3>Working Experience</h3>
+            <p><strong>Working Experience?</strong> {{ clergy.working_experience_option }}</p>
+            <p><strong>Work Experience (if yes):</strong> {{ clergy.work_experience_ifyes }}</p>
+        </div>
+        <div class="section">
+            <h3>Relations</h3>
+            <p><strong>Spouse:</strong> {{ clergy.spouse }}</p>
+            <p><strong>Father:</strong> {{ clergy.father }}</p>
+            <p><strong>Mother:</strong> {{ clergy.mother }}</p>
+            <p><strong>Relation in CCC:</strong> {{ clergy.relation_in_ccc }}</p>
+            <p><strong>Next of Kin:</strong> {{ clergy.next_of_kin }}</p>
+            <p><strong>Children:</strong> {{ clergy.children_info }}</p>
+        </div>
+    </div>
+</body>
+
+</html>
