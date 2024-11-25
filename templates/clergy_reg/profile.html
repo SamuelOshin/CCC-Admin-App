@@ -4,13 +4,13 @@
 {% load widget_tweaks %}
 
 {% block content %}
-
 <div  id="page-content"
     style="background: url('{% static 'assets/img/Untitled-1jj.png' %}'); background-size: contain; padding: 20px;">
     <h3 class="text-light text-bg-primary mb-4" style="border-radius: 10px; padding: 5px;">
         <strong>Clergy Details for {{ clergy.first_name }}  {{clergy.last_name}}</strong>
     </h3>
-    <div class="d-flex justify-content-end ">
+    <div class="d-flex justify-content-between">
+        <a href="{% url 'generate_clergy_pdf' clergy.clergy_id %}" class="btn btn-primary mb-1 fw-medium">Print Report</a>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="{% url 'all_clergy' %}">Clergy Directory</a></li>

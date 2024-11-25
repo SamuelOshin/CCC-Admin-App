@@ -14,11 +14,13 @@ urlpatterns = [
     path('edit/<int:id>', views.edit_clergy, name='edit_clergy'),
     path('delete/<int:id>', views.delete_clergy, name='delete_clergy'),
     path('view-annointments/<int:id>', views.view_and_add_annointment, name='view-and-add-annointment'),
+    path('clergy/<int:id>/pdf/', views.generate_clergy_pdf, name='generate_clergy_pdf'),
     
     # path('submit/', views.handle_clergy_registration, name='submit_form'),
 
     # Define more URL patterns as needed
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 
-
-
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

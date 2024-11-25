@@ -1,13 +1,17 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ClergyRegistrationForm, AnnointmentForm
 from .models import ClergyDetails, AnnointmentGazzette
 from django.http import HttpResponseRedirect
 from django.views.generic import CreateView
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from weasyprint import HTML
+# from xhtml2pdf import pisa
+from .models import ClergyDetails
 
 
 
@@ -134,3 +138,14 @@ def view_and_add_annointment(request, id):
     }
     
     return render(request, 'AnnointmentGazzette/view_ann.html', context)
+
+
+def generate_clergy_pdf(request, id):
+    clergy = get_object_or_404(ClergyDetails, clergy_id=id)
+    profile_picture_url = request.build_absolute_uri(clergy.profile_picture.url)
+    html_content = render_to_string('clergy_reg/clergy_report.html', {'clergy': clergy, 'profile_picture': profile_picture_url})
+    pdf_file = HTML(string=html_content, base_url=request.build_absolute_uri('/')).write_pdf()
+    
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{clergy.first_name}_{clergy.last_name}_profile.pdf"'
+    return response

@@ -7,9 +7,9 @@ body, html {
   padding: 0;
 }
 
-.container{
+/* .container{
   padding-left: 0px;
-}
+} */
 .container > h3 {
   padding-left: 14px;
   font-family: Nunito, sans-serif;
@@ -35,17 +35,66 @@ body, html {
 #content {
   margin-left: 224px;
 }
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #eceeefc4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
+#loading img {
+  width: 30%; /* Adjust as needed */
+  /* height: 100px; */
+}
+/* Change background color when options are focused */
+.select2-container--default .select2-selection--single:focus-visible,
+.select2-container--default .select2-selection--multiple:focus-visible {
+    border-color: #007BFF; /* Change border color */
+    outline: none; /* Remove default outline */
+}
+
+/* Style for dropdown items when focused */
+.select2-results__option:focus-visible {
+    background-color: #007BFF; /* Change background color */
+    color: white; /* Change text color */
+}
+
+.select2-container--default .select2-selection--single {
+  border: 1px solid #e3e6f0!important;
+}
+
+.select2-container {
+  width: 100%!important; 
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  border: 1px solid #aaa!important;
+}
+.select2-container .select2-selection--single .select2-selection__rendered {
+  font-size: 15px;
+  font-weight: 400;
+}
 .content-wrapper {
   padding-left: 0px;
   transition: margin-left .3s ease-in-out;
   height: 100%;
 }
 .loginbody{
-  background-color: #fff;
+  background-color: rgb(249 250 251);
   background-image: linear-gradient(111deg, #2222ddd1 10%, #d0185f 100%);
-  /* overflow-y: scroll; */
+  overflow-y: scroll;
+  background-blend-mode: normal;
   height: 100vh;
+  background-image: url(/static/assets/img/flames1.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 footer {
   /* margin-top: 10px; */
@@ -60,11 +109,7 @@ footer {
 }
 
 .pic-card {
-  border-radius: 10px 0px 0px 10px;
   background-color: rgb(237, 232, 232);
-  /* Set the background image */
-  background-image: url("/static/assets/img/paper_clouds.jpg");
-  /* Set background size and other properties */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -78,8 +123,8 @@ footer {
 
 .b-l{
   border-right: 5px solid #440dda;
-  border-radius: 0 10px 10px 0;
-  border-left: 5px solid #4b16dc22;
+  /* border-radius: 0 10px 10px 0;
+  border-left: 5px solid #4b16dc22; */
 }
 .xbtn{
     color: #ffffff;
@@ -97,8 +142,8 @@ footer {
 
 .text-bg-primary{
   color: #ffffff;
-  background-color: rgba(75, 75, 239, 0.8);
-  background-image: linear-gradient(180deg, #2222ddd1 10%, #d0185f 100%);
+  background-color: #2222ddd1 !important;
+  /* background-image: linear-gradient(180deg, #2222ddd1 10%, #d0185f 100%); */
 }
 
 .w-90{
@@ -142,8 +187,8 @@ footer {
   border-radius: 10px;
   -webkit-transition: .5s;
   transition: .5s;
-  padding: 50px 20px;
-  box-shadow: 0px 6px 7px -4px rgba(0,0,0,0.2);
+  padding: 32px 20px;
+  box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2);
 }
 
 .parish-card:hover{
@@ -158,8 +203,25 @@ footer {
 
 td{
   text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
 }
-
+.login-card{
+  box-shadow: 3px 8px 15px rgba(121, 121, 122, 0.35);
+  font-family: Montserrat, sans-serif;
+  color: #141313;
+  font-weight: 500;
+  background-color: #fff;
+  /* border-radius: 10px; */
+  -webkit-transition: .5s;
+  transition: .5s;
+  padding: 30px 2px;
+  width: 70%;
+  margin: 2em auto;
+  background-color: #ffffff;
+  max-height: 100%;
+  overflow-y: auto;
+}
 
 .fieldWrapper > i {
   color: #440dda;
@@ -171,25 +233,25 @@ td{
   text-decoration: none;
 }
 .logC{
-  margin-top: 20px;
+  width: 375px;
+  max-width: 100%;
 }
 .loginTxt{
-  font-size: 32px;
-  font-weight: 700;
-  color: #440dda;
-  font-style: italic;
+  font-size: 24px;
+  font-weight: 500;
+  color: #1373be;
   
 }
 
 .loginpic{
-  /* width: 409px; */
+  width: 372px;
+  max-width: 100%;
   height: 100%;
-  margin: auto -10px;
   }
 .parish-content > a {
   text-decoration: none;
   color: #2222dd;
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -203,9 +265,7 @@ td{
   padding: 57px 78px;
 }
 .nav-link{
-  /* font-size: 16px; */
   font-weight: 700;
-  color: #ffffff;
 }
 
 .nav{
@@ -224,7 +284,7 @@ td{
 }
 
 .plus-icon > i {
-  font-size: 50px;
+  font-size: 33px;
   color: #440dda;
   font-weight: 700;
 }
@@ -233,7 +293,7 @@ td{
   box-shadow: 0px 0px 8px 10px rgba(59,67,59,0.2);
 }
 .plus-icon{
-  background-color: #fff;
+  background-color: #f6f3f9;
   border-radius: 20px;
   padding: 10px 15px;
 }
@@ -263,6 +323,7 @@ body {
 
 
 
+
 #phone {
   padding-top: 6px;
   padding-bottom: 6px;
@@ -271,12 +332,38 @@ body {
 }
 
 .btn {
-  border-color: #357EBD;
-  font-size: 14px;
+  /* font-size: 11px; */
   outline: none;
   cursor: pointer;
   padding-left: 12px;
   padding-right: 12px;
+}
+.btn-outline-secondary {
+  --bs-btn-color: #0606cdd1;
+  --bs-btn-border-color: #2222ddd1;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #2222ddd1;
+  --bs-btn-hover-border-color: #2222ddd1;
+  --bs-btn-focus-shadow-rgb: 133, 135, 150;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #2222ddd1;
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #2222ddd1;
+  --bs-btn-border-color: #2222ddd1;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #0505ead1;
+  --bs-btn-hover-border-color: #2222ddd1;
+  --bs-btn-focus-shadow-rgb: 105, 136, 228;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #2222ddd1;
+  --bs-btn-active-border-color: #2222ddd1;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #2222ddd1;
+  --bs-btn-disabled-border-color: #2222ddd1;
 }
 
 .btn:active {
@@ -478,9 +565,21 @@ div.info p {
   text-decoration: underline;
   cursor: pointer;
 }
-
+.status-indicator {
+  background-color: #eaecf4;
+  height: .75rem;
+  width: .75rem;
+  border-radius: 100%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: .125rem solid #fff;
+}
+th {
+  text-align: center;
+}
 .clergyTable{
-  font-size: 15px;
+  font-size: 0.85em
 }
 .docH{
   color: #440dda;
@@ -495,37 +594,53 @@ div.parishinfo p{
 footer > .container > strong{
   font-weight: 600;
 }
-@media screen and (max-width: 922px){
-  footer{
+@media screen and (max-width: 922px) {
+  footer {
     display: none;
   }
-  
-  .content-wrapper{
+
+  .content-wrapper {
     margin-left: 0px;
   }
 
 
-.parish-content > a {
+  .parish-content>a {
     text-decoration: none;
-    color: #fff;
+    color: #2222dd;
     font-weight: 700;
     font-size: 11px;
-}
-.plus-icon > i {
-  font-size: 20px;
-}
+  }
 
-.parish-card{
-  padding: 20px 10px;
-}
-.parish-content{
-  grid-gap: 20px;
-}
-.plus-icon{
-  padding: 5px;
-}
-.pic-card{
-  display: none;
-}
+  .plus-icon>i {
+    font-size: 20px;
+  }
 
+  .parish-card {
+    padding: 20px 10px;
+  }
+
+  .parish-content {
+    grid-gap: 20px;
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .plus-icon {
+    padding: 5px;
+  }
+
+  .pic-card {
+    display: none;
+  }
+
+  /* .nav-bg {
+    background-color: ;
+  } */
+
+  .sidebar .nav-item .collapse {
+    position: relative;
+    left: 0;
+    z-index: 1;
+    top: 0;
+    animation: none;
+  }
 }

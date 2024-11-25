@@ -1,0 +1,16 @@
+{
+    "name": "CCC Admin App",
+    "short_name": "CCCAdmin",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2222ddd1",
+    "icons": [
+      {
+        "src": "/static/icons/celeicon.png",
+        "sizes": "144x144",
+        "type": "image/png"
+      }
+    ]
+  }
+  

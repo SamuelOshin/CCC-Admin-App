@@ -82,15 +82,29 @@
 
 })(); // End of use strict
 
-
+// For Parish Restructure
 document.addEventListener('DOMContentLoaded', function () {
-  var dioceseSelect = document.getElementById('id_diocese');
-  var regionSelect = document.getElementById('id_region');
-  var areaSelect = document.getElementById('id_area');
+  var dioceseSelect = $('#id_diocese');
+  var regionSelect = $('#id_region');
+  var areaSelect = $('#id_area');
+  var districtSelect = $('#id_district');
+  var circuitSelect = $('#id_circuit');
 
-  dioceseSelect.addEventListener('change', function () {
-    var dioceseId = this.value;
+  // Initialize Select2 for each select element
+  dioceseSelect.select2();
+  regionSelect.select2();
+  areaSelect.select2();
+  districtSelect.select2();
+  circuitSelect.select2();
 
+  dioceseSelect.on('change', function () {
+    var dioceseId = $(this).val();
+
+    // Clear previous selections
+    regionSelect.empty().append('<option value="">Select Region</option>').trigger('change');
+    areaSelect.empty().append('<option value="">Select Area</option>').trigger('change');
+    
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
 
     // Fetch regions for the selected diocese
     fetch(`/get_regions_and_areas/?diocese_id=${dioceseId}`)
@@ -100,21 +114,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Populate regions select
         data.regions.forEach(region => {
-          var option = document.createElement('option');
-          option.value = region.id;
-          option.text = region.name;
-          regionSelect.appendChild(option);
+          var option = new Option(region.name, region.id, false, false);
+          regionSelect.append(option);
         });
-
-        // Populate areas select (optional)
-        // You can implement this if needed
+        regionSelect.trigger('change'); // Update Select2
       })
       .catch(error => console.error('Error:', error));
   });
 
-  regionSelect.addEventListener('change', function () {
-    var regionId = this.value;
+  regionSelect.on('change', function () {
+    var regionId = $(this).val();
 
+    // Clear previous selections
+    areaSelect.empty().append('<option value="">Select Area</option>').trigger('change');
+    
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
 
     // Fetch areas for the selected region
     fetch(`/get_regions_and_areas/?region_id=${regionId}`)
@@ -124,15 +138,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Populate areas select
         data.areas.forEach(area => {
-          var option = document.createElement('option');
-          option.value = area.id;
-          option.text = area.name;
-          areaSelect.appendChild(option);
+          var option = new Option(area.name, area.id, false, false);
+          areaSelect.append(option);
         });
+        areaSelect.trigger('change'); // Update Select2
+      })
+      .catch(error => console.error('Error:', error));
+  });
+
+  areaSelect.on('change', function () {
+    var areaId = $(this).val();
+
+    // Clear previous selections
+    
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
+
+    // Fetch districts for the selected area
+    fetch(`/get_regions_and_areas/?area_id=${areaId}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Received data:', data); // Debugging: Log received data
+
+        // Populate districts select
+        data.districts.forEach(district => {
+          var option = new Option(district.name, district.id, false, false);
+          districtSelect.append(option);
+        });
+        districtSelect.trigger('change'); // Update Select2
+      })
+      .catch(error => console.error('Error:', error));
+  });
+
+  districtSelect.on('change', function () {
+    var districtId = $(this).val();
+
+    // Clear previous selections
+    circuitSelect.empty().append('<option value="">Select Circuit</option>').trigger('change');
+
+    // Fetch circuits for the selected district
+    fetch(`/get_regions_and_areas/?district_id=${districtId}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Received data:', data); // Debugging: Log received data
+
+        // Populate circuits select
+        data.circuits.forEach(circuit => {
+          var option = new Option(circuit.name, circuit.id, false, false);
+          circuitSelect.append(option);
+        });
+        circuitSelect.trigger('change'); // Update Select2
       })
       .catch(error => console.error('Error:', error));
   });
 });
+
 
 let autocomplete;
 
@@ -161,11 +220,36 @@ function onPlaceChanged() {
   // Display details about the valid place
   document.getElementById('details').innerHTML = place.name;
 }
-
 // Fetch address of the selected parish id
-document.getElementById("id_parish").addEventListener("change", function () {
-  var selectedParishId = this.value;
-  fetchParishAddress(selectedParishId);
+$('#parishFrmId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishAddresss(selectedParishId); // Fetch parish address
+});
+$('#parishToId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishAddresssTo(selectedParishId); // Fetch parish address
+});
+
+$('#parishFrmId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishLocation(selectedParishId); // Fetch parish address
+});
+$('#parishToId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishLocationI(selectedParishId); // Fetch parish address
+});
+$('#parishFrmId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParish(selectedParishId); // Fetch parish address
+});
+$('#parishToId').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishI(selectedParishId); // Fetch parish address
+});
+
+$('#id_parish').on('select2:select', function (e) {
+  var selectedParishId = e.params.data.id; // Get the selected value from Select2 data
+  fetchParishAddress(selectedParishId); // Fetch parish address
 });
 
 function fetchParishAddress(parishId) {
@@ -175,5 +259,101 @@ function fetchParishAddress(parishId) {
       document.getElementById("id_address").value = data.address;
     })
     .catch(error => console.error('Error:', error));
-  console.log('Error:', error);
 }
+
+function fetchParishAddresss(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_address").value = data.address;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+function fetchParishAddresssTo(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_address_to").value = data.address;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+
+function fetchParishLocation(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_location").value = data.location;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+function fetchParishLocationI(parishToId) {
+  fetch(`transfer/api/parish/${parishToId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_location_to").value = data.location;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+function fetchParish(parishFrmId) {
+  fetch(`transfer/api/parish/${parishFrmId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_parishFrm").value = data.id;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+function fetchParishI(parishToId) {
+  fetch(`transfer/api/parish/${parishToId}/`, {
+    method: 'GET' // specifying the request method
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("id_parishTo").value = data.id;
+    })
+    .catch(error => console.error('Error:', error)); 
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const alerts = document.querySelectorAll(".alert");
+  alerts.forEach(function(alert) {
+      setTimeout(function() {
+          alert.style.display = 'none';
+      }, 5000);
+  });
+});
+
+// Page reload icon
+document.addEventListener('DOMContentLoaded', function() {
+  const loadingScreen = document.getElementById('loading');
+
+  // Show loading screen on page load
+  window.addEventListener('beforeunload', () => {
+    loadingScreen.style.display = 'flex';
+  });
+
+  // Optional: Hide loading screen when page is fully loaded
+  window.addEventListener('load', () => {
+    loadingScreen.style.display = 'none';
+  });
+});
+
+// Show loading screen when a link is clicked
+document.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', function() {
+    loadingScreen.style.display = 'flex';
+  });
+});
