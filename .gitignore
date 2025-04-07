@@ -3,3 +3,8 @@
 .env
 .dockerignore
 .codegpt
+*venv/
+*scripts/
+*__pycache__/
+*.pyc
+*share/
