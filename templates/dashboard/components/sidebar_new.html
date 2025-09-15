@@ -1,0 +1,427 @@
+{% load static %}
+<nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" id="dashboard-sidebar">
+    <div class="container-fluid d-flex flex-column p-0">
+        <!-- Brand -->
+        <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="{% url 'dashboard' %}">
+            <div class="sidebar-brand-icon rotate-n-15">
+                <img src="{% static 'assets/img/777899999.png' %}" alt="CCC Logo" 
+                     class="img-fluid" width="40" height="40">
+            </div>
+            <div class="sidebar-brand-text mx-3">
+                <span>CCC Admin</span>
+            </div>
+        </a>
+        <hr class="sidebar-divider my-0">
+        
+        <!-- Navigation -->
+        <ul class="navbar-nav text-light" id="accordionSidebar">
+            <!-- Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                   href="{% url 'dashboard' %}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <!-- User Profile -->
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'profile' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="{% url 'edit_profile' %}">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            {% endif %}
+
+            <!-- Clergy Management -->
+            {% if user_permissions.can_manage_clergy %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'clergy' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="#" data-bs-toggle="collapse" data-bs-target="#collapseClergy" 
+                   aria-expanded="{% if 'clergy' in request.resolver_match.url_name %}true{% else %}false{% endif %}" 
+                   aria-controls="collapseClergy">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Clergy Management</span>
+                </a>
+                <div id="collapseClergy" class="collapse {% if 'clergy' in request.resolver_match.url_name %}show{% endif %}" 
+                     data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Clergy Options:</h6>
+                        <a class="collapse-item {% if request.resolver_match.url_name == 'register_clergy' %}active{% endif %}" 
+                           href="{% url 'register_clergy' %}">Register Clergy</a>
+                        <a class="collapse-item {% if request.resolver_match.url_name == 'view_all_clergy' %}active{% endif %}" 
+                           href="{% url 'view_all_clergy' %}">View All Clergy</a>
+                        <a class="collapse-item" href="#">Reports</a>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+
+            <!-- Transfer Management -->
+            {% if user_permissions.can_manage_transfers %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'transfer' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="#" data-bs-toggle="collapse" data-bs-target="#collapseTransfer" 
+                   aria-expanded="{% if 'transfer' in request.resolver_match.url_name %}true{% else %}false{% endif %}" 
+                   aria-controls="collapseTransfer">
+                    <i class="fas fa-fw fa-exchange-alt"></i>
+                    <span>Transfer Management</span>
+                </a>
+                <div id="collapseTransfer" class="collapse {% if 'transfer' in request.resolver_match.url_name %}show{% endif %}" 
+                     data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Transfer Options:</h6>
+                        <a class="collapse-item {% if request.resolver_match.url_name == 'create_transfer' %}active{% endif %}" 
+                           href="{% url 'create_transfer' %}">Create Transfer</a>
+                        <a class="collapse-item {% if request.resolver_match.url_name == 'view_transfers' %}active{% endif %}" 
+                           href="{% url 'view_transfers' %}">View Transfers</a>
+                        <a class="collapse-item" href="#">Reports</a>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+
+            <!-- Parish Management -->
+            {% if user_permissions.can_manage_parishes %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'parish' in request.resolver_match.url_name %}active{% endif %}" 
+                   href="#" data-bs-toggle="collapse" data-bs-target="#collapseParish" 
+                   aria-expanded="{% if 'parish' in request.resolver_match.url_name %}true{% else %}false{% endif %}" 
+                   aria-controls="collapseParish">
+                    <i class="fas fa-fw fa-church"></i>
+                    <span>Parish Management</span>
+                </a>
+                <div id="collapseParish" class="collapse {% if 'parish' in request.resolver_match.url_name %}show{% endif %}" 
+                     data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Parish Options:</h6>
+                        <a class="collapse-item {% if request.resolver_match.url_name == 'parish_dashboard' %}active{% endif %}" 
+                           href="{% url 'parish_dashboard' %}">Parish Dashboard</a>
+                        <a class="collapse-item {% if request.resolver_match.url_name == 'parish-registration' %}active{% endif %}" 
+                           href="{% url 'parish-registration' %}">Register Parish</a>
+                        <a class="collapse-item" href="#">View Parishes</a>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- System Administration -->
+            {% if user.is_superuser %}
+            <div class="sidebar-heading">
+                System Administration
+            </div>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/" target="_blank">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Django Admin</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSettings" 
+                   aria-expanded="false" aria-controls="collapseSettings">
+                    <i class="fas fa-fw fa-tools"></i>
+                    <span>System Settings</span>
+                </a>
+                <div id="collapseSettings" class="collapse" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Settings:</h6>
+                        <a class="collapse-item" href="#">User Management</a>
+                        <a class="collapse-item" href="#">System Logs</a>
+                        <a class="collapse-item" href="#">Backup & Restore</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Analytics & Reports -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports" 
+                   aria-expanded="false" aria-controls="collapseReports">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>Analytics & Reports</span>
+                </a>
+                <div id="collapseReports" class="collapse" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Reports:</h6>
+                        <a class="collapse-item" href="#">Clergy Reports</a>
+                        <a class="collapse-item" href="#">Transfer Reports</a>
+                        <a class="collapse-item" href="#">Parish Reports</a>
+                        <a class="collapse-item" href="#">System Analytics</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="sidebar-heading">
+                Quick Actions
+            </div>
+            
+            {% if user_permissions.can_manage_clergy %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'register_clergy' %}">
+                    <i class="fas fa-fw fa-user-plus"></i>
+                    <span>Add New Clergy</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% if user_permissions.can_manage_transfers %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'create_transfer' %}">
+                    <i class="fas fa-fw fa-plus-circle"></i>
+                    <span>Create Transfer</span>
+                </a>
+            </li>
+            {% endif %}
+
+            <!-- Logout -->
+            <hr class="sidebar-divider d-none d-md-block">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-fw fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+        <!-- User Info Card (Bottom) -->
+        {% if user.is_authenticated %}
+        <div class="sidebar-card d-none d-lg-flex">
+            <div class="card card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        {% if user.userprofile.pic %}
+                            <img src="{{ user.userprofile.pic.url }}" alt="User Avatar" 
+                                 class="rounded-circle" width="40" height="40">
+                        {% else %}
+                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" 
+                                 style="width: 40px; height: 40px; font-size: 18px;">
+                                {{ user.first_name.0|default:user.username.0|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-0 text-white" style="font-size: 0.875rem;">
+                            {{ user.get_full_name|default:user.username|truncatechars:20 }}
+                        </h6>
+                        <small class="text-white-50" style="font-size: 0.75rem;">
+                            {% if user.is_superuser %}
+                                Super Administrator
+                            {% elif 'ClergyAdmin' in user_groups %}
+                                Clergy Administrator
+                            {% elif 'TransferAdmin' in user_groups %}
+                                Transfer Administrator
+                            {% else %}
+                                Parish Administrator
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</nav>
+
+<style>
+/* Modern Sidebar Styles */
+.sidebar {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #5a5c69 10%, #2e59d9 100%);
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 1rem;
+    font-weight: 400;
+    transition: all 0.15s ease-in-out;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link i {
+    font-size: 0.85rem;
+    margin-right: 0.25rem;
+}
+
+.sidebar .sidebar-brand {
+    height: 4.375rem;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .sidebar-brand .sidebar-brand-icon i {
+    font-size: 2rem;
+}
+
+.sidebar .sidebar-brand .sidebar-brand-text {
+    display: inline;
+}
+
+.sidebar hr.sidebar-divider {
+    margin: 0 1rem 1rem;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar .sidebar-heading {
+    text-align: center;
+    padding: 0 1rem;
+    font-weight: 800;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+/* Collapse Styles */
+.sidebar .collapse-inner {
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.sidebar .collapse-item {
+    display: block;
+    color: #3a3b45;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.15s ease-in-out;
+}
+
+.sidebar .collapse-item:hover,
+.sidebar .collapse-item.active {
+    background-color: #eaecf4;
+    color: #5a5c69;
+}
+
+.sidebar .collapse-header {
+    margin: 0;
+    color: #6c757d;
+    font-weight: 800;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    padding: 1.5rem 1rem 0.5rem;
+}
+
+/* Sidebar Toggler */
+.sidebar #sidebarToggle {
+    width: 2.5rem;
+    height: 2.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.15s ease-in-out;
+}
+
+.sidebar #sidebarToggle:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.sidebar #sidebarToggle:focus {
+    outline: none;
+}
+
+/* User Card */
+.sidebar .sidebar-card {
+    flex: 1 0 auto;
+    padding: 1rem;
+    position: relative;
+}
+
+.sidebar .sidebar-card .card {
+    border: none;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 0.35rem;
+}
+
+.sidebar .sidebar-card .card-body {
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.7rem;
+    line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767.98px) {
+    .sidebar {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        z-index: 1050;
+        transition: all 0.3s ease-in-out;
+    }
+    
+    .sidebar.show {
+        left: 0;
+    }
+    
+    .sidebar .sidebar-card {
+        display: none !important;
+    }
+}
+
+/* Sidebar Collapsed State */
+.sidebar.toggled {
+    width: 6.5rem;
+}
+
+.sidebar.toggled .sidebar-brand .sidebar-brand-text {
+    display: none;
+}
+
+.sidebar.toggled .sidebar-heading {
+    display: none;
+}
+
+.sidebar.toggled .nav-link span {
+    display: none;
+}
+
+.sidebar.toggled .sidebar-card {
+    display: none !important;
+}
+
+.sidebar.toggled .collapse {
+    display: none;
+}
+
+.sidebar.toggled .nav-link {
+    text-align: center;
+    padding: 0.75rem 1rem;
+    width: 6.5rem;
+}
+
+.sidebar.toggled .nav-link i {
+    margin-right: 0;
+}
+</style>

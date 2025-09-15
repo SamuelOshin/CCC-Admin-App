@@ -1,89 +1,172 @@
-{% extends 'ParishRestructure/base.html' %}
-{% include 'ParishRestructure/head.html' %}
+{% extends 'dashboard/layouts/detail_layout.html' %}
 {% load static %}
-{% load widget_tweaks %}
 
+{% block title %}CCC {{ parish.parish.name }} - Parish Details{% endblock %}
 
+{% block page_title %}CCC {{ parish.parish.name }}{% endblock %}
+{% block page_subtitle %}Parish Restructure Information{% endblock %}
 
+{% block back_url %}{% url 'view_parishes' %}{% endblock %}
+{% block breadcrumb_parent_url %}{% url 'view_parishes' %}{% endblock %}
+{% block breadcrumb_parent %}Parish List{% endblock %}
+{% block breadcrumb_current %}Parish Details{% endblock %}
 
-{% block content %}
+{% block parish_image_src %}{% static 'assets/img/Celestial-Church-of-Christ-CCC.jpg' %}{% endblock %}
+{% block parish_image_alt %}{{ parish.parish.name }} Parish{% endblock %}
 
-<div class="container">
-    <div class="d-flex justify-content-end ">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="{% url 'parish_dashboard' %}">Home</a></li>
-              <li class="breadcrumb-item"><a href="{% url 'view_parishes' %}">ViewParish list</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Parish</li>
-            </ol>
-          </nav>
-    </div>
-    <h3 class="text-light text-bg-primary mb-4">
-        <strong>CCC {{parish.parish.name}}</strong>
-    </h3>
-    <div class="cardd">
-        <div class="card-body">
-            {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+{% block parish_details %}
+<div class="row g-4">
+    <!-- Parish Name -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-primary me-3">
+                <i class="bi bi-building"></i>
             </div>
-            {% endfor %}
-            {% endif %}
+            <div>
+                <div class="text-muted small">Parish Name</div>
+                <div class="fw-bold fs-5">CCC {{ parish.parish.name }}</div>
+            </div>
+        </div>
+    </div>
 
-            <div class="parish-details-card">
-                <div class="row row-gap-3">
-                    <div class="col-md-12 mb-3  ">
-                        <div class="gallery">
-                            <div id="product-preview">
-                                <div class="zoomed-image"></div>
-                                <div class="parishImg">
-                                    <img class="img-fluid d-block small-preview" src="{% static 'assets/img/Celestial-Church-of-Christ-CCC.jpg' %}" />
-                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="info">
-                            <p>Parish Details<p>
-                            <div class="parish-info-body">
-                               <div class="parishinfo">
-                                    <i class="fa-regular fa-church"></i>
-                                    <span>CCC {{parish.parish.name}}</span>
-                                </div>
-                                <div class="parishinfo">
-                                    <i class="fa-solid fa-location-dot"></i>
-                                    <span>{{parish.address}}</span>
-                                </div> 
-                                <div class="parishinfo">
-                                    <i class="fa-solid fa-layer-group"></i>
-                                    <span>{{parish.location}}</span>
-                                </div>
-                            </div>
-                            
-                           
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                       <div class="map">
-                        <iframe 
-                            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&q={{parish.address}}"
-                            width="90%" 
-                            height="300px" 
-                            style="border: 1px;; border-radius: 10px;" 
-                            allowfullscreen="" 
-                            loading="lazy" 
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
-                       </div>
-                    </div>
+    <!-- Parish Address -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-info me-3">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Address</div>
+                <div class="fw-bold">{{ parish.parish.address }}</div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Location Hierarchy -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-warning me-3">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Location</div>
+                <div class="fw-bold">{{ parish.location.name }}</div>
+                <small class="text-muted">{{ parish.location.get_level_display }}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parish ID/Reference -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-dark me-3">
+                <i class="bi bi-hash"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Parish ID</div>
+                <div class="fw-bold">{{ parish.id }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Status -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-secondary me-3">
+                <i class="bi bi-bookmark-check"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Registration Status</div>
+                <div>
+                    {% if parish.parish.register_status %}
+                    <span class="badge bg-success fs-6 px-3 py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i>Registered
+                    </span>
+                    {% else %}
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning fs-6 px-3 py-2">
+                            <i class="bi bi-clock me-1"></i>Not Registered
+                        </span>
+                        <a href="{% url 'reg-old-parish' parish.parish.id %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i>Register Now
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Location Hierarchy Information -->
+<div class="mt-4 pt-4 border-top">
+    <h6 class="text-muted mb-3">
+        <i class="bi bi-geo-alt me-2"></i>Location Hierarchy
+    </h6>
+    <div class="row g-3">
+        {% comment %} Display location hierarchy if available {% endcomment %}
+        <div class="col-md-12">
+            <div class="alert alert-light">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-2"></i>
+                    This parish is structured under: <strong>{{ parish.location.name }}</strong>
+                    ({{ parish.location.get_level_display }})
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block map_address %}{{ parish.parish.address }}{% endblock %}
+
+{% block stat_value %}
+{% if parish.parish.register_status %}Registered{% else %}Pending{% endif %}
+{% endblock %}
+
+{% block stat_date %}N/A{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'view_parishes' %}" class="btn btn-outline-primary">
+    <i class="bi bi-arrow-left me-2"></i>Back
+</a>
+<a href="{% url 'edit_parish' parish.id %}" class="btn btn-primary me-2">
+    <i class="bi bi-pencil me-2"></i>Edit
+</a>
+<a href="{% url 'delete_p' parish.id %}" class="btn btn-danger"
+   onclick="return confirm('Are you sure you want to delete this parish?')">
+    <i class="bi bi-trash me-2"></i>Delete
+</a>
+{% endblock %}
+
+<!-- Documents Section for Registered Parishes -->
+{% block documents_section %}
+{% if parish.parish.register_status %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-file-earmark-text me-2 text-success"></i>Submitted Documents
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Document details will be available once registration is completed.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add any parish restructure-specific JavaScript here
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Parish Restructure view loaded for: {{ parish.parish.name }}');
+});
+</script>
 {% endblock %}

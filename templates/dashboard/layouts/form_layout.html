@@ -1,0 +1,487 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="form-layout">
+    <!-- Form Header -->
+    <div class="form-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="form-title">
+                    <h1 class="h3 mb-2 text-dark fw-bold">
+                        {% block form_title %}Form Title{% endblock %}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {% block form_subtitle %}
+                            Complete the form below to submit your information
+                        {% endblock %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="form-actions">
+                    {% block form_header_actions %}
+                    <a href="{% block back_url %}javascript:history.back(){% endblock %}" 
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back
+                    </a>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <div class="row justify-content-center">
+            <div class="{% block form_column_class %}col-9{% endblock %}">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="card-title mb-0">
+                                <i class="{% block form_icon %}fas fa-edit{% endblock %} me-2"></i>
+                                {% block card_title %}{{ form_title|default:"Form Details" }}{% endblock %}
+                            </h5>
+                            <div class="form-progress">
+                                {% block form_progress %}
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-edit me-1"></i>Step 1 of 1
+                                </span>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Form Instructions -->
+                        {% block form_instructions %}
+                        <div class="alert alert-info border-0 mb-4">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle fa-lg"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <strong>Instructions:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Fill in all required fields marked with <span class="text-danger">*</span></li>
+                                        <li>Ensure all information is accurate before submitting</li>
+                                        <li>Use the Save Draft option to save your progress</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endblock %}
+
+                        <!-- Main Form -->
+                        <form method="{% block form_method %}post{% endblock %}" 
+                              enctype="{% block form_enctype %}multipart/form-data{% endblock %}"
+                              class="needs-validation" 
+                              novalidate
+                              id="main-form">
+                            {% csrf_token %}
+                            
+                            <!-- Form Content -->
+                            {% block form_content %}
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="text-muted text-center py-5">
+                                        Override the form_content block to add your form fields here.
+                                    </p>
+                                </div>
+                            </div>
+                            {% endblock %}
+
+                            <!-- Form Actions -->
+                            <div class="form-actions-bottom mt-4 pt-4 border-top">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {% block form_secondary_actions %}
+                                        <button type="button" class="btn btn-outline-secondary me-2" 
+                                                onclick="resetForm()">
+                                            <i class="fas fa-undo me-1"></i>Reset
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info" 
+                                                onclick="saveDraft()">
+                                            <i class="fas fa-save me-1"></i>Save Draft
+                                        </button>
+                                        {% endblock %}
+                                    </div>
+                                    <div class="col-md-6 text-md-end">
+                                        {% block form_primary_actions %}
+                                        <button type="button" class="btn btn-secondary me-2" 
+                                                onclick="previewForm()">
+                                            <i class="fas fa-eye me-1"></i>Preview
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                                            <i class="fas fa-check me-1"></i>
+                                            {% block submit_text %}Submit{% endblock %}
+                                        </button>
+                                        {% endblock %}
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Additional Form Sections -->
+                {% block additional_form_sections %}{% endblock %}
+            </div>
+
+            <!-- Form Sidebar -->
+            {% block form_sidebar %}
+            <div class="col-3">
+                <div class="form-sidebar">
+                    <!-- Help Card -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light border-bottom">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-question-circle me-2"></i>Need Help?
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                If you need assistance with this form, please refer to the help documentation 
+                                or contact support.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-book me-1"></i>View Documentation
+                                </a>
+                                <a href="#" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-headset me-1"></i>Contact Support
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Tips -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light border-bottom">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-lightbulb me-2"></i>Tips
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {% block form_tips %}
+                            <ul class="list-unstyled small mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Double-check all required fields
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Upload clear, readable documents
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Save your progress frequently
+                                </li>
+                                <li>
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Review before final submission
+                                </li>
+                            </ul>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Form Modals -->
+    {% block form_modals %}
+    <!-- Preview Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-eye me-2"></i>Form Preview
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="preview-content">
+                    <!-- Preview content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitFormFromPreview()">
+                        <i class="fas fa-check me-1"></i>Submit Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirm Submission
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to submit this form? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmSubmit()">
+                        <i class="fas fa-check me-1"></i>Yes, Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</div>
+
+<style>
+    .form-layout .card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .form-layout .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-layout .required-field::after {
+        content: ' *';
+        color: #dc3545;
+    }
+
+    .form-layout .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 92, 254, 0.25);
+    }
+
+    .form-layout .invalid-feedback {
+        display: block;
+    }
+
+    .form-layout .was-validated .form-control:invalid {
+        border-color: #dc3545;
+    }
+
+    .form-layout .was-validated .form-control:valid {
+        border-color: #198754;
+    }
+
+    .form-actions-bottom {
+        background-color: #f8f9fa;
+        margin: 1.5rem -1.5rem -1.5rem -1.5rem;
+        padding: 1.5rem;
+        border-radius: 0 0 0.375rem 0.375rem;
+    }
+
+    /* Loading state for submit button */
+    .btn-loading {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    .btn-loading .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .form-layout .form-actions-bottom .row > div {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .form-layout .form-actions-bottom .row > div:last-child {
+            margin-bottom: 0;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('main-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Form validation
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        } else {
+            event.preventDefault();
+            showConfirmModal();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Auto-save functionality
+    let autoSaveTimer;
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(saveDraft, 30000); // Auto-save after 30 seconds of inactivity
+        });
+    });
+});
+
+function resetForm() {
+    const form = document.getElementById('main-form');
+    form.reset();
+    form.classList.remove('was-validated');
+    
+    // Show confirmation
+    showToast('Form has been reset', 'info');
+}
+
+function saveDraft() {
+    const form = document.getElementById('main-form');
+    const formData = new FormData(form);
+    
+    // Add draft flag
+    formData.append('is_draft', 'true');
+    
+    // Show loading state
+    showLoading();
+    
+    // Make AJAX request to save draft
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            showToast('Draft saved successfully', 'success');
+        } else {
+            showToast('Failed to save draft', 'error');
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        showToast('Error saving draft', 'error');
+    });
+}
+
+function previewForm() {
+    const form = document.getElementById('main-form');
+    const formData = new FormData(form);
+    
+    // Generate preview content
+    let previewHtml = '<div class="table-responsive"><table class="table table-striped">';
+    
+    for (let [key, value] of formData.entries()) {
+        if (key !== 'csrfmiddlewaretoken' && value) {
+            previewHtml += `
+                <tr>
+                    <th class="text-nowrap" style="width: 30%;">${formatFieldName(key)}</th>
+                    <td>${formatFieldValue(key, value)}</td>
+                </tr>
+            `;
+        }
+    }
+    
+    previewHtml += '</table></div>';
+    
+    document.getElementById('preview-content').innerHTML = previewHtml;
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
+}
+
+function showConfirmModal() {
+    new bootstrap.Modal(document.getElementById('confirmModal')).show();
+}
+
+function confirmSubmit() {
+    const form = document.getElementById('main-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Hide modal
+    bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+    
+    // Show loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+    submitBtn.classList.add('btn-loading');
+    
+    // Submit form
+    form.submit();
+}
+
+function submitFormFromPreview() {
+    bootstrap.Modal.getInstance(document.getElementById('previewModal')).hide();
+    showConfirmModal();
+}
+
+function formatFieldName(fieldName) {
+    return fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function formatFieldValue(fieldName, value) {
+    // Handle file inputs
+    if (value instanceof File) {
+        return `<span class="badge bg-primary">${value.name}</span>`;
+    }
+    
+    // Handle long text
+    if (value.length > 100) {
+        return value.substring(0, 100) + '...';
+    }
+    
+    return value;
+}
+
+function showToast(message, type) {
+    // Create and show toast notification
+    const toastContainer = document.querySelector('.toast-container') || createToastContainer();
+    const toast = createToast(message, type);
+    toastContainer.appendChild(toast);
+    new bootstrap.Toast(toast).show();
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
+
+function createToast(message, type) {
+    const typeConfig = {
+        success: { icon: 'fa-check-circle', class: 'text-success' },
+        error: { icon: 'fa-exclamation-circle', class: 'text-danger' },
+        info: { icon: 'fa-info-circle', class: 'text-info' }
+    };
+    
+    const config = typeConfig[type] || typeConfig.info;
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+        <div class="toast-header">
+            <i class="fas ${config.icon} ${config.class} me-2"></i>
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+    `;
+    
+    return toast;
+}
+</script>
+{% endblock %}

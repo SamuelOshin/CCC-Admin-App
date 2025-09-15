@@ -1,55 +1,586 @@
-{% extends 'transfer/base.html' %}
-
+{% extends 'dashboard/layouts/form_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
 
-    {% block content %}  
-    <form method="post">      
-        {% csrf_token %} 
-        <div class="container">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            <div class="bg-body-secondary  ">
-                <ul class="nav nav-tabs nav-justified mb-3" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#Biodata" aria-selected="true"
-                            role="tab">Biodata</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" data-bs-toggle="tab" href="#trfFrom" aria-selected="false" role="tab">Transfer From</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" data-bs-toggle="tab" href="#trfTo" aria-selected="false" role="tab">Transfer to</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" data-bs-toggle="tab" href="#duration" aria-selected="false" role="tab">Duration</a>
-                    </li>
-                </ul>
-            </div>
-            <div id="myTabContent" class="tab-content">
-                <div class="tab-pane fade show active" id="Biodata" role="tabpanel">
-                    {% include 'transfer/trfBio.html' %}
-                </div>
-                <div class="tab-pane fade" id="trfFrom" role="tabpanel">
-                    {% include 'transfer/trfFrom.html' %}
-                </div>
-                <div class="tab-pane fade" id="trfTo" role="tabpanel">
-                    {% include 'transfer/trfTo.html' %}
-                </div>
-                <div class="tab-pane fade" id="duration" role="tabpanel">
-                    {% include 'transfer/duration.html' %}
-                </div>
-            </div>
-            <div class="mt-3 text-center ">
-                <div class="mb-3"><button class="btn btn-primary btn-sm" type="submit">Save Settings</button></div>
-            </div>
-                
+{% block form_title %}Initiate Clergy Transfer{% endblock %}
+
+{% block form_subtitle %}
+Complete the transfer process for {{ clergy.first_name }} {{ clergy.last_name }}
+{% endblock %}
+
+{% block form_icon %}fas fa-exchange-alt{% endblock %}
+
+{% block card_title %}Transfer Initiation Form{% endblock %}
+
+{% block form_progress %}
+<span class="badge bg-primary">
+    <i class="fas fa-edit me-1"></i>Multi-Step Process
+</span>
+{% endblock %}
+
+{% block form_instructions %}
+<div class="alert alert-info border-0 mb-4">
+    <div class="d-flex">
+        <div class="flex-shrink-0">
+            <i class="fas fa-info-circle fa-lg"></i>
         </div>
-    </form>    
-    {% endblock %}
+        <div class="flex-grow-1 ms-3">
+            <strong>Transfer Process:</strong>
+            <ul class="mb-0 mt-2">
+                <li><strong>Step 1:</strong> Review clergy biodata and current information</li>
+                <li><strong>Step 2:</strong> Select the parish and designation to transfer from</li>
+                <li><strong>Step 3:</strong> Select the parish and designation to transfer to</li>
+                <li><strong>Step 4:</strong> Set transfer dates, status, and additional details</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_content %}
+<!-- Multi-Step Wizard -->
+<div class="transfer-wizard">
+    <!-- Wizard Navigation -->
+    <div class="wizard-nav mb-4">
+        <ul class="nav nav-pills nav-justified flex-column flex-sm-row" id="transferWizard" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="biodata-tab" data-bs-toggle="pill" data-bs-target="#biodata" type="button" role="tab" aria-controls="biodata" aria-selected="true">
+                    <div class="d-flex align-items-center">
+                        <div class="wizard-step-number me-2">1</div>
+                        <div class="wizard-step-content">
+                            <div class="wizard-step-title">Clergy Biodata</div>
+                            <div class="wizard-step-subtitle">Review information</div>
+                        </div>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="transfer-from-tab" data-bs-toggle="pill" data-bs-target="#transfer-from" type="button" role="tab" aria-controls="transfer-from" aria-selected="false">
+                    <div class="d-flex align-items-center">
+                        <div class="wizard-step-number me-2">2</div>
+                        <div class="wizard-step-content">
+                            <div class="wizard-step-title">Transfer From</div>
+                            <div class="wizard-step-subtitle">Current parish</div>
+                        </div>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="transfer-to-tab" data-bs-toggle="pill" data-bs-target="#transfer-to" type="button" role="tab" aria-controls="transfer-to" aria-selected="false">
+                    <div class="d-flex align-items-center">
+                        <div class="wizard-step-number me-2">3</div>
+                        <div class="wizard-step-content">
+                            <div class="wizard-step-title">Transfer To</div>
+                            <div class="wizard-step-subtitle">New parish</div>
+                        </div>
+                    </div>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="duration-tab" data-bs-toggle="pill" data-bs-target="#duration" type="button" role="tab" aria-controls="duration" aria-selected="false">
+                    <div class="d-flex align-items-center">
+                        <div class="wizard-step-number me-2">4</div>
+                        <div class="wizard-step-content">
+                            <div class="wizard-step-title">Duration & Status</div>
+                            <div class="wizard-step-subtitle">Complete transfer</div>
+                        </div>
+                    </div>
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Wizard Content -->
+    <div class="tab-content" id="transferWizardContent">
+        <!-- Step 1: Biodata -->
+        <div class="tab-pane fade show active" id="biodata" role="tabpanel" aria-labelledby="biodata-tab">
+            <div class="wizard-step-content">
+                <div class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-light">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-user-circle me-2"></i>Profile Picture
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                {% if clergy.profile_picture %}
+                                    <img src="{{ clergy.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle mb-3" style="max-width: 150px; height: 150px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                                        <i class="fas fa-user fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <h5 class="card-title">{{ clergy.first_name }} {{ clergy.last_name }}</h5>
+                                <p class="text-muted mb-0">Clergy ID: {{ clergy.clergy_id }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-id-card me-2"></i>Personal Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <label class="form-label fw-bold text-muted">Registration Number</label>
+                                            <p class="mb-0">{{ clergy.reg_number|default:"Not Available" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <label class="form-label fw-bold text-muted">Contact Number</label>
+                                            <p class="mb-0">{{ clergy.telephone|default:"Not Available" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <label class="form-label fw-bold text-muted">Email Address</label>
+                                            <p class="mb-0">{{ clergy.email_address|default:"Not Available" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <label class="form-label fw-bold text-muted">Date of Birth</label>
+                                            <p class="mb-0">{{ clergy.dob|date:"M d, Y"|default:"Not Available" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="info-item">
+                                            <label class="form-label fw-bold text-muted">Rank</label>
+                                            <p class="mb-0">{{ clergy.present_annointment|default:"Not Available" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Transfer From -->
+        <div class="tab-pane fade" id="transfer-from" role="tabpanel" aria-labelledby="transfer-from-tab">
+            <div class="wizard-step-content">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-arrow-from-right me-2"></i>Transfer From Details
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Parish <span class="text-danger">*</span></label>
+                                <select id="parishFrmId" class="form-select parishSelect" name="parishFrm" required>
+                                    <option value="">Select a parish</option>
+                                    {% for parish in parishes %}
+                                    <option value="{{ parish.id }}">{{ parish.parish }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" id="id_parishFrm" name="parishFrm">
+                                <div class="invalid-feedback">Please select a parish.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Parish Address</label>
+                                <input type="text" name="address" maxlength="500" class="form-control pac-target-input" id="id_address" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Parish Status</label>
+                                <input type="text" name="location" maxlength="500" class="form-control pac-target-input" id="id_location" readonly>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Designation <span class="text-danger">*</span></label>
+                                {{ transfer_form.designation_frm|add_class:"form-select"|attr:"required" }}
+                                <div class="invalid-feedback">Please select a designation.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Transfer To -->
+        <div class="tab-pane fade" id="transfer-to" role="tabpanel" aria-labelledby="transfer-to-tab">
+            <div class="wizard-step-content">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-arrow-to-right me-2"></i>Transfer To Details
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Parish <span class="text-danger">*</span></label>
+                                <select id="parishToId" class="form-select parishSelect" name="parishTo" required>
+                                    <option value="">Select a parish</option>
+                                    {% for parish in parishes %}
+                                    <option value="{{ parish.id }}">{{ parish.parish }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" id="id_parishTo" name="parishTo">
+                                <div class="invalid-feedback">Please select a parish.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Parish Address</label>
+                                <input type="text" name="address_to" maxlength="500" class="form-control pac-target-input" id="id_address_to" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Parish Status</label>
+                                <input type="text" name="location_to" maxlength="500" class="form-control pac-target-input" id="id_location_to" readonly>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Designation <span class="text-danger">*</span></label>
+                                {{ transfer_form.designation_to|add_class:"form-select"|attr:"required" }}
+                                <div class="invalid-feedback">Please select a designation.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Duration & Status -->
+        <div class="tab-pane fade" id="duration" role="tabpanel" aria-labelledby="duration-tab">
+            <div class="wizard-step-content">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>Transfer Duration & Status
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Transfer Start Date <span class="text-danger">*</span></label>
+                                {{ transfer_form.trf_begin|add_class:"form-control"|attr:"type:date"|attr:"required" }}
+                                <div class="invalid-feedback">Please select a start date.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Transfer End Date <span class="text-danger">*</span></label>
+                                {{ transfer_form.trf_end|add_class:"form-control"|attr:"type:date"|attr:"required" }}
+                                <div class="invalid-feedback">Please select an end date.</div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Transfer Status <span class="text-danger">*</span></label>
+                                {{ transfer_form.trf_status|add_class:"form-select"|attr:"required" }}
+                                <div class="invalid-feedback">Please select a transfer status.</div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Remarks</label>
+                                {{ transfer_form.remarks|add_class:"form-control"|attr:"rows:3"|attr:"placeholder:Enter any additional notes or remarks about this transfer..." }}
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    {{ transfer_form.trf_extended|add_class:"form-check-input" }}
+                                    <label class="form-check-label fw-bold" for="{{ transfer_form.trf_extended.id_for_label }}">
+                                        Transfer Extended
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-12" id="extended-date-container" style="display: none;">
+                                <label class="form-label fw-bold">Extended Date</label>
+                                {{ transfer_form.extended_date|add_class:"form-control"|attr:"type:date" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Navigation Buttons -->
+    <div class="wizard-navigation mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-secondary" id="prevBtn" style="display: none;">
+                    <i class="fas fa-arrow-left me-1"></i>Previous
+                </button>
+            </div>
+            <div class="col-md-6 text-end">
+                <button type="button" class="btn btn-primary" id="nextBtn">
+                    Next<i class="fas fa-arrow-right ms-1"></i>
+                </button>
+                <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                    <i class="fas fa-save me-1"></i>Submit Transfer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_secondary_actions %}
+<button type="button" class="btn btn-outline-secondary me-2" onclick="resetForm()">
+    <i class="fas fa-undo me-1"></i>Reset Form
+</button>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.transfer-wizard .wizard-nav .nav-link {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 15px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.transfer-wizard .wizard-nav .nav-link.active {
+    border-color: #0d6efd;
+    background: #f8f9fa;
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.1);
+}
+
+.transfer-wizard .wizard-nav .nav-link.completed {
+    border-color: #198754;
+    background: #f8fff9;
+}
+
+.transfer-wizard .wizard-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.transfer-wizard .wizard-nav .nav-link.active .wizard-step-number {
+    background: #0d6efd;
+    color: white;
+}
+
+.transfer-wizard .wizard-nav .nav-link.completed .wizard-step-number {
+    background: #198754;
+    color: white;
+}
+
+.transfer-wizard .wizard-step-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #495057;
+}
+
+.transfer-wizard .wizard-step-subtitle {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+.transfer-wizard .wizard-nav .nav-link.active .wizard-step-title {
+    color: #0d6efd;
+}
+
+.transfer-wizard .wizard-nav .nav-link.completed .wizard-step-title {
+    color: #198754;
+}
+
+.info-item {
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.wizard-navigation {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+@media (max-width: 768px) {
+    .transfer-wizard .wizard-nav .nav-link {
+        padding: 10px;
+    }
+
+    .transfer-wizard .wizard-step-number {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Parish data for JavaScript -->
+<script>
+    // Parish data from Django context - made available globally for theme.js
+    window.parishesData = [
+        {% for parish in parishes %}
+        {
+            id: {{ parish.id }},
+            parish: "{{ parish.parish|escapejs }}",
+            address: "{{ parish.address|default:''|escapejs }}",
+            location: "{{ parish.location|default:''|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const wizardTabs = document.querySelectorAll('#transferWizard .nav-link');
+    const tabPanes = document.querySelectorAll('#transferWizardContent .tab-pane');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    let currentStep = 0;
+
+    // Initialize wizard
+    updateWizardState();
+
+    // Tab click handlers
+    wizardTabs.forEach((tab, index) => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (validateCurrentStep()) {
+                currentStep = index;
+                updateWizardState();
+            }
+        });
+    });
+
+    // Navigation button handlers
+    prevBtn.addEventListener('click', function() {
+        if (currentStep > 0) {
+            currentStep--;
+            updateWizardState();
+        }
+    });
+
+    nextBtn.addEventListener('click', function() {
+        if (validateCurrentStep()) {
+            if (currentStep < wizardTabs.length - 1) {
+                currentStep++;
+                updateWizardState();
+            }
+        }
+    });
+
+    // Transfer extended checkbox handler
+    const extendedCheckbox = document.querySelector('[name="trf_extended"]');
+    if (extendedCheckbox) {
+        extendedCheckbox.addEventListener('change', function() {
+            const extendedDateContainer = document.getElementById('extended-date-container');
+            if (this.checked) {
+                extendedDateContainer.style.display = 'block';
+            } else {
+                extendedDateContainer.style.display = 'none';
+            }
+        });
+    }
+
+    function updateWizardState() {
+        // Update tab states
+        wizardTabs.forEach((tab, index) => {
+            tab.classList.remove('active', 'completed');
+            if (index === currentStep) {
+                tab.classList.add('active');
+            } else if (index < currentStep) {
+                tab.classList.add('completed');
+            }
+        });
+
+        // Update tab panes
+        tabPanes.forEach((pane, index) => {
+            pane.classList.remove('show', 'active');
+            if (index === currentStep) {
+                pane.classList.add('show', 'active');
+            }
+        });
+
+        // Update navigation buttons
+        prevBtn.style.display = currentStep === 0 ? 'none' : 'inline-block';
+        nextBtn.style.display = currentStep === wizardTabs.length - 1 ? 'none' : 'inline-block';
+        submitBtn.style.display = currentStep === wizardTabs.length - 1 ? 'inline-block' : 'none';
+
+        // Update button text
+        if (currentStep === wizardTabs.length - 1) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'inline-block';
+        } else {
+            nextBtn.innerHTML = 'Next<i class="fas fa-arrow-right ms-1"></i>';
+        }
+    }
+
+    function validateCurrentStep() {
+        const currentPane = tabPanes[currentStep];
+        const requiredFields = currentPane.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        return isValid;
+    }
+
+    // Form validation
+    const form = document.getElementById('main-form');
+    form.addEventListener('submit', function(e) {
+        if (!validateAllSteps()) {
+            e.preventDefault();
+            // Show first invalid step
+            for (let i = 0; i < tabPanes.length; i++) {
+                if (!validateStep(i)) {
+                    currentStep = i;
+                    updateWizardState();
+                    break;
+                }
+            }
+        }
+    });
+
+    function validateAllSteps() {
+        let allValid = true;
+        for (let i = 0; i < tabPanes.length; i++) {
+            if (!validateStep(i)) {
+                allValid = false;
+            }
+        }
+        return allValid;
+    }
+
+    function validateStep(stepIndex) {
+        const pane = tabPanes[stepIndex];
+        const requiredFields = pane.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+});
+
+function resetForm() {
+    if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+        document.getElementById('main-form').reset();
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

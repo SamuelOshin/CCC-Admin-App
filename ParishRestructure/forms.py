@@ -8,7 +8,11 @@ class ParishDirectoryForm(forms.ModelForm):
 
     class Meta:
         model = ParishDirectory
-        fields = ['name', 'address']
+        fields = '__all__'
+        labels = {
+            'name': 'Parish Name',
+            'address': 'Parish Address'
+        }
 
 from django import forms
 from .models import ParishRestructure, ParishDirectory, Location
@@ -17,6 +21,7 @@ class ParishForm(forms.ModelForm):
     parish = forms.ModelChoiceField(queryset=ParishDirectory.objects.order_by('name'))
     diocese = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Diocese")
     region = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Region", required=False)
+    state = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select State", required=False)
     area = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Area", required=False)
     district = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select District", required=False)
     circuit = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Circuit", required=False)
@@ -33,6 +38,7 @@ class ParishForm(forms.ModelForm):
             Q(name='Arch Diocese') | Q(level='diocese')
         ).order_by('name')
         self.fields['region'].queryset = Location.objects.none()
+        self.fields['state'].queryset = Location.objects.none()
         self.fields['area'].queryset = Location.objects.none()
          # Modify region field queryset to include special option
         self.fields['district'].queryset = Location.objects.filter(
@@ -45,6 +51,22 @@ class ParishForm(forms.ModelForm):
                 diocese_id = int(self.data.get('diocese'))
                 regions = Location.objects.filter(parent_id=diocese_id, level='region')
                 self.fields['region'].queryset = regions
+            except (ValueError, TypeError):
+                pass
+
+        if 'region' in self.data:
+            try:
+                region_id = int(self.data.get('region'))
+                states = Location.objects.filter(parent_id=region_id, level='state')
+                self.fields['state'].queryset = states
+            except (ValueError, TypeError):
+                pass
+
+        if 'state' in self.data:
+            try:
+                state_id = int(self.data.get('state'))
+                areas = Location.objects.filter(parent_id=state_id, level='area')
+                self.fields['area'].queryset = areas
             except (ValueError, TypeError):
                 pass
 
@@ -76,14 +98,17 @@ class ParishForm(forms.ModelForm):
         cleaned_data = super().clean()
         diocese = cleaned_data.get('diocese')
         region = cleaned_data.get('region')
+        state = cleaned_data.get('state')
         area = cleaned_data.get('area')
         district = cleaned_data.get('district')
         circuit = cleaned_data.get('circuit')
 
-        if not region and not area and not district and not circuit and diocese:
+        if not region and not area and not district and not circuit and not state and diocese:
             cleaned_data['location'] = diocese
-        elif not area and not district and not circuit and region:
+        elif not area and not district and not circuit and not state and region:
             cleaned_data['location'] = region
+        elif not area and not district and not circuit and state:
+            cleaned_data['location'] = state
         elif not district and not circuit and area:
             cleaned_data['location'] = area
         elif not circuit and district:

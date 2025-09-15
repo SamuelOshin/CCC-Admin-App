@@ -3,6 +3,7 @@
 from django.db import models
 from multiselectfield import MultiSelectField
 from django.apps import apps
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 
@@ -187,7 +188,7 @@ class ClergyDetails(models.Model):
     resident_address = models.CharField(max_length=255, error_messages={'required': 'Please enter the resident address.'})
     parish = models.CharField(max_length=100, error_messages={'required': 'Please enter the parish.'})
     parish_address = models.CharField(max_length=255, error_messages={'required': 'Please enter the parish address.'})
-    telephone = models.CharField(max_length=20, error_messages={'required': 'Please enter the telephone number.'})
+    telephone = PhoneNumberField(region='NG', error_messages={'required': 'Please enter the telephone number.'})
     email_address = models.EmailField(max_length=255, error_messages={'required': 'Please enter the email address.'})
     former_religion = models.CharField(max_length=50, null=True, blank=True, error_messages={'required': 'Please enter the former religion.'})
     denomination = models.CharField(max_length=50, null=True, blank=True, error_messages={'required': 'Please enter the denomination.'})
@@ -379,6 +380,11 @@ class ClergyDetails(models.Model):
 
     def __str__(self):
         return self.first_name + " " + self.last_name
+
+    def get_full_name(self):
+        """Return the full name of the clergy member."""
+        full_name = f"{self.first_name} {self.middle_name} {self.last_name}".strip()
+        return full_name
     
 
 

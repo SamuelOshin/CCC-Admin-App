@@ -1,0 +1,193 @@
+{% load static %}
+<header class="dashboard-header">
+    <div class="container-fluid h-100">
+        <div class="row align-items-center h-100">
+            <!-- Left side: App brand and sidebar toggle -->
+            <div class="col-auto">
+                <div class="d-flex align-items-center">
+                    <!-- Sidebar Toggle for Desktop -->
+                    <button class="btn btn-link text-dark me-3 d-none d-md-block" id="sidebar-toggle" type="button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <!-- Mobile Sidebar Toggle -->
+                    <button class="btn btn-link text-dark me-3 d-md-none" id="mobile-sidebar-toggle" type="button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <!-- App Brand -->
+                    <div class="d-flex align-items-center">
+                        <img src="{% static 'assets/img/777899999.png' %}" alt="CCC Logo" class="me-2" style="width: 40px; height: 40px;">
+                        <div class="d-none d-sm-block">
+                            <h5 class="mb-0 fw-bold">{{ app_title }}</h5>
+                            {% if current_module %}
+                                <small class="text-muted">{{ current_module.name }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center: Module Navigation (Desktop only) -->
+            <div class="col d-none d-lg-block">
+                <div class="d-flex justify-content-center">
+                    <nav class="navbar-nav flex-row">
+                        {% for module in all_modules %}
+                            <a href="{% if module.items %}{{ module.items.0.url }}{% else %}#{% endif %}" 
+                               class="nav-link px-3 mx-1 rounded {% if module.is_current %}active bg-primary text-white{% else %}text-dark{% endif %}"
+                               data-bs-toggle="tooltip" 
+                               data-bs-placement="bottom" 
+                               title="{{ module.name }}">
+                                <i class="{{ module.icon }} me-1"></i>
+                                <span class="d-none d-xl-inline">{{ module.name }}</span>
+                            </a>
+                        {% endfor %}
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Right side: User menu and notifications -->
+            <div class="col-auto">
+                <div class="d-flex align-items-center">
+                    <!-- Search (optional) -->
+                    <div class="d-none d-md-block me-3">
+                        <div class="input-group input-group-sm" style="width: 250px;">
+                            <input type="text" class="form-control" placeholder="Search..." id="global-search">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications -->
+                    <div class="dropdown me-3">
+                        <button class="btn btn-link text-dark position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">
+                                3
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="min-width: 300px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-info-circle text-info"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-2">
+                                            <small class="text-muted">No new notifications</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- User Menu -->
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="me-2 d-none d-sm-block text-end">
+                                <div class="fw-semibold">{{ request.user.get_full_name|default:request.user.username }}</div>
+                                <small class="text-muted">
+                                    {% if is_superuser %}
+                                        Super Administrator
+                                    {% elif user_groups %}
+                                        {{ user_groups.0 }}
+                                    {% else %}
+                                        User
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%;">
+                                {{ request.user.username|first|upper }}
+                            </div>
+                            <i class="fas fa-chevron-down ms-2"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><h6 class="dropdown-header">{{ request.user.get_full_name|default:request.user.username }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-cog me-2"></i>Settings
+                                </a>
+                            </li>
+                            {% if is_superuser %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'admin:index' %}">
+                                    <i class="fas fa-tools me-2"></i>Admin Panel
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+    .dashboard-header .nav-link {
+        transition: all 0.2s ease;
+    }
+    
+    .dashboard-header .nav-link:hover {
+        background-color: var(--bs-light) !important;
+        color: var(--bs-dark) !important;
+    }
+    
+    .dashboard-header .nav-link.active {
+        background-color: var(--bs-primary) !important;
+        color: white !important;
+    }
+    
+    .avatar-circle {
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .dropdown-item {
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-item:hover {
+        background-color: var(--bs-light);
+    }
+    
+    #global-search {
+        border-radius: 20px 0 0 20px;
+    }
+    
+    #global-search + button {
+        border-radius: 0 20px 20px 0;
+    }
+</style>
+
+<script>
+    // Global search functionality (placeholder)
+    document.addEventListener('DOMContentLoaded', function() {
+        const globalSearch = document.getElementById('global-search');
+        if (globalSearch) {
+            globalSearch.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Implement global search functionality here
+                    console.log('Search for:', this.value);
+                }
+            });
+        }
+    });
+</script>

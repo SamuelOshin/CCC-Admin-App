@@ -1,0 +1,544 @@
+{% extends 'dashboard/layouts/form_layout.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Annointment Gazette - {{ clergy.first_name }} {{ clergy.last_name }}{% endblock %}
+
+{% block form_title %}Annointment Gazette{% endblock %}
+{% block form_subtitle %}Manage annointment records for {{ clergy.first_name }} {{ clergy.last_name }}{% endblock %}
+
+{% block form_icon %}fas fa-crown{% endblock %}
+{% block card_title %}Clergy Annointment Man    // Re-enable submit button in case it was disabled
+    $('#main-form button[type="submit"]').prop('disabled', false).html('<i class="fas fa-save me-1></i>Add Annointment');
+});nt{% endblock %}
+
+{% block form_instructions %}
+<div class="alert alert-info border-0 mb-4">
+    <div class="d-flex">
+        <div class="flex-shrink-0">
+            <i class="fas fa-info-circle fa-lg text-info"></i>
+        </div>
+        <div class="flex-grow-1 ms-3">
+            <strong>Annointment Management:</strong>
+            <ul class="mb-0 mt-2">
+                <li>View all annointment records for this clergy member</li>
+                <li>Add new annointment details with proper validation</li>
+                <li>Track annointment progression and history</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_content %}
+<!-- Messages -->
+{% if messages %}
+<div class="mb-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {% if message.tags == 'success' %}
+            <i class="fas fa-check-circle me-2"></i>
+        {% elif message.tags == 'error' %}
+            <i class="fas fa-exclamation-triangle me-2"></i>
+        {% else %}
+            <i class="fas fa-info-circle me-2"></i>
+        {% endif %}
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<script>console.log('No messages found');</script>
+{% endif %}
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-pills nav-fill mb-4" id="annointmentTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active bg-primary text-white" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="true">
+            <i class="fas fa-user me-2"></i>Clergy Profile
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link bg-light text-dark border" id="history-tab" data-bs-toggle="pill" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+            <i class="fas fa-history me-2"></i>Annointment History
+            {% if annointments %}
+            <span class="badge bg-primary ms-2">{{ annointments|length }}</span>
+            {% endif %}
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link bg-light text-dark border" id="add-tab" data-bs-toggle="pill" data-bs-target="#add" type="button" role="tab" aria-controls="add" aria-selected="false">
+            <i class="fas fa-plus me-2"></i>Add Annointment
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="annointmentTabContent">
+    <!-- Clergy Profile Tab -->
+    <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="row">
+            <!-- Profile Picture -->
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        {% if clergy.profile_picture %}
+                        <img src="{{ clergy.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #e9ecef;">
+                        {% else %}
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="card-title mb-1">{{ clergy.first_name }} {{ clergy.middle_name }} {{ clergy.last_name }}</h5>
+                        <p class="text-muted mb-3">{{ clergy.present_annointment|default:"No current annointment" }}</p>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="border-end">
+                                    <h6 class="text-primary mb-0">{{ clergy.reg_number }}</h6>
+                                    <small class="text-muted">Reg. Number</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-primary mb-0">{{ clergy.trg_number }}</h6>
+                                <small class="text-muted">TRG Number</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Details -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-id-card me-2"></i>Basic Information
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label text-muted small">Registration Number</label>
+                                    <input type="text" class="form-control bg-light" value="{{ clergy.reg_number }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label text-muted small">Training Number</label>
+                                    <input type="text" class="form-control bg-light" value="{{ clergy.trg_number }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label text-muted small">First Name</label>
+                                    <input type="text" class="form-control bg-light" value="{{ clergy.first_name }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label text-muted small">Middle Name</label>
+                                    <input type="text" class="form-control bg-light" value="{{ clergy.middle_name|default:'' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label text-muted small">Last Name</label>
+                                    <input type="text" class="form-control bg-light" value="{{ clergy.last_name }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label text-muted small">Email Address</label>
+                                    <input type="email" class="form-control bg-light" value="{{ clergy.email_address|default:'' }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label text-muted small">Present Annointment</label>
+                                    <input type="text" class="form-control bg-light" value="{{ clergy.present_annointment|default:'Not assigned' }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annointment History Tab -->
+    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-crown me-2"></i>Annointment History
+                </h6>
+                <span class="badge bg-primary">{{ annointments|length }} Record{{ annointments|length|pluralize }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if annointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="annointmentTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="border-0">#</th>
+                                <th class="border-0">Rank</th>
+                                <th class="border-0">Month</th>
+                                <th class="border-0">Year</th>
+                                <th class="border-0">Place</th>
+                                <th class="border-0">Annointer</th>
+                                <th class="border-0">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for annointment in annointments %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary">{{ forloop.counter }}</span>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-primary">{{ annointment.rank }}</span>
+                                </td>
+                                <td>{{ annointment.month_of_annointment }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ annointment.year_of_annointment }}</span>
+                                </td>
+                                <td>{{ annointment.place_of_annoitment }}</td>
+                                <td>{{ annointment.annoiter }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" title="View Details"
+                                                onclick="viewAnnointment({{ annointment.id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning btn-sm" title="Edit"
+                                                onclick="editAnnointment({{ annointment.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-crown fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Annointment Records</h5>
+                    <p class="text-muted">This clergy member has no annointment records yet.</p>
+                    <button type="button" class="btn btn-primary" onclick="$('#add-tab').tab('show')">
+                        <i class="fas fa-plus me-2"></i>Add First Annointment
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Annointment Tab -->
+    <div class="tab-pane fade" id="add" role="tabpanel" aria-labelledby="add-tab">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-plus me-2"></i>Add New Annointment
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="main-form">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <!-- Rank -->
+                        <div class="col-md-6">
+                            <label for="{{ annform.rank.id_for_label }}" class="form-label fw-semibold">
+                                Rank <span class="text-danger">*</span>
+                            </label>
+                            {{ annform.rank|add_class:"form-select" }}
+                            {% if annform.rank.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ annform.rank.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Year of Annointment -->
+                        <div class="col-md-6">
+                            <label for="{{ annform.year_of_annointment.id_for_label }}" class="form-label fw-semibold">
+                                Year of Annointment <span class="text-danger">*</span>
+                            </label>
+                            {{ annform.year_of_annointment|add_class:"form-select" }}
+                            {% if annform.year_of_annointment.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ annform.year_of_annointment.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Month of Annointment -->
+                        <div class="col-md-6">
+                            <label for="{{ annform.month_of_annointment.id_for_label }}" class="form-label fw-semibold">
+                                Month of Annointment <span class="text-danger">*</span>
+                            </label>
+                            {{ annform.month_of_annointment|add_class:"form-select" }}
+                            {% if annform.month_of_annointment.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ annform.month_of_annointment.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Place of Annointment -->
+                        <div class="col-md-6">
+                            <label for="{{ annform.place_of_annoitment.id_for_label }}" class="form-label fw-semibold">
+                                Place of Annointment <span class="text-danger">*</span>
+                            </label>
+                            {{ annform.place_of_annoitment|add_class:"form-select" }}
+                            {% if annform.place_of_annoitment.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ annform.place_of_annoitment.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Annointer -->
+                        <div class="col-12">
+                            <label for="{{ annform.annoiter.id_for_label }}" class="form-label fw-semibold">
+                                Annointer <span class="text-danger">*</span>
+                            </label>
+                            {{ annform.annoiter|add_class:"form-select" }}
+                            {% if annform.annoiter.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ annform.annoiter.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetMainForm()">
+                            <i class="fas fa-undo me-1"></i>Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fas fa-save me-1"></i>Add Annointment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_primary_actions %}
+<!-- Custom actions for this page -->
+<div class="d-flex gap-2">
+    <a href="{% url 'view_clergy' clergy.clergy_id %}" class="btn btn-outline-primary">
+        <i class="fas fa-user me-1"></i>View Profile
+    </a>
+    <a href="{% url 'edit_clergy_new' clergy.clergy_id %}" class="btn btn-outline-warning">
+        <i class="fas fa-edit me-1"></i>Edit Clergy
+    </a>
+    <a href="{% url 'all_clergy' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Directory
+    </a>
+</div>
+{% endblock %}
+
+{% block additional_form_sections %}
+<!-- Quick Stats Card -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="border-end border-md-end">
+                            <h4 class="text-primary mb-1">{{ annointments|length }}</h4>
+                            <small class="text-muted">Total Annointments</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="border-end border-md-end">
+                            <h4 class="text-success mb-1">{{ current_rank|default:"N/A" }}</h4>
+                            <small class="text-muted">Current Rank</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="border-end border-md-end">
+                            <h4 class="text-info mb-1">{{ last_annointment_year|default:"N/A" }}</h4>
+                            <small class="text-muted">Last Annointment</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-warning mb-1">{{ clergy.reg_number }}</h4>
+                        <small class="text-muted">Registration #</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize DataTable for annointment history
+$(document).ready(function() {
+    $('#annointmentTable').DataTable({
+        "pageLength": 10,
+        "ordering": true,
+        "searching": true,
+        "paging": true,
+        "info": true,
+        "responsive": true,
+        "language": {
+            "search": "",
+            "searchPlaceholder": "Search annointments...",
+            "lengthMenu": "Show _MENU_ entries",
+            "info": "Showing _START_ to _END_ of _TOTAL_ annointments"
+        },
+        "columnDefs": [
+            { "orderable": false, "targets": [6] } // Actions column
+        ]
+    });
+
+    // Add search input styling
+    $('.dataTables_filter input').addClass('form-control').css('width', '300px');
+});
+
+// Reset main form
+function resetMainForm() {
+    $('#main-form')[0].reset();
+    $('#main-form .invalid-feedback').hide();
+    $('#main-form .form-control, #main-form .form-select').removeClass('is-invalid');
+}
+
+// View annointment details (placeholder for future implementation)
+function viewAnnointment(id) {
+    // TODO: Implement modal to view annointment details
+    alert('View annointment details - Feature coming soon!');
+}
+
+// Edit annointment (placeholder for future implementation)
+function editAnnointment(id) {
+    // TODO: Implement modal to edit annointment
+    alert('Edit annointment - Feature coming soon!');
+}
+
+// Form validation and preparation
+$('#main-form').on('submit', function(e) {
+    let isValid = true;
+    $(this).find('select[required]').each(function() {
+        if ($(this).val() === '' || $(this).val() === null) {
+            $(this).addClass('is-invalid');
+            isValid = false;
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    if (!isValid) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return false;
+    }
+
+    // Let the base layout's confirmSubmit function handle the actual submission
+});
+
+// Reset form when add tab is shown
+$('#add-tab').on('shown.bs.tab', function() {
+    resetMainForm();
+});
+
+// Handle page load after successful submission
+$(document).ready(function() {
+    // Check if there are success messages (indicating successful submission)
+    if ($('.alert-success').length > 0) {
+        // Reset form and switch to history tab to show updated list
+        resetMainForm();
+        $('#history-tab').tab('show');
+
+        // Scroll to messages
+        $('.alert-success')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Check for error messages
+    if ($('.alert-error, .alert-danger').length > 0) {
+        $('#add-tab').tab('show');
+        $('.alert-error, .alert-danger')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Re-enable submit button in case it was disabled
+    $('#main-form button[type="submit"]').prop('disabled', false).html('<i class="fas fa-save me-1"></i>Add Annointment');
+
+    console.log('Page initialization complete');
+});
+</script>
+<style>
+/* Enhanced Nav Tab Styling */
+.nav-pills .nav-link {
+    border-radius: 0.5rem;
+    margin: 0 0.5rem; /* Increased gap between tabs */
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    padding: 0.75rem 1.25rem; /* Better padding for content */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem; /* Space between icon and text */
+}
+
+.nav-pills .nav-link i {
+    font-size: 1rem;
+    opacity: 0.9; /* Make icons more visible */
+    transition: opacity 0.3s ease;
+}
+
+.nav-pills .nav-link:not(.active) {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    border-color: #dee2e6 !important;
+}
+
+.nav-pills .nav-link:not(.active):hover {
+    background-color: #e9ecef !important;
+    color: #212529 !important;
+    border-color: #adb5bd !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-pills .nav-link:not(.active):hover i {
+    opacity: 1; /* Make icons fully visible on hover */
+}
+
+.nav-pills .nav-link.active {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+}
+
+.nav-pills .nav-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-pills .nav-link {
+        margin: 0 0.25rem; /* Maintain some gap on mobile */
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        gap: 0.375rem; /* Slightly smaller gap between icon and text */
+    }
+
+    .nav-pills .nav-link i {
+        font-size: 0.9rem; /* Slightly smaller icons on mobile */
+    }
+}
+</style>
+{% endblock %}

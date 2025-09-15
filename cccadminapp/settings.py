@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'fontawesomefree',
     'rest_framework',
+    'phonenumber_field',
     # 'django_browser_reload',
     
 ]
@@ -88,6 +89,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'cccadminapp.context_processors.dashboard_context',
             ],
         },
     },
@@ -101,20 +103,22 @@ WSGI_APPLICATION = 'cccadminapp.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
-        'PORT': '3306',       # MySQL default port
-        # 'OPTIONS': {
-        #     'ssl': {
-        #         'ca': config('DB_SSL_CA'),
-        #         'disable': config('DB_SSL_DISABLE', 'False') == 'True'
-        #     }
-        # },
+        'PORT': config('DB_PORT'), 
     }
 }
+
+# Temporary SQLite for testing
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 #Railway DB
 # DATABASES = {
@@ -177,7 +181,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URLS ='/media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'cccadminapp/media')
 
 STORAGES = {
@@ -194,5 +198,10 @@ STORAGES = {
 
 # Set the session timeout to 30 minutes (1800 seconds)
 SESSION_COOKIE_AGE = 1800
+
+# Phone Number Field Configuration
+PHONENUMBER_DEFAULT_REGION = 'NG'  # Nigeria as default region
+PHONENUMBER_DB_FORMAT = 'E164'  # Store in E164 format for international compatibility
+PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'  # Display in international format
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

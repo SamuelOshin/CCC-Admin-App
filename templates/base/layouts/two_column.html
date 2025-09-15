@@ -1,0 +1,160 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    {% block page_header %}
+        {% if page_title %}
+        <div class="page-header mb-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="page-title mb-1">{{ page_title }}</h2>
+                    {% if page_description %}
+                        <p class="text-muted mb-0">{{ page_description }}</p>
+                    {% endif %}
+                </div>
+                {% block page_actions %}{% endblock %}
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+    
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm h-100">
+                {% block left_card_header %}
+                    {% if left_card_title %}
+                    <div class="card-header bg-white">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="card-title mb-0">
+                                {% if left_card_icon %}
+                                    <i class="{{ left_card_icon }} me-2"></i>
+                                {% endif %}
+                                {{ left_card_title }}
+                            </h5>
+                            {% block left_card_actions %}{% endblock %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endblock %}
+                
+                <div class="card-body">
+                    {% block left_content %}
+                        <!-- Main content goes here -->
+                        <p class="text-muted">Main content goes here...</p>
+                    {% endblock %}
+                </div>
+                
+                {% block left_card_footer %}{% endblock %}
+            </div>
+        </div>
+        
+        <!-- Right Column (Sidebar) -->
+        <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+            {% block right_content %}
+                <!-- Information Panel -->
+                <div class="card shadow-sm mb-4">
+                    {% block right_card_header %}
+                        {% if right_card_title %}
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0">
+                                {% if right_card_icon %}
+                                    <i class="{{ right_card_icon }} me-2"></i>
+                                {% endif %}
+                                {{ right_card_title|default:"Information" }}
+                            </h6>
+                        </div>
+                        {% endif %}
+                    {% endblock %}
+                    
+                    <div class="card-body">
+                        {% block info_content %}
+                            <p class="text-muted small">Additional information or actions can be placed here.</p>
+                        {% endblock %}
+                    </div>
+                </div>
+                
+                <!-- Quick Actions Panel -->
+                {% block quick_actions %}
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-bolt me-2"></i>Quick Actions
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% block quick_actions_content %}
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Add New
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-list me-2"></i>View All
+                                </button>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+                {% endblock %}
+            {% endblock %}
+        </div>
+    </div>
+    
+    <!-- Additional Full-Width Content -->
+    {% block additional_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
+    }
+    
+    .page-title {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 1rem 1.25rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .card-title {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    /* Right column styling */
+    .col-lg-4 .card {
+        transition: transform 0.2s ease;
+    }
+    
+    .col-lg-4 .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Quick actions styling */
+    .d-grid .btn {
+        transition: all 0.2s ease;
+    }
+    
+    .d-grid .btn:hover {
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}

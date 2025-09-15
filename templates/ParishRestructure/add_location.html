@@ -1,43 +1,44 @@
 {% extends 'ParishRestructure/base.html' %}
-{% include 'ParishRestructure/head.html' %}
 {% load static %}
 {% load widget_tweaks %}
 
 {% block content %}
-    <div class="container">
-        <h3 class="text-light text-bg-primary mb-4">
-                <strong>ADD LOCATION DETAILS</strong>
-        </h3>
-        <div class="card">
+<div class="welcome-banner">
+    <h2 class="h4 mb-0">Add Location Details</h2>
+    <p class="mb-0 mt-2 opacity-75">Register a new location in the system</p>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="dashboard-card">
             <div class="card-body">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                <form method="POST" enctype="multipart/form-data" class="form-group">
+                <form method="POST" enctype="multipart/form-data" class="modern-form">
                     {% csrf_token %}
-                    <div class="row">
-                        <div>
+                    <div class="row g-3">
+                        <div class="col-md-12 mb-3">
                             <label for="parish_name" class="form-label">Name</label>
-                            {% render_field form.name class="form-control" %}
+                            {% render_field form.name class="form-control" placeholder="Enter location name" %}
                         </div>
-                        <div>
+                        <div class="col-md-12 mb-3">
                             <label for="parish_address" class="form-label">Select Parent</label>
-                            {% render_field form.parent class="form-control" %}
+                            {% render_field form.parent class="form-select" %}
                         </div>
-                        <div>
+                        <div class="col-md-12 mb-3">
                             <label for="parish_address" class="form-label">Select Level</label>
-                            {% render_field form.level class="form-select " %}
+                            {% render_field form.level class="form-select" %}
                         </div>
                     </div>
-                    <button type="submit"  value="Submit" class="btn btn-primary mt-3">Submit</button>
-                    <a href="{% url 'parish_dashboard' %}" class="btn btn-danger  mt-3">Cancel</a>
+                    <div class="d-flex mt-3">
+                        <button type="submit" value="Submit" class="btn btn-primary me-2">
+                            <i class="bi bi-check-circle me-2"></i>Submit
+                        </button>
+                        <a href="{% url 'parish_dashboard' %}" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

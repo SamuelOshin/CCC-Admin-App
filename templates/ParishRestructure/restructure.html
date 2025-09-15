@@ -1,69 +1,779 @@
-{% extends 'ParishRestructure/base.html' %}
-{% include 'ParishRestructure/head.html' %}
+{% extends 'dashboard/layouts/dashboard_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
 
+{% block title %}Parish Restructure{% endblock %}
+{% block dashboard_title %}Parish Restructure{% endblock %}
+{% block dashboard_subtitle %}Manage parish restructuring and location assignments{% endblock %}
+
+{% block dashboard_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'parish_dashboard' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+    </a>
+    <a href="{% url 'view_parishes' %}" class="btn btn-outline-primary">
+        <i class="bi bi-table me-2"></i>View Restructured Parishes
+    </a>
+</div>
+{% endblock %}
 
 
-
-{% block content %}
-    <div class="container">
-        <div class="d-flex justify-content-end ">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{% url 'parish_dashboard' %}">Home</a></li>
-                
-                  <li class="breadcrumb-item active" aria-current="page">Parish Reg</li>
-                </ol>
-              </nav>
-        </div>
-        <h3 class="text-light text-bg-primary mb-4">
-                <strong>PARISH RESTRUCTURE</strong>
-        </h3>
-        <div class="cardd">
-            <div class="card-body">
+{% block main_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="bi bi-building-gear me-2"></i>Restructure Parish
+                </h5>
+            </div>
+            <div class="card-body p-4">
                 {% if messages %}
                     {% for message in messages %}
                         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {% if message.tags == 'success' %}
+                                <i class="bi bi-check-circle me-2"></i>
+                            {% elif message.tags == 'error' %}
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle me-2"></i>
+                            {% endif %}
                             {{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
                 {% endif %}
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.non_field_errors }}                    
-                    
 
-                    {% for field in form %}
-                    <div class="fieldWrapper mb-1">
-                        {% if field.field.widget.input_type != 'checkbox' %}
-                        {{ field.label_tag }}
-                        {% if field.field.widget.input_type == 'select' %}
-                            {{ field|add_class:"mb-2 form-select parishSelect" }}
-                        {% else %}
-                            {{ field|add_class:"form-control" }}
-                        {% endif %}
-                        {{ field.errors }}
-                    {% else %}
-                        <div class="form-check">
-                            {{ field.label_tag }}
-                            {{ field.field.widget.attrs.checked }}
-                            {{ field|add_class:"form-check-input" }}
-                            {{ field.errors }}
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
                         </div>
                     {% endif %}
-                    
+
+                    <div class="row g-4">
+                        <!-- Parish Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.parish|add_class:"form-select parishSelect"|attr:"id:id_parish" }}
+                                <label for="id_parish">
+                                    <i class="bi bi-house me-1"></i>{{ form.parish.label }}
+                                </label>
+                                {% if form.parish.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.parish.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.address|add_class:"form-control"|attr:"id:id_address" }}
+                                <label for="id_address">
+                                    <i class="bi bi-geo-alt me-1"></i>{{ form.address.label }}
+                                </label>
+                                {% if form.address.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.address.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Diocese Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.diocese|add_class:"form-select"|attr:"id:id_diocese" }}
+                                <label for="id_diocese">
+                                    <i class="bi bi-diagram-3 me-1"></i>{{ form.diocese.label }}
+                                </label>
+                                {% if form.diocese.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.diocese.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Region Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.region|add_class:"form-select"|attr:"id:id_region" }}
+                                <label for="id_region">
+                                    <i class="bi bi-geo me-1"></i>{{ form.region.label }}
+                                </label>
+                                {% if form.region.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.region.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- State Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.state|add_class:"form-select"|attr:"id:id_state" }}
+                                <label for="id_state">
+                                    <i class="bi bi-flag me-1"></i>{{ form.state.label }}
+                                </label>
+                                {% if form.state.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.state.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Area Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.area|add_class:"form-select"|attr:"id:id_area" }}
+                                <label for="id_area">
+                                    <i class="bi bi-map me-1"></i>{{ form.area.label }}
+                                </label>
+                                {% if form.area.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.area.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- District Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.district|add_class:"form-select"|attr:"id:id_district" }}
+                                <label for="id_district">
+                                    <i class="bi bi-building me-1"></i>{{ form.district.label }}
+                                </label>
+                                {% if form.district.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.district.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Circuit Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.circuit|add_class:"form-select"|attr:"id:id_circuit" }}
+                                <label for="id_circuit">
+                                    <i class="bi bi-circle me-1"></i>{{ form.circuit.label }}
+                                </label>
+                                {% if form.circuit.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.circuit.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary mt-2">Submit</button>
-                    <a href="{% url 'parish_dashboard' %}" class="btn btn-danger mt-2">Cancel</a>
-                
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{% url 'parish_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Restructure Parish
+                        </button>
+                    </div>
                 </form>
-                
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-   
+{% block extra_js %}
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Dynamic form updates for location hierarchy
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for parish selection with Bootstrap 5 theme
+    $('.parishSelect').select2({
+        placeholder: 'Choose parish to restructure...',
+        allowClear: true,
+        width: '100%',
+        dropdownCssClass: 'select2-dropdown-custom',
+        containerCssClass: 'select2-container-custom',
+        minimumInputLength: 0,
+        maximumSelectionLength: 1
+    });
+
+    // Initialize regular select fields without Select2 for better form-floating integration
+    const regularSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_circuit'];
+    regularSelects.forEach(selector => {
+        const selectElement = document.querySelector(selector);
+        if (selectElement && selectElement.options.length <= 1) {
+            // Add default placeholder option if empty
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = `Select ${selectElement.closest('.form-floating').querySelector('label').textContent.replace(/^\w+\s/, '')}`;
+            option.disabled = true;
+            option.selected = true;
+            selectElement.insertBefore(option, selectElement.firstChild);
+        }
+    });
+
+    // Handle parish selection to fetch and populate address
+    $('#id_parish').on('select2:select', function (e) {
+        var selectedParishId = e.params.data.id;
+        if (selectedParishId) {
+            fetchParishDetails(selectedParishId);
+        }
+    });
+
+    // Clear address when parish is cleared
+    $('#id_parish').on('select2:clear', function () {
+        $('#id_address').val('');
+        
+        // Clear all dependent fields
+        const dependentSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_circuit'];
+        dependentSelects.forEach(selector => {
+            const selectElement = document.querySelector(selector);
+            if (selectElement) {
+                selectElement.selectedIndex = 0;
+            }
+        });
+    });
+
+    // Enhanced floating label behavior for regular inputs
+    const inputs = document.querySelectorAll('.form-floating .form-control, .form-floating .form-select:not(.parishSelect)');
+    inputs.forEach(input => {
+        const updateLabel = () => {
+            const label = input.nextElementSibling;
+            if (label && label.tagName === 'LABEL') {
+                if (input.value || input === document.activeElement) {
+                    label.style.transform = 'scale(0.85) translateY(-0.5rem)';
+                    label.style.opacity = '1';
+                } else {
+                    label.style.transform = 'scale(1) translateY(0)';
+                    label.style.opacity = '0.65';
+                }
+            }
+        };
+
+        input.addEventListener('focus', updateLabel);
+        input.addEventListener('blur', updateLabel);
+        input.addEventListener('input', updateLabel);
+        
+        // Initial check
+        updateLabel();
+    });
+
+    const dioceseSelect = document.getElementById('id_diocese');
+    const regionSelect = document.getElementById('id_region');
+    const stateSelect = document.getElementById('id_state');
+    const areaSelect = document.getElementById('id_area');
+    const districtSelect = document.getElementById('id_district');
+    const circuitSelect = document.getElementById('id_circuit');
+
+    if (dioceseSelect) {
+        dioceseSelect.addEventListener('change', function() {
+            updateRegions(this.value);
+        });
+    }
+
+    if (regionSelect) {
+        regionSelect.addEventListener('change', function() {
+            updateStates(this.value);
+        });
+    }
+
+    if (stateSelect) {
+        stateSelect.addEventListener('change', function() {
+            updateAreas(this.value);
+        });
+    }
+
+    if (areaSelect) {
+        areaSelect.addEventListener('change', function() {
+            updateDistricts(this.value);
+        });
+    }
+
+    if (districtSelect) {
+        districtSelect.addEventListener('change', function() {
+            updateCircuits(this.value);
+        });
+    }
+
+    function updateRegions(dioceseId) {
+        if (!dioceseId) {
+            resetDependentSelects([regionSelect, stateSelect, areaSelect, districtSelect, circuitSelect]);
+            return;
+        }
+        
+        fetch(`{% url 'get_regions_and_areas' %}?diocese_id=${dioceseId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (regionSelect) {
+                    regionSelect.innerHTML = '<option value="" disabled selected>Select Region</option>';
+                    data.regions.forEach(region => {
+                        regionSelect.innerHTML += `<option value="${region.id}">${region.name}</option>`;
+                    });
+                }
+                // Clear dependent fields
+                resetDependentSelects([stateSelect, areaSelect, districtSelect, circuitSelect]);
+            })
+            .catch(error => {
+                console.error('Error updating regions:', error);
+                showAlert('Unable to load regions. Please try again.', 'warning');
+            });
+    }
+
+    function updateStates(regionId) {
+        if (!regionId) {
+            resetDependentSelects([stateSelect, areaSelect, districtSelect, circuitSelect]);
+            return;
+        }
+        
+        fetch(`{% url 'get_regions_and_areas' %}?region_id=${regionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (stateSelect) {
+                    stateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
+                    if (data.states && data.states.length > 0) {
+                        data.states.forEach(state => {
+                            stateSelect.innerHTML += `<option value="${state.id}">${state.name}</option>`;
+                        });
+                    }
+                }
+                // Clear dependent fields
+                resetDependentSelects([areaSelect, districtSelect, circuitSelect]);
+            })
+            .catch(error => {
+                console.error('Error updating states:', error);
+                showAlert('Unable to load states. Please try again.', 'warning');
+            });
+    }
+
+    function updateAreas(stateId) {
+        if (!stateId) {
+            resetDependentSelects([areaSelect, districtSelect, circuitSelect]);
+            return;
+        }
+        
+        fetch(`{% url 'get_regions_and_areas' %}?state_id=${stateId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (areaSelect) {
+                    areaSelect.innerHTML = '<option value="" disabled selected>Select Area</option>';
+                    if (data.areas && data.areas.length > 0) {
+                        data.areas.forEach(area => {
+                            areaSelect.innerHTML += `<option value="${area.id}">${area.name}</option>`;
+                        });
+                    }
+                }
+                // Clear dependent fields
+                resetDependentSelects([districtSelect, circuitSelect]);
+            })
+            .catch(error => {
+                console.error('Error updating areas:', error);
+                showAlert('Unable to load areas. Please try again.', 'warning');
+            });
+    }
+
+    function updateDistricts(areaId) {
+        if (!areaId) {
+            resetDependentSelects([districtSelect, circuitSelect]);
+            return;
+        }
+        // Implementation for districts if needed
+        console.log('Update districts for area:', areaId);
+    }
+
+    function updateCircuits(districtId) {
+        if (!districtId) {
+            resetDependentSelects([circuitSelect]);
+            return;
+        }
+        // Implementation for circuits if needed
+        console.log('Update circuits for district:', districtId);
+    }
+
+    function resetDependentSelects(selects) {
+        selects.forEach(select => {
+            if (select) {
+                const fieldName = select.id.replace('id_', '').charAt(0).toUpperCase() + select.id.replace('id_', '').slice(1);
+                select.innerHTML = `<option value="" disabled selected>Select ${fieldName}</option>`;
+            }
+        });
+    }
+
+    // Function to fetch parish details and populate address
+    function fetchParishDetails(parishId) {
+        if (!parishId) return;
+
+        // Show loading state
+        const addressField = document.getElementById('id_address');
+        if (addressField) {
+            addressField.disabled = true;
+            addressField.placeholder = 'Loading address...';
+        }
+
+        fetch(`/api/parish/${parishId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Populate address field with parish address
+                if (data.address && addressField) {
+                    addressField.value = data.address;
+                    addressField.disabled = false;
+                    addressField.placeholder = 'Parish address';
+                    
+                    // Trigger label update
+                    addressField.dispatchEvent(new Event('input'));
+                }
+
+                console.log('Parish data loaded:', data);
+                showAlert('Parish details loaded successfully!', 'success');
+            })
+            .catch(error => {
+                console.error('Error fetching parish details:', error);
+                if (addressField) {
+                    addressField.disabled = false;
+                    addressField.placeholder = 'Enter parish address';
+                }
+                showAlert('Unable to load parish details. Please enter address manually.', 'warning');
+            });
+    }
+
+    // Utility function to show alerts
+    function showAlert(message, type = 'info') {
+        const alertContainer = document.querySelector('.card-body');
+        if (!alertContainer) return;
+
+        // Remove existing alerts of the same type
+        const existingAlerts = alertContainer.querySelectorAll(`.alert-${type}`);
+        existingAlerts.forEach(alert => alert.remove());
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-2`;
+        alertDiv.innerHTML = `
+            <i class="bi bi-${getAlertIcon(type)} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+
+        alertContainer.insertBefore(alertDiv, alertContainer.firstChild);
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 150);
+            }
+        }, 5000);
+    }
+
+    function getAlertIcon(type) {
+        const icons = {
+            'success': 'check-circle',
+            'warning': 'exclamation-triangle',
+            'danger': 'exclamation-triangle',
+            'error': 'exclamation-triangle',
+            'info': 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+});
+</script>
+
+<style>
+/* Clean form styling with proper label positioning */
+.form-floating {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+/* Clean floating labels - positioned above the form fields */
+.form-floating > label {
+    position: absolute;
+    top: -0.75rem;
+    left: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    color: #495057;
+    font-weight: 600;
+    background-color: white;
+    border-radius: 0.25rem;
+    z-index: 10;
+    pointer-events: none;
+    transform: scale(0.85);
+    transform-origin: left center;
+    height: 35px;
+}
+
+/* Form controls with consistent styling */
+.form-floating .form-control,
+.form-floating .form-select {
+    height: 58px;
+    padding: 1rem 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    background-color: #fff;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.form-floating .form-control:focus,
+.form-floating .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15), 0 4px 8px rgba(0,0,0,0.08);
+    outline: 0;
+}
+
+/* Select2 Custom Styling for better positioning */
+.form-control-container {
+    position: relative;
+}
+
+.form-control-container .select2-container {
+    width: 100% !important;
+}
+
+.form-control-container .select2-container .select2-selection {
+    height: calc(2.875rem + 2px) !important; /* Match form-control-lg height */
+    border: 1px solid #ced4da !important;
+    border-radius: 0.375rem !important;
+    background: #fff !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.form-control-container .select2-container .select2-selection .select2-selection__rendered {
+    color: #495057 !important;
+    font-weight: 400 !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+}
+
+.form-control-container .select2-container .select2-selection .select2-selection__arrow {
+    height: 100% !important;
+    right: 10px !important;
+    top: 0 !important;
+}
+.select2-container--default .select2-selection--single {
+    height: 50px !important;
+    padding: 18px !important;
+
+}
+.form-control-container .select2-container .select2-selection .select2-selection__arrow b {
+    border-color: #6c757d transparent transparent transparent !important;
+    border-width: 5px 5px 0 5px !important;
+}
+
+/* Fix search box positioning */
+.select2-dropdown {
+    border: 1px solid #ced4da !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    margin-top: 2px !important;
+}
+
+.select2-container--open .select2-dropdown--below {
+    border-top: none !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.select2-search--dropdown {
+    padding: 8px 12px !important;
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+    border: 1px solid #ced4da !important;
+    border-radius: 0.25rem !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    width: 100% !important;
+}
+
+.select2-search--dropdown .select2-search__field:focus {
+    border-color: #86b7fe !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.select2-results__option {
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+}
+
+.select2-results__option--highlighted {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+.select2-container--focus .select2-selection {
+    border-color: #86b7fe !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Ensure proper z-index for dropdowns */
+.select2-container--open {
+    z-index: 9999 !important;
+}
+
+.select2-dropdown {
+    z-index: 10000 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-control-container .select2-container .select2-selection {
+        height: calc(2.5rem + 2px) !important; /* Slightly smaller on mobile */
+        font-size: 0.875rem !important;
+    }
+}
+
+/* Error states */
+.form-floating .is-invalid,
+.form-floating .form-control.is-invalid,
+.form-floating .form-select.is-invalid {
+    border-color: #dc3545;
+}
+
+.form-floating .is-invalid:focus,
+.form-floating .form-control.is-invalid:focus,
+.form-floating .form-select.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+}
+
+/* Success states */
+.form-floating .is-valid,
+.form-floating .form-control.is-valid,
+.form-floating .form-select.is-valid {
+    border-color: #198754;
+}
+
+.form-floating .is-valid:focus,
+.form-floating .form-control.is-valid:focus,
+.form-floating .form-select.is-valid:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15);
+}
+
+/* Responsive design */
+@media (max-width: 576px) {
+    .form-floating {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-floating .form-control,
+    .form-floating .form-select,
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 52px;
+        padding: 0.875rem 0.75rem;
+    }
+    
+    .form-floating > label,
+    .select2-label {
+        font-size: 0.8rem;
+    }
+}
+
+/* Card and form container improvements */
+.card {
+    border: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-radius: 1rem 1rem 0 0 !important;
+    padding: 1.5rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Button styling improvements */
+.btn {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
+}
+
+.btn-outline-secondary {
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #0d6efd;
+    border-color: #dee2e6;
+    transform: translateY(-1px);
+}
+
+.select2-container--default .select2-selection--single {
+  height: 50px !important;
+  padding: 10px !important;
+}
+</style>
 {% endblock %}

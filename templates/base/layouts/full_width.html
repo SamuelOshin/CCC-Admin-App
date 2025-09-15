@@ -1,0 +1,353 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    {% block page_header %}
+        {% if page_title %}
+        <div class="page-header mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                <div class="mb-2 mb-md-0">
+                    <h2 class="page-title mb-1">{{ page_title }}</h2>
+                    {% if page_description %}
+                        <p class="text-muted mb-0">{{ page_description }}</p>
+                    {% endif %}
+                </div>
+                {% block page_actions %}{% endblock %}
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+    
+    <!-- Toolbar Section -->
+    {% block toolbar %}
+        {% if show_toolbar %}
+        <div class="toolbar-section mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-md-6">
+                            {% block toolbar_left %}
+                                <!-- Search and filters -->
+                                <div class="d-flex align-items-center">
+                                    <div class="input-group me-3" style="max-width: 300px;">
+                                        <input type="text" class="form-control" placeholder="Search..." id="toolbar-search">
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                                            <i class="fas fa-filter me-2"></i>Filter
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% block filter_options %}
+                                                <li><a class="dropdown-item" href="#">All Items</a></li>
+                                                <li><a class="dropdown-item" href="#">Active</a></li>
+                                                <li><a class="dropdown-item" href="#">Inactive</a></li>
+                                            {% endblock %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                        <div class="col-12 col-md-6 mt-2 mt-md-0">
+                            {% block toolbar_right %}
+                                <!-- Action buttons -->
+                                <div class="d-flex justify-content-md-end justify-content-start">
+                                    <div class="btn-group me-2">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Export">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Print">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>Add New
+                                    </button>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+    
+    <!-- Main Content Area -->
+    <div class="main-content-area">
+        <div class="card shadow-sm">
+            {% block card_header %}
+                {% if card_title %}
+                <div class="card-header bg-white">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <h5 class="card-title mb-0">
+                            {% if card_icon %}
+                                <i class="{{ card_icon }} me-2"></i>
+                            {% endif %}
+                            {{ card_title }}
+                        </h5>
+                        {% block card_actions %}
+                            <div class="card-actions">
+                                <!-- Card-specific actions -->
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+                {% endif %}
+            {% endblock %}
+            
+            <div class="card-body">
+                {% block card_content %}
+                    <!-- This is where the main content goes (tables, lists, etc.) -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Sample Column 1</th>
+                                    <th>Sample Column 2</th>
+                                    <th>Sample Column 3</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
+                                        No data available. Use the blocks to add your content.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                {% endblock %}
+            </div>
+            
+            {% block card_footer %}
+                <!-- Pagination or other footer content -->
+            {% endblock %}
+        </div>
+    </div>
+    
+    <!-- Statistics/Summary Section -->
+    {% block statistics %}
+        {% if show_statistics %}
+        <div class="row mt-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-primary text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="h4 mb-0">{{ total_count|default:"0" }}</div>
+                                <div class="small">Total Items</div>
+                            </div>
+                            <div class="ms-3">
+                                <i class="fas fa-database fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-success text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="h4 mb-0">{{ active_count|default:"0" }}</div>
+                                <div class="small">Active</div>
+                            </div>
+                            <div class="ms-3">
+                                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-warning text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="h4 mb-0">{{ pending_count|default:"0" }}</div>
+                                <div class="small">Pending</div>
+                            </div>
+                            <div class="ms-3">
+                                <i class="fas fa-clock fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card bg-info text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="h4 mb-0">{{ recent_count|default:"0" }}</div>
+                                <div class="small">Recent</div>
+                            </div>
+                            <div class="ms-3">
+                                <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
+    }
+    
+    .page-title {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .toolbar-section .card {
+        border: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+        background-color: #fff !important;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .table th {
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .table td {
+        border-bottom: 1px solid #f1f3f4;
+        vertical-align: middle;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* Toolbar styling */
+    .toolbar-section .input-group {
+        transition: all 0.2s ease;
+    }
+    
+    .toolbar-section .input-group:focus-within {
+        transform: scale(1.02);
+    }
+    
+    /* Statistics cards */
+    .card.bg-primary,
+    .card.bg-success,
+    .card.bg-warning,
+    .card.bg-info {
+        transition: all 0.2s ease;
+    }
+    
+    .card.bg-primary:hover,
+    .card.bg-success:hover,
+    .card.bg-warning:hover,
+    .card.bg-info:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    /* Button groups */
+    .btn-group .btn {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .page-header {
+            text-align: center;
+        }
+        
+        .toolbar-section .d-flex {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .toolbar-section .input-group {
+            max-width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Toolbar search functionality
+        const searchInput = document.getElementById('toolbar-search');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Implement search functionality
+                    console.log('Search for:', this.value);
+                }
+            });
+        }
+        
+        // Auto-resize input groups on focus
+        const inputGroups = document.querySelectorAll('.toolbar-section .input-group');
+        inputGroups.forEach(group => {
+            const input = group.querySelector('input');
+            if (input) {
+                input.addEventListener('focus', () => {
+                    group.style.transform = 'scale(1.02)';
+                });
+                input.addEventListener('blur', () => {
+                    group.style.transform = 'scale(1)';
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

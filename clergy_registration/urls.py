@@ -7,14 +7,17 @@ from django.conf import settings
 urlpatterns = [
     
     path('register/', views.register_clergy , name='register_clergy'),
-    path('', views.dashboard, name='dashboard'),
+    path('register/new/', views.register_clergy , name='register_clergy_new'),  # New modern form URL
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('all_clergy', views.all_clergy, name="all_clergy"),
     path('<int:id>', views.view_clergy, name='view_clergy'),
     path('save/<int:id>', views.view_profile, name='view_profile'),
     path('edit/<int:id>', views.edit_clergy, name='edit_clergy'),
+    path('edit/new/<int:id>', views.edit_clergy, name='edit_clergy_new'),  # Modern dashboard version
     path('delete/<int:id>', views.delete_clergy, name='delete_clergy'),
     path('view-annointments/<int:id>', views.view_and_add_annointment, name='view-and-add-annointment'),
     path('clergy/<int:id>/pdf/', views.generate_clergy_pdf, name='generate_clergy_pdf'),
+    path('reports/', views.clergy_report, name='clergy_report'),
     
     # path('submit/', views.handle_clergy_registration, name='submit_form'),
 

@@ -1,0 +1,13 @@
+{% if not is_current %}
+    <li class="breadcrumb-item">
+        {% if url and url != '#' %}
+            <a href="{{ url }}" class="text-decoration-none">{{ name }}</a>
+        {% else %}
+            {{ name }}
+        {% endif %}
+    </li>
+{% else %}
+    <li class="breadcrumb-item active" aria-current="page">
+        <strong>{{ name }}</strong>
+    </li>
+{% endif %}

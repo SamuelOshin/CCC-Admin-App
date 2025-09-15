@@ -1,0 +1,334 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="detail-view-layout">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                    <div class="page-icon me-3">
+                        <i class="fas fa-church text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold">{% block page_title %}Parish Details{% endblock %}</h1>
+                        <p class="text-muted mb-0">{% block page_subtitle %}View comprehensive parish information{% endblock %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="btn-group" role="group">
+                    {% block header_actions %}
+                    <a href="{% block back_url %}{% endblock %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Back
+                    </a>
+                    {% if parish.register_status %}
+                    <a href="{% url 'edit_regparish' parish.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit
+                    </a>
+                    {% else %}
+                    <a href="{% url 'edit-parish' parish.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit
+                    </a>
+                    {% endif %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            {% block breadcrumbs %}
+            <li class="breadcrumb-item"><a href="{% url 'parish_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% block breadcrumb_parent_url %}{% endblock %}">{% block breadcrumb_parent %}{% endblock %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% block breadcrumb_current %}Details{% endblock %}</li>
+            {% endblock %}
+        </ol>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Primary Content Column -->
+        <div class="col-lg-8 mb-4">
+            <!-- Parish Image Card -->
+            {% block parish_image %}
+            <div class="card mb-4">
+                <div class="card-body p-0">
+                    <img src="{% block parish_image_src %}{% static 'assets/img/Celestial-Church-of-Christ-CCC.jpg' %}{% endblock %}"
+                         alt="{% block parish_image_alt %}Parish Image{% endblock %}"
+                         class="img-fluid rounded" style="width: 100%; max-height: 300px; object-fit: cover;">
+                </div>
+            </div>
+            {% endblock %}
+
+            <!-- Parish Details Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2 text-primary"></i>Parish Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% block parish_details %}
+                    <!-- Parish details will be inserted here by child templates -->
+                    {% endblock %}
+                </div>
+            </div>
+
+            <!-- Additional Content Block -->
+            {% block additional_content %}
+            {% endblock %}
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-lg-4">
+            <!-- Quick Stats Card -->
+            {% block quick_stats %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2 text-success"></i>Quick Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="fw-bold text-primary" style="font-size: 1.5rem;">{% block stat_value %}N/A{% endblock %}</div>
+                                <small class="text-muted">Status</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="fw-bold text-info" style="font-size: 1.5rem;">{% block stat_date %}N/A{% endblock %}</div>
+                                <small class="text-muted">Established</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+
+            <!-- Location/Map Card -->
+            {% block location_card %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-geo-alt me-2 text-warning"></i>Location
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    {% block map_content %}
+                    <iframe
+                        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&q={% block map_address %}Nigeria{% endblock %}"
+                        width="100%"
+                        height="250"
+                        style="border: 0; border-radius: 0 0 0.375rem 0.375rem;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                    {% endblock %}
+                </div>
+            </div>
+            {% endblock %}
+
+            <!-- Action Buttons Card -->
+            {% block action_buttons %}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-gear me-2 text-secondary"></i>Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if not parish.register_status %}
+                        <a href="{% url 'reg-old-parish' parish.id %}" class="btn btn-success">
+                            <i class="bi bi-check-circle me-2"></i>Register Parish
+                        </a>
+                        {% endif %}
+                        <button class="btn btn-outline-info" onclick="window.print()">
+                            <i class="bi bi-printer me-2"></i>Print Details
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="shareParish()">
+                            <i class="bi bi-share me-2"></i>Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Documents Section (for registered parishes) -->
+    {% block documents_section %}
+    {% endblock %}
+</div>
+
+<style>
+.detail-view-layout {
+    min-height: calc(100vh - 200px);
+}
+
+.page-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+}
+
+.page-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 1rem 1.25rem;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.breadcrumb-item a {
+    color: #6c757d;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: #495057;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .page-header .row {
+        text-align: center !important;
+    }
+
+    .page-header .col-md-4 {
+        margin-top: 1rem;
+    }
+
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-group .btn {
+        border-radius: 8px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .detail-view-layout {
+        padding: 1rem 0;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .page-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .page-icon i {
+        font-size: 1.5rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .btn, .breadcrumb, .card-header {
+        display: none !important;
+    }
+
+    .detail-view-layout {
+        padding: 0 !important;
+    }
+}
+</style>
+
+<script>
+// Share functionality
+function shareParish() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Parish Details',
+            text: 'Check out this parish information',
+            url: window.location.href
+        });
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(window.location.href).then(function() {
+            alert('Link copied to clipboard!');
+        });
+    }
+}
+
+// Smooth scroll for anchor links
+document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+});
+</script>
+
+{% block extra_js %}
+{% endblock %}
+{% endblock %}

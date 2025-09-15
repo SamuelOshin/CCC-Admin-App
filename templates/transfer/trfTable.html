@@ -1,109 +1,569 @@
-{% extends 'transfer/base.html' %}
+{% extends 'dashboard/layouts/table_form_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
 
-{% block content %}
-    <div class="container">
-        <h3 class="text-light text-bg-primary mb-4">
-                <strong>Recently Transferred Clergy</strong>
-        </h3>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-           
-            
-                
-                <div class="row justify-content-center align-items-start">
-                    <div class="col-md-12">
-                        <div class="">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover table-bordered clergyTable" id="clergyTable">
-                                        <thead>
-                                            <tr>
-                                                <th>S/N</th>
-                                                <th>Name</th>
-                                                <th>Parish From</th>
-                                                <th>Designation</th>
-                                                <th>Parish To</th>
-                                                <th>Designation</th>
-                                                <th>Date Transferred</th>
-                                                <th>Status</th>
-                                                <th>Duration</th>
-                                                <th>Duration Left</th>
-                                                <th>Extended</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for transfer in trf_data_with_clergy %}
-                                            <tr>
-                                                <td>{{forloop.counter}}</td>
-                                                <td>
-                                                    <div class="d-flex align-items-center flex-wrap justify-content-center ">
-                                                        <div class="position-relative me-3">
-                                                            <img class="rounded-circle" src="{{ transfer.clergy.profile_picture.url }}" style="max-width: 40px; max-height: 100px;">
-                                                            {% if transfer.trf_status == 'Pending' %}
-                                                            <div class="bg-warning status-indicator"></div>
-                                                            {% elif transfer.trf_status == 'Approved' %}
-                                                            <div class="bg-success status-indicator"></div>
-                                                            {% else %}
-                                                            <div class="bg-danger status-indicator"></div>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div><p class="fw-semibold ">{{ transfer.clergy }}</p></div>
-                                                    </div>
-                                                </td>
-                                                <td>{{ transfer.parishFrm }}</td>
-                                                <td>{{ transfer.designation_frm }}</td>
-                                                <td>{{ transfer.parishTo }}</td>
-                                                <td>{{ transfer.designation_to }}</td>
-                                                <td>{{ transfer.date_transfered }}</td>
-                                                <td>
-                                                    {% if transfer.trf_status == 'Pending' %}
-                                                        <span class="badge text-bg-warning text-white">{{transfer.trf_status}}</span>
-                                                    {% elif transfer.trf_status == 'Approved' %}
-                                                        <span class="badge text-bg-success text-white">{{transfer.trf_status}}</span>
-                                                    {% else %}
-                                                        <span class="badge text-bg-danger text-white">{{transfer.trf_status}}</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>{{ transfer.days_in_position }} days</td>
-                                                <td>{{ transfer.days_left }} days</td>
-                                                {% if transfer.trf_extended %}
-                                                    <td><span class="badge text-bg-success  text-white">Yes</span></td>
-                                                {% else %}
-                                                    <td><span class="badge text-bg-danger text-white">No</span></td>
-                                                {% endif %}
-                                                <td>
-                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'view_transfer' transfer.id %}">View</a>
-                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'update_transfer' transfer.id %}">Update</a>
-                                                    <a class="btn btn-outline-secondary btn-sm " href="{% url 'new_transfer' transfer.id %}">New</a>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>   
-                
-            
+{% block title %}Transfer History - CCC Administrative System{% endblock %}
+{% block page_title %}Transfer Management{% endblock %}
+{% block page_subtitle %}Comprehensive view of clergy transfer records and status tracking{% endblock %}
+{% block page_icon %}fas fa-exchange-alt{% endblock %}
 
-            
-                  
-        <div class="row justify-content-end">
-            <a href="{% url 't_dashboard' %}" class="btn btn-primary mt-3">Back to dashboard</a>
+{% block table_title %}Clergy Transfer Records{% endblock %}
+{% block table_subtitle %}Manage and track all clergy transfers across parishes{% endblock %}
+
+{% block table_actions %}
+<div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 't_dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+    </a>
+    <a href="{% url 'clergy' %}" class="btn btn-outline-success">
+        <i class="fas fa-users me-2"></i>Clergy List
+    </a>
+    <button type="button" class="btn btn-outline-info" onclick="exportTable('excel')">
+        <i class="fas fa-file-excel me-2"></i>Export Excel
+    </button>
+    <button type="button" class="btn btn-outline-danger" onclick="exportTable('pdf')">
+        <i class="fas fa-file-pdf me-2"></i>Export PDF
+    </button>
+</div>
+{% endblock %}
+
+{% block table_stats %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                    <i class="fas fa-users fa-2x text-primary me-3"></i>
+                    <div>
+                        <h4 class="mb-0">{{ total_transfers|default:0 }}</h4>
+                        <small class="text-muted">Total Transfers</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                    <i class="fas fa-clock fa-2x text-warning me-3"></i>
+                    <div>
+                        <h4 class="mb-0">{{ pending_transfers|default:0 }}</h4>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                    <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                    <div>
+                        <h4 class="mb-0">{{ approved_transfers|default:0 }}</h4>
+                        <small class="text-muted">Approved</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                    <i class="fas fa-calendar-alt fa-2x text-info me-3"></i>
+                    <div>
+                        <h4 class="mb-0">{{ recent_transfers|default:0 }}</h4>
+                        <small class="text-muted">This Month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-    
+{% block table_filters %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label for="statusFilter" class="form-label">Filter by Status</label>
+        <select class="form-select" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Withdrawn">Withdrawn</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="parishFilter" class="form-label">Filter by Parish</label>
+        <select class="form-select" id="parishFilter">
+            <option value="">All Parishes</option>
+            {% for parish in parishes %}
+            <option value="{{ parish.id }}">{{ parish }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="dateFrom" class="form-label">From Date</label>
+        <input type="date" class="form-control" id="dateFrom">
+    </div>
+    <div class="col-md-3">
+        <label for="dateTo" class="form-label">To Date</label>
+        <input type="date" class="form-control" id="dateTo">
+    </div>
+</div>
+<div class="d-flex gap-2 mb-3">
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+        <i class="fas fa-times me-1"></i>Clear Filters
+    </button>
+    <button type="button" class="btn btn-outline-primary btn-sm" onclick="applyFilters()">
+        <i class="fas fa-filter me-1"></i>Apply Filters
+    </button>
+</div>
+{% endblock %}
+           
+            
+{% block table_content %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered" id="transferTable" style="width:100%;">
+        <thead class="table-primary text-white">
+            <tr>
+                <th class="text-center">
+                    <input type="checkbox" class="form-check-input" id="select-all">
+                </th>
+                <th>S/N</th>
+                <th>Clergy Member</th>
+                <th>From Parish</th>
+                <th>From Designation</th>
+                <th>To Parish</th>
+                <th>To Designation</th>
+                <th>Transfer Date</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Days Left</th>
+                <th>Extended</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transfer in trf_data_with_clergy %}
+            <tr data-status="{{ transfer.trf_status|lower }}" data-parish="{{ transfer.parishTo.id }}">
+                <td class="text-center">
+                    <input type="checkbox" class="form-check-input row-checkbox" value="{{ transfer.id }}">
+                </td>
+                <td class="text-center fw-semibold">{{ forloop.counter }}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative me-3">
+                            {% if transfer.clergy.profile_picture %}
+                            <img class="rounded-circle border"
+                                 src="{{ transfer.clergy.profile_picture.url }}"
+                                 alt="Profile Picture"
+                                 style="width: 45px; height: 45px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 45px; height: 45px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            {% endif %}
+                            <!-- Status indicator -->
+                            {% if transfer.trf_status == 'Pending' %}
+                            <div class="position-absolute bottom-0 end-0 bg-warning rounded-circle"
+                                 style="width: 12px; height: 12px; border: 2px solid white;"></div>
+                            {% elif transfer.trf_status == 'Approved' %}
+                            <div class="position-absolute bottom-0 end-0 bg-success rounded-circle"
+                                 style="width: 12px; height: 12px; border: 2px solid white;"></div>
+                            {% else %}
+                            <div class="position-absolute bottom-0 end-0 bg-danger rounded-circle"
+                                 style="width: 12px; height: 12px; border: 2px solid white;"></div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-primary">{{ transfer.clergy }}</div>
+                            <small class="text-muted">{{ transfer.clergy.reg_number|default:"N/A" }}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge bg-light text-dark border">{{ transfer.parishFrm.parish.name|default:"N/A" }}</span>
+                </td>
+                <td>
+                    <span class="badge bg-info text-white">{{ transfer.designation_frm|default:"N/A" }}</span>
+                </td>
+                <td>
+                    <span class="badge bg-primary text-white">{{ transfer.parishTo.parish.name|default:"N/A" }}</span>
+                </td>
+                <td>
+                    <span class="badge bg-success text-white">{{ transfer.designation_to|default:"N/A" }}</span>
+                </td>
+                <td>
+                    <i class="fas fa-calendar-alt text-muted me-1"></i>
+                    {{ transfer.date_transfered|date:"M d, Y" }}
+                </td>
+                <td class="text-center">
+                    {% if transfer.trf_status == 'Pending' %}
+                    <span class="badge bg-warning text-dark px-3 py-2">
+                        <i class="fas fa-clock me-1"></i>{{ transfer.trf_status }}
+                    </span>
+                    {% elif transfer.trf_status == 'Approved' %}
+                    <span class="badge bg-success text-white px-3 py-2">
+                        <i class="fas fa-check-circle me-1"></i>{{ transfer.trf_status }}
+                    </span>
+                    {% else %}
+                    <span class="badge bg-danger text-white px-3 py-2">
+                        <i class="fas fa-times-circle me-1"></i>{{ transfer.trf_status }}
+                    </span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <span class="fw-semibold">{{ transfer.days_in_position|default:0 }}</span>
+                    <small class="text-muted d-block">days</small>
+                </td>
+                <td class="text-center">
+                    {% if transfer.days_left is not None %}
+                    <span class="fw-semibold {% if transfer.days_left <= 30 %}text-danger{% elif transfer.days_left <= 90 %}text-warning{% else %}text-success{% endif %}">
+                        {{ transfer.days_left }}
+                    </span>
+                    <small class="text-muted d-block">days left</small>
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if transfer.trf_extended %}
+                    <span class="badge bg-success text-white">
+                        <i class="fas fa-check me-1"></i>Yes
+                    </span>
+                    {% if transfer.extended_date %}
+                    <br><small class="text-muted">{{ transfer.extended_date|date:"M d, Y" }}</small>
+                    {% endif %}
+                    {% else %}
+                    <span class="badge bg-secondary text-white">
+                        <i class="fas fa-times me-1"></i>No
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'view_transfer' transfer.id %}"
+                           class="btn btn-outline-info btn-sm"
+                           title="View Details"
+                           data-bs-toggle="tooltip">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'update_transfer' transfer.id %}"
+                           class="btn btn-outline-warning btn-sm"
+                           title="Update Transfer"
+                           data-bs-toggle="tooltip">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        {% if transfer.trf_status == 'Pending' %}
+                        <a href="{% url 'new_transfer' transfer.clergy.id %}"
+                           class="btn btn-outline-success btn-sm"
+                           title="Process Transfer"
+                           data-bs-toggle="tooltip">
+                            <i class="fas fa-play"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="13" class="text-center py-5">
+                    <div class="text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
+                        <h5>No Transfer Records Found</h5>
+                        <p>There are currently no clergy transfer records in the system.</p>
+                        <a href="{% url 't_dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create New Transfer
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}   
+{% block additional_content %}
+<!-- Bulk Actions Bar (Hidden by default) -->
+<div class="bulk-actions-bar" id="bulkActionsBar" style="display: none;">
+    <div class="card border-warning">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span id="selected-count">0</span> transfer(s) selected
+                </div>
+                <div class="col-md-4 text-end">
+                    <button type="button" class="btn btn-outline-success btn-sm me-2" onclick="bulkApprove()">
+                        <i class="fas fa-check me-1"></i>Approve Selected
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="bulkDelete()">
+                        <i class="fas fa-trash me-1"></i>Delete Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transfer Details Modal -->
+<div class="modal fade" id="transferDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transfer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="transferDetailsContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prevent duplicate initialization
+    if (window.transferTableInitialized) {
+        return;
+    }
+    window.transferTableInitialized = true;
+
+    let transferTable;
+
+    // Initialize DataTables with advanced features
+    initializeDataTable();
+    setupBulkSelection();
+    setupFilters();
+    initializeTooltips();
+
+    function initializeDataTable() {
+        // Check if table exists and has correct structure
+        const table = $('#transferTable');
+        if (table.length === 0) {
+            console.error('Transfer table not found');
+            return;
+        }
+
+        const headerCols = table.find('thead th').length;
+        const bodyRows = table.find('tbody tr').length;
+        console.log(`Table structure: ${headerCols} header columns, ${bodyRows} body rows`);
+
+        transferTable = table.DataTable({
+            responsive: true,
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            language: {
+                search: "Search transfers:",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ transfers",
+                infoEmpty: "No transfers found",
+                infoFiltered: "(filtered from _MAX_ total transfers)",
+                paginate: {
+                    first: "First",
+                    last: "Last",
+                    next: "Next",
+                    previous: "Previous"
+                },
+                emptyTable: "No transfer records available"
+            },
+            columnDefs: [
+                { orderable: false, targets: [0, 12] }, // Disable sorting on checkbox and actions columns
+                { width: "3%", targets: 0 }, // Checkbox column
+                { width: "5%", targets: 1 }, // S/N column
+                { width: "15%", targets: 2 }, // Clergy Member column
+                { width: "10%", targets: 3 }, // From Parish column
+                { width: "10%", targets: 4 }, // From Designation column
+                { width: "10%", targets: 5 }, // To Parish column
+                { width: "10%", targets: 6 }, // To Designation column
+                { width: "8%", targets: 7 }, // Transfer Date column
+                { width: "8%", targets: 8 }, // Status column
+                { width: "6%", targets: 9 }, // Duration column
+                { width: "6%", targets: 10 }, // Days Left column
+                { width: "6%", targets: 11 }, // Extended column
+                { width: "12%", targets: 12 } // Actions column
+            ],
+            order: [[7, 'desc']], // Sort by Transfer Date descending by default
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            initComplete: function() {
+                console.log('DataTable initialized successfully');
+                $('.dataTables_length select').addClass('form-select form-select-sm');
+                $('.dataTables_filter input').addClass('form-control form-control-sm');
+                this.api().columns.adjust();
+            },
+            drawCallback: function() {
+                this.api().columns.adjust();
+                initializeTooltips();
+            },
+            error: function(xhr, error, thrown) {
+                console.error('DataTable error:', error, thrown);
+            }
+        });
+    }
+
+    function setupBulkSelection() {
+        const selectAllCheckbox = document.getElementById('select-all');
+        const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+        const bulkActionsBar = document.getElementById('bulkActionsBar');
+        const selectedCountSpan = document.getElementById('selected-count');
+
+        // Select all functionality
+        selectAllCheckbox?.addEventListener('change', function() {
+            const isChecked = this.checked;
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            updateBulkActionsVisibility();
+        });
+
+        // Individual row selection
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                updateBulkActionsVisibility();
+            }
+        });
+
+        function updateBulkActionsVisibility() {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+            const count = checkedBoxes.length;
+
+            selectedCountSpan.textContent = count;
+
+            if (count > 0) {
+                bulkActionsBar.style.display = 'block';
+                // Update select all checkbox state
+                const totalCheckboxes = rowCheckboxes.length;
+                selectAllCheckbox.checked = count === totalCheckboxes;
+                selectAllCheckbox.indeterminate = count > 0 && count < totalCheckboxes;
+            } else {
+                bulkActionsBar.style.display = 'none';
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+        }
+    }
+
+    function setupFilters() {
+        // Status filter
+        document.getElementById('statusFilter')?.addEventListener('change', function() {
+            const status = this.value;
+            transferTable.column(8).search(status).draw();
+        });
+
+        // Parish filter
+        document.getElementById('parishFilter')?.addEventListener('change', function() {
+            const parish = this.value;
+            transferTable.column(5).search(parish).draw();
+        });
+
+        // Date range filter
+        document.getElementById('dateFrom')?.addEventListener('change', applyDateFilter);
+        document.getElementById('dateTo')?.addEventListener('change', applyDateFilter);
+    }
+
+    function applyDateFilter() {
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+
+        if (dateFrom || dateTo) {
+            transferTable.draw();
+        } else {
+            transferTable.search('').draw();
+        }
+    }
+
+    function initializeTooltips() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+
+    // Global functions for template buttons
+    window.applyFilters = function() {
+        transferTable.draw();
+    };
+
+    window.clearFilters = function() {
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('parishFilter').value = '';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        transferTable.search('').columns().search('').draw();
+    };
+
+    window.exportTable = function(format) {
+        // Hide global loading screen immediately
+        const globalLoadingScreen = document.getElementById('loading');
+        if (globalLoadingScreen) {
+            globalLoadingScreen.style.display = 'none';
+        }
+
+        if (format === 'excel') {
+            transferTable.button('.buttons-excel').trigger();
+        } else if (format === 'pdf') {
+            transferTable.button('.buttons-pdf').trigger();
+        }
+    };
+
+    window.bulkApprove = function() {
+        const selectedIds = getSelectedIds();
+        if (selectedIds.length === 0) {
+            alert('Please select transfers to approve');
+            return;
+        }
+
+        if (confirm(`Are you sure you want to approve ${selectedIds.length} transfer(s)?`)) {
+            // Implement bulk approve logic
+            console.log('Approving transfers:', selectedIds);
+            // Add your bulk approve API call here
+        }
+    };
+
+    window.bulkDelete = function() {
+        const selectedIds = getSelectedIds();
+        if (selectedIds.length === 0) {
+            alert('Please select transfers to delete');
+            return;
+        }
+
+        if (confirm(`Are you sure you want to delete ${selectedIds.length} transfer(s)? This action cannot be undone.`)) {
+            // Implement bulk delete logic
+            console.log('Deleting transfers:', selectedIds);
+            // Add your bulk delete API call here
+        }
+    };
+
+    function getSelectedIds() {
+        const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+        return Array.from(selectedCheckboxes).map(cb => cb.value);
+    }
+
+    // Add custom search functionality for date range
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const dateFrom = document.getElementById('dateFrom')?.value;
+        const dateTo = document.getElementById('dateTo')?.value;
+        const transferDate = data[7]; // Transfer date column
+
+        if (!dateFrom && !dateTo) return true;
+
+        const transferDateObj = new Date(transferDate);
+        const fromDate = dateFrom ? new Date(dateFrom) : null;
+        const toDate = dateTo ? new Date(dateTo) : null;
+
+        if (fromDate && transferDateObj < fromDate) return false;
+        if (toDate && transferDateObj > toDate) return false;
+
+        return true;
+    });
+});
+</script>
 {% endblock %}
 

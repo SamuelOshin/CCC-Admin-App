@@ -1,77 +1,663 @@
-{% extends 'ParishRestructure/base.html' %}
-{% include 'ParishRestructure/head.html' %}
+{% extends 'dashboard/layouts/dashboard_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
 
-{% block content %}
+{% block title %}Parish Management Dashboard{% endblock %}
+{% block dashboard_title %}Parish Management{% endblock %}
+{% block dashboard_subtitle %}Manage your parish data and streamline restructuring processes{% endblock %}
 
+{% block extra_css %}
+<style>
+    .trend-up {
+        color: #4caf50;
+    }
 
-<div class="container">
-    <h3 class="text-light text-bg-primary mb-4">
-        <strong>Welcome to Parish Restructure App, Choose a Category</strong>
-    </h3>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+    .trend-down {
+        color: #f44336;
+    }
 
-    <div class="parish-content">
-        <a href="{% url 'add_parish' %}" class="parish-card">
-            <div class="p-div">
-                <p data-bss-hover-animate="pulse">Parish Restructure</p>
-                <div class="plus-icon" data-bss-hover-animate="pulse"><i class="fa-regular fa-layer-group"></i></div>
-            </div>
-        </a>
-        <a href="{% url 'all-parish' %}" class="parish-card">
-            <div class="p-div">
-                <p data-bss-hover-animate="pulse">Parish Directory</p>
-                <!-- <span><div class="plus-icon" data-bss-hover-animate="pulse"><i class="fa-solid fa-plus"></i></div></span> -->
-                <span class="plus-icon"  data-bss-hover-animate="pulse"><i class="fa-solid fa-database  "></i></span>
-            </div>
-        </a>
-        <a href="{% url 'add_location' %}" class="parish-card">
-            <div class="p-div">
-                <p data-bss-hover-animate="pulse">Register a Location</p>
-                <div class="plus-icon" data-bss-hover-animate="pulse"><i class="fa-solid fa-plus"></i></div>
-            </div>
-        </a>
-        <a href="{% url 'parish-registration' %}" class="parish-card">
-            <div class="p-div">
-                <p data-bss-hover-animate="pulse">Parish Registration</p>
-                <div class="plus-icon" data-bss-hover-animate="pulse"><i class="fa-solid fa-plus"></i></div>
-            </div>
-        </a>
-        <a href="{% url 'view_parishes' %}" class="parish-card">
-            <div class="p-div">
-                <p data-bss-hover-animate="pulse">View Parish Categorically</p>
-                <div class="plus-icon" data-bss-hover-animate="pulse"><i class="fa-solid fa-eye"></i></div>
-            </div>
-        </a>
-        <a href="{% url 'approval_queue' %}" class="parish-card">
-            <div class="p-div">
-                <p data-bss-hover-animate="pulse">Pending Registration</p>
-                <div class="plus-icon" data-bss-hover-animate="pulse"><i class="fa-solid fa-hourglass-half"></i></div>
-            </div>
-        </a>
-        <a href="{% url 'approved' %}" class="parish-card">
-            <div class="p-div">
-                <p data-bss-hover-animate="pulse">Approved Registration</p>
-                <div class="plus-icon" data-bss-hover-animate="pulse"><i class="fa-solid fa-check"></i></div>
-            </div>
-        </a>
-        
-        
-        
-        
+    .chart-container {
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
+    .chart-loading {
+        color: #757575;
+        text-align: center;
+    }
+
+    .chart-error {
+        color: #f44336;
+        text-align: center;
+    }
+
+    /* Enhanced responsive design */
+    .dashboard-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .icon-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .icon-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+    .icon-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+    .icon-success { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; }
+    .icon-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; }
+
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .card-action {
+        margin-top: auto;
+        padding-top: 1rem;
+    }
+
+    .btn-action {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Stats cards alignment improvements */
+    .dashboard-stats .card-body {
+        padding: 1.5rem;
+    }
+
+    .dashboard-stats .card-body .d-flex {
+        min-height: 80px;
+    }
+
+    .dashboard-stats .card-icon {
+        margin-right: 1rem;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        .card-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .dashboard-card {
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            min-height: 250px;
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 1.3rem;
+        }
+
+        .dashboard-stats .card-body .d-flex {
+            flex-direction: column;
+            text-align: center;
+            min-height: auto;
+        }
+
+        .dashboard-stats .card-icon {
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .chart-container {
+            min-height: 200px;
+        }
+
+        .dashboard-card .card-body {
+            padding: 1.25rem;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+    }
+
+    /* Loading states */
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    /* Error states */
+    .error-state {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        border: 1px solid #e57373;
+        border-radius: 12px;
+    }
+
+    .retry-btn {
+        background: linear-gradient(135deg, #e57373 0%, #d32f2f 100%);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        transition: all 0.2s ease;
+    }
+
+    .retry-btn:hover {
+        background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_stats %}
+<div class="row mb-4">
+    <!-- Total Parishes Card -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="dashboard-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon icon-primary me-3 flex-shrink-0">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">Total Parishes</h6>
+                    <h3 class="mb-0 fw-bold">{{ total_parishes|default:0 }}</h3>
+                    {% if not error_occurred and not critical_error %}
+                    <div class="mt-2">
+                        {% if month_growth >= 0 %}
+                        <span class="trend-up fw-semibold small">
+                            <i class="bi bi-arrow-up"></i> {{ month_growth|floatformat:1 }}%
+                        </span>
+                        {% else %}
+                        <span class="trend-down fw-semibold small">
+                            <i class="bi bi-arrow-down"></i> {{ month_growth|floatformat:1 }}%
+                        </span>
+                        {% endif %}
+                        <span class="text-muted ms-1 small">from last month</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-    
+
+    <!-- Pending Registrations Card -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="dashboard-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon icon-warning me-3 flex-shrink-0">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">Pending Registrations</h6>
+                    <h3 class="mb-0 fw-bold">{{ pending_registrations|default:0 }}</h3>
+                    {% if not error_occurred and not critical_error %}
+                    <div class="mt-2">
+                        {% if week_growth >= 0 %}
+                        <span class="trend-up fw-semibold small">
+                            <i class="bi bi-arrow-up"></i> {{ week_growth|floatformat:1 }}%
+                        </span>
+                        {% else %}
+                        <span class="trend-down fw-semibold small">
+                            <i class="bi bi-arrow-down"></i> {{ week_growth|floatformat:1 }}%
+                        </span>
+                        {% endif %}
+                        <span class="text-muted ms-1 small">from last week</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not error_occurred and not critical_error %}
+    <!-- Approved This Month Card -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="dashboard-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon icon-success me-3 flex-shrink-0">
+                    <i class="bi bi-check2-all"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">Approved This Month</h6>
+                    <h3 class="mb-0 fw-bold">{{ approved_this_month|default:0 }}</h3>
+                    <div class="mt-2">
+                        {% if month_growth >= 0 %}
+                        <span class="trend-up fw-semibold small">
+                            <i class="bi bi-arrow-up"></i> {{ month_growth|floatformat:1 }}%
+                        </span>
+                        {% else %}
+                        <span class="trend-down fw-semibold small">
+                            <i class="bi bi-arrow-down"></i> {{ month_growth|floatformat:1 }}%
+                        </span>
+                        {% endif %}
+                        <span class="text-muted ms-1 small">from previous month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restructuring Card -->
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+        <div class="dashboard-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon icon-info me-3 flex-shrink-0">
+                    <i class="bi bi-gear"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="text-muted mb-1">Restructuring</h6>
+                    <h3 class="mb-0 fw-bold">{{ restructuring_count|default:0 }}</h3>
+                    <div class="mt-2">
+                        <span class="text-muted small">active processes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
 
+{% block main_content %}
+<!-- Analytics Section -->
+{% if not error_occurred and not critical_error %}
+<div class="row mb-4">
+    <!-- Parish Statistics Chart - Full Width -->
+    <div class="col-12 mb-4">
+        <div class="dashboard-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0 fw-bold">Parish Registration Statistics</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="chartPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-calendar me-1"></i>Last 6 Months
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="chartPeriodDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="changeChartPeriod('6months')">Last 6 Months</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="changeChartPeriod('year')">Last Year</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="changeChartPeriod('all')">All Time</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-container" id="parishStatsContainer">
+                    <div class="chart-loading" id="parishStatsLoading">
+                        <div class="spinner-border text-primary mb-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mb-0">Loading chart data...</p>
+                    </div>
+                    <div class="chart-error d-none" id="parishStatsError">
+                        <i class="bi bi-exclamation-triangle fs-1 text-danger mb-2"></i>
+                        <p class="mb-2 fw-semibold">Unable to load chart data</p>
+                        <button class="btn btn-sm btn-outline-danger retry-btn" onclick="retryLoadChart('parishStats')">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Retry
+                        </button>
+                    </div>
+                    <canvas id="parishStatsChart" data-chart-data="{{ chart_data|default:'{}' }}" class="d-none"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
+<!-- Error State -->
+{% if critical_error %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-card error-state">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-exclamation-triangle-fill fs-1 text-danger mb-3"></i>
+                <h4 class="card-title text-danger mb-3">Dashboard Error</h4>
+                <p class="card-text text-muted mb-4">
+                    We encountered a problem loading the dashboard analytics. Please try refreshing the page or contact support if the issue persists.
+                </p>
+                <button class="btn btn-primary" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Refresh Page
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
+<!-- Parish Management Cards -->
+<div class="card-grid">
+    <!-- Parish Restructure Card -->
+    <div class="dashboard-card">
+        <div class="card-body d-flex flex-column">
+            <div class="card-icon icon-primary mb-3">
+                <i class="bi bi-building"></i>
+            </div>
+            <h5 class="card-title fw-bold">Parish Restructure</h5>
+            <p class="card-text text-muted">Manage parish restructuring processes, updates, and transitions.</p>
+            <div class="card-action">
+                <a href="{% url 'add_parish' %}" class="btn btn-primary btn-action w-100">
+                    <i class="bi bi-arrow-right-circle me-2"></i> Access
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parish Directory Card -->
+    <div class="dashboard-card">
+        <div class="card-body d-flex flex-column">
+            <div class="card-icon icon-secondary mb-3">
+                <i class="bi bi-folder2"></i>
+            </div>
+            <h5 class="card-title fw-bold">Parish Directory</h5>
+            <p class="card-text text-muted">Browse and search the complete parish directory with detailed information.</p>
+            <div class="card-action">
+                <a href="{% url 'all-parish' %}" class="btn btn-outline-primary btn-action w-100">
+                    <i class="bi bi-search me-2"></i> View Directory
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Location Card -->
+    <div class="dashboard-card">
+        <div class="card-body d-flex flex-column">
+            <div class="card-icon icon-info mb-3">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <h5 class="card-title fw-bold">Register Location</h5>
+            <p class="card-text text-muted">Add new locations to the system with geographic and contact details.</p>
+            <div class="card-action">
+                <a href="{% url 'add_location' %}" class="btn btn-outline-primary btn-action w-100">
+                    <i class="bi bi-plus-circle me-2"></i> Register
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parish Registration Card -->
+    <div class="dashboard-card">
+        <div class="card-body d-flex flex-column">
+            <div class="card-icon icon-success mb-3">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <h5 class="card-title fw-bold">Parish Registration</h5>
+            <p class="card-text text-muted">Process new parish registrations and manage existing ones.</p>
+            <div class="card-action">
+                <a href="{% url 'parish-registration' %}" class="btn btn-outline-primary btn-action w-100">
+                    <i class="bi bi-clipboard-check me-2"></i> Manage
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Categorically Card -->
+    <div class="dashboard-card">
+        <div class="card-body d-flex flex-column">
+            <div class="card-icon icon-secondary mb-3">
+                <i class="bi bi-eye"></i>
+            </div>
+            <h5 class="card-title fw-bold">View Categorically</h5>
+            <p class="card-text text-muted">Browse parishes by categories, regions, sizes, or other criteria.</p>
+            <div class="card-action">
+                <a href="{% url 'view_parishes' %}" class="btn btn-outline-primary btn-action w-100">
+                    <i class="bi bi-filter-circle me-2"></i> View
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Registration Card -->
+    <div class="dashboard-card">
+        <div class="card-body d-flex flex-column">
+            <div class="card-icon icon-warning mb-3">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <h5 class="card-title fw-bold">Pending Registration</h5>
+            <p class="card-text text-muted">Review and process pending parish registration requests.</p>
+            <div class="card-action">
+                <a href="{% url 'approval_queue' %}" class="btn btn-outline-primary btn-action w-100">
+                    <i class="bi bi-list-check me-2"></i> Review
+                    {% if pending_registrations > 0 %}
+                    <span class="badge bg-danger ms-1">{{ pending_registrations }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved Registration Card -->
+    <div class="dashboard-card">
+        <div class="card-body d-flex flex-column">
+            <div class="card-icon icon-success mb-3">
+                <i class="bi bi-check2-all"></i>
+            </div>
+            <h5 class="card-title fw-bold">Approved Registration</h5>
+            <p class="card-text text-muted">Access all approved parish registrations and their details.</p>
+            <div class="card-action">
+                <a href="{% url 'approved' %}" class="btn btn-outline-primary btn-action w-100">
+                    <i class="bi bi-journal-check me-2"></i> View Approved
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar_stats %}
+{% if not error_occurred and not critical_error %}
+<!-- Geographic Distribution Chart - Moved to Sidebar -->
+<div class="dashboard-card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3 fw-bold">Geographic Distribution</h5>
+        <div class="chart-container" id="regionDistributionContainer">
+            <div class="chart-loading" id="regionDistributionLoading">
+                <div class="spinner-border text-primary mb-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mb-0">Loading chart data...</p>
+            </div>
+            <div class="chart-error d-none" id="regionDistributionError">
+                <i class="bi bi-exclamation-triangle fs-1 text-danger mb-2"></i>
+                <p class="mb-2 fw-semibold">Unable to load chart data</p>
+                <button class="btn btn-sm btn-outline-danger retry-btn" onclick="retryLoadChart('regionDistribution')">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Retry
+                </button>
+            </div>
+            <canvas id="regionDistributionChart" data-chart-data="{{ region_chart_data|default:'{}' }}" class="d-none"></canvas>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Lazy Loading Observer for Charts
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const containerId = entry.target.id;
+                const chartType = containerId.replace('Container', '');
+                initializeChart(chartType);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.2 });
+
+    // Observe chart containers
+    document.querySelectorAll('.chart-container').forEach(container => {
+        observer.observe(container);
+    });
+
+    // Function to initialize charts
+    window.initializeChart = function(chartType) {
+        const chartId = chartType + 'Chart';
+        const loadingId = chartType + 'Loading';
+        const errorId = chartType + 'Error';
+        const chartElement = document.getElementById(chartId);
+        const loadingElement = document.getElementById(loadingId);
+        const errorElement = document.getElementById(errorId);
+
+        if (!chartElement) return;
+
+        try {
+            // Parse chart data
+            let chartData;
+            try {
+                chartData = JSON.parse(chartElement.dataset.chartData || '{}');
+                // Check if data is valid
+                if (!chartData.labels || !chartData.datasets || chartData.datasets.length === 0) {
+                    throw new Error('Invalid chart data');
+                }
+            } catch (e) {
+                console.error('Error parsing chart data:', e);
+                showChartError(chartType);
+                return;
+            }
+
+            // Configure and create chart
+            if (chartType === 'parishStats') {
+                new Chart(chartElement, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (chartType === 'regionDistribution') {
+                new Chart(chartElement, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 10
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            // Show chart, hide loading
+            chartElement.classList.remove('d-none');
+            loadingElement.classList.add('d-none');
+        } catch (e) {
+            console.error('Error initializing chart:', e);
+            showChartError(chartType);
+        }
+    };
+
+    // Function to show chart error
+    function showChartError(chartType) {
+        const chartId = chartType + 'Chart';
+        const loadingId = chartType + 'Loading';
+        const errorId = chartType + 'Error';
+
+        document.getElementById(chartId).classList.add('d-none');
+        document.getElementById(loadingId).classList.add('d-none');
+        document.getElementById(errorId).classList.remove('d-none');
+    }
+
+    // Function to retry loading a chart
+    window.retryLoadChart = function(chartType) {
+        const chartId = chartType + 'Chart';
+        const loadingId = chartType + 'Loading';
+        const errorId = chartType + 'Error';
+
+        // Show loading again
+        document.getElementById(chartId).classList.add('d-none');
+        document.getElementById(errorId).classList.add('d-none');
+        document.getElementById(loadingId).classList.remove('d-none');
+
+        // Try to initialize again
+        setTimeout(() => {
+            initializeChart(chartType);
+        }, 500);
+    }
+
+    // Function to change chart period (placeholder for future implementation)
+    window.changeChartPeriod = function(period) {
+        // This would typically make an AJAX call to get new data
+        console.log('Changing chart period to:', period);
+        // For now, just show a loading state and then reload
+        showLoading();
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+
+    // Enhanced error handling
+    window.addEventListener('error', function(e) {
+        console.error('Global error:', e.error);
+        // Could send error to monitoring service here
+    });
+
+    window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason);
+        // Could send error to monitoring service here
+    });
+});
+</script>
 {% endblock %}

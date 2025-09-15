@@ -1,0 +1,1521 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Data Export Center - CCC Administrative System{% endblock %}
+
+{% block extra_css %}
+<style>
+.export-center {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 20px 20px;
+}
+
+.export-center h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.export-center p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.data-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.data-type-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.data-type-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.data-type-card.selected {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.data-type-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.data-type-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.data-type-info h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.data-type-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.data-count {
+    background: #f3f4f6;
+    color: #374151;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    display: inline-block;
+}
+
+.export-form {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-section h3 i {
+    color: #667eea;
+}
+
+.format-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.format-option {
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.format-option:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.format-option.selected {
+    border-color: #667eea;
+    background: #f0f4ff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.format-icon {
+    font-size: 2rem;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.format-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.format-description {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.filter-field {
+    margin-bottom: 1rem;
+}
+
+.filter-field label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.field-category {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #f9fafb;
+}
+
+.category-header {
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background-color 0.2s ease;
+}
+
+.category-header:hover {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 4px;
+}
+
+.category-toggle {
+    transition: transform 0.2s ease;
+    color: #6b7280;
+}
+
+.field-category.collapsed .category-toggle {
+    transform: rotate(-90deg);
+}
+
+.category-content {
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.field-category.collapsed .category-content {
+    display: none;
+}
+
+.field-category h6 {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+}
+
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.field-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    background: white;
+    border: 1px solid #e5e7eb;
+}
+
+.field-checkbox:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.field-checkbox input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.field-checkbox label {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #374151;
+    cursor: pointer;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-section {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.preview-table th,
+.preview-table td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-table th {
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #374151;
+}
+
+.export-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-export:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.loading-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.alert-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+@media (max-width: 768px) {
+    .export-center {
+        padding: 2rem 1rem;
+    }
+
+    .export-center h1 {
+        font-size: 2rem;
+    }
+
+    .data-type-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .format-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .export-actions {
+        flex-direction: column;
+    }
+
+    .btn-export,
+    .btn-secondary {
+        width: 100%;
+    }
+}
+
+/* Bulk Export Styles */
+.export-mode-toggle {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.bulk-selection {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.bulk-data-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.bulk-data-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-color: #667eea;
+}
+
+.bulk-data-item .form-check-label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.bulk-format-selection {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.bulk-format-selection h5 {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.format-options {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.format-options .form-check {
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .format-options {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .bulk-data-item {
+        padding: 0.75rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="export-center text-center">
+        <div class="container">
+            <h1><i class="fas fa-download me-3"></i>Data Export Center</h1>
+            <p>Export church administrative data with advanced filtering and multiple format support</p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if error_message %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    <!-- Export Mode Toggle -->
+    <div class="container mb-4">
+        <div class="export-mode-toggle">
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="exportMode" id="singleExport" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="singleExport">
+                    <i class="fas fa-file-export me-2"></i>Single Export
+                </label>
+
+                <input type="radio" class="btn-check" name="exportMode" id="bulkExportMode" autocomplete="off">
+                <label class="btn btn-outline-success" for="bulkExportMode">
+                    <i class="fas fa-archive me-2"></i>Bulk Export (ZIP)
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <form id="exportForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Step 1: Data Type Selection -->
+            <div class="export-form" id="step1">
+                <div class="form-section">
+                    <h3><i class="fas fa-database"></i>Step 1: Select Data Type</h3>
+                    <p class="text-muted mb-4">Choose the type of data you want to export from the available options below.</p>
+
+                    <div class="data-type-grid">
+                        {% for data_type in data_types %}
+                        <div class="data-type-card" data-type="{{ data_type.id }}" onclick="selectDataType('{{ data_type.id }}')">
+                            <div class="data-type-header">
+                                <div class="data-type-icon">
+                                    <i class="{{ data_type.icon }}"></i>
+                                </div>
+                                <div class="data-type-info">
+                                    <h4>{{ data_type.name }}</h4>
+                                    <p>{{ data_type.description }}</p>
+                                    <span class="data-count">{{ data_type.count }} records</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <input type="hidden" name="data_type" id="selectedDataType" required>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-secondary" onclick="nextStep(2)">
+                        Next: Choose Export Format <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bulk Export Option -->
+            <div class="export-form" id="bulkExport" style="display: none;">
+                <div class="form-section">
+                    <h3><i class="fas fa-archive"></i>Bulk Export: Select Multiple Data Types</h3>
+                    <p class="text-muted mb-4">Choose multiple data types to export them all in a single ZIP file.</p>
+
+                    <div class="bulk-selection">
+                        <div class="select-all-section mb-3">
+                            <label class="form-check">
+                                <input type="checkbox" class="form-check-input" id="selectAllBulk">
+                                <span class="form-check-label fw-bold">Select All Data Types</span>
+                            </label>
+                        </div>
+
+                        <div class="bulk-data-types">
+                            {% for data_type in data_types %}
+                            <div class="bulk-data-item">
+                                <label class="form-check">
+                                    <input type="checkbox" class="form-check-input bulk-checkbox" name="data_types" value="{{ data_type.id }}">
+                                    <span class="form-check-label">
+                                        <strong>{{ data_type.name }}</strong> - {{ data_type.description }}
+                                        <span class="badge bg-secondary ms-2">{{ data_type.count }} records</span>
+                                    </span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="bulk-format-selection mt-4">
+                        <h5>Export Format for All Files:</h5>
+                        <div class="format-options">
+                            <label class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="format" value="excel" checked>
+                                <span class="form-check-label">Excel (.xlsx)</span>
+                            </label>
+                            <label class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="format" value="csv">
+                                <span class="form-check-label">CSV (.csv)</span>
+                            </label>
+                            <label class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="format" value="json">
+                                <span class="form-check-label">JSON (.json)</span>
+                            </label>
+                            <label class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="format" value="pdf">
+                                <span class="form-check-label">PDF (.pdf)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-outline-secondary me-2" onclick="showSingleExport()">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Single Export
+                    </button>
+                    <button type="submit" class="btn btn-success" formaction="{% url 'bulk_export_data' %}">
+                        <i class="fas fa-download me-2"></i> Export Selected Data (ZIP)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Export Format Selection -->
+            <div class="export-form" id="step2" style="display: none;">
+                <div class="form-section">
+                    <h3><i class="fas fa-file-export"></i>Step 2: Choose Export Format</h3>
+                    <p class="text-muted mb-4">Select the format for your exported data.</p>
+
+                    <div class="format-grid">
+                        {% for format in export_formats %}
+                        <div class="format-option" data-format="{{ format.id }}" onclick="selectFormat('{{ format.id }}')">
+                            <div class="format-icon">
+                                <i class="{{ format.icon }}"></i>
+                            </div>
+                            <div class="format-name">{{ format.name }}</div>
+                            <div class="format-description">{{ format.description }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <input type="hidden" name="export_format" id="selectedFormat" value="csv" required>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-secondary me-2" onclick="prevStep(1)">
+                        <i class="fas fa-arrow-left me-2"></i> Back
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="nextStep(3)">
+                        Next: Apply Filters <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Filters and Search -->
+            <div class="export-form" id="step3" style="display: none;">
+                <div class="form-section">
+                    <h3><i class="fas fa-filter"></i>Step 3: Apply Filters & Search</h3>
+                    <p class="text-muted mb-4">Filter your data and select specific fields to include in the export.</p>
+
+                    <div class="filter-grid">
+                        <div class="filter-field">
+                            <label for="date_from">Date From</label>
+                            <input type="date" name="date_from" id="date_from">
+                        </div>
+
+                        <div class="filter-field">
+                            <label for="date_to">Date To</label>
+                            <input type="date" name="date_to" id="date_to">
+                        </div>
+
+                        <div class="filter-field">
+                            <label for="status_filter">Status Filter</label>
+                            <select name="status_filter" id="status_filter">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-field">
+                            <label for="search_query">Search Query</label>
+                            <input type="text" name="search_query" id="search_query" placeholder="Search by name, ID, etc.">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Field Selection -->
+                <div class="form-section">
+                    <h3><i class="fas fa-columns"></i>Select Fields to Export</h3>
+                    <p class="text-muted mb-3">Choose which fields to include in your export. Leave empty to export all fields.</p>
+
+                    <!-- Field count display -->
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong id="fieldCountDisplay">Loading field information...</strong>
+                    </div>
+
+                    <!-- Field Search -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="fieldSearch" placeholder="Search fields..." onkeyup="filterFields()">
+                            <button class="btn btn-outline-secondary" type="button" onclick="clearFieldSearch()" title="Clear search">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Type to filter fields by name</small>
+                    </div>
+
+                    <!-- Bulk Selection Controls -->
+                    <div class="d-flex gap-2 mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllFields()">
+                            <i class="fas fa-check-square me-1"></i>Select All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectNoneFields()">
+                            <i class="fas fa-square me-1"></i>Select None
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" onclick="selectRecommendedFields()">
+                            <i class="fas fa-star me-1"></i>Recommended
+                        </button>
+                        <div class="vr"></div>
+                        <button type="button" class="btn btn-sm btn-outline-dark" onclick="expandAllCategories()">
+                            <i class="fas fa-expand me-1"></i>Expand All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-dark" onclick="collapseAllCategories()">
+                            <i class="fas fa-compress me-1"></i>Collapse All
+                        </button>
+                    </div>
+
+                    <div id="fieldSelection" class="field-grid">
+                        <!-- Fields will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Data Preview -->
+                <div class="preview-section" id="previewSection" style="display: none;">
+                    <h4><i class="fas fa-eye me-2"></i>Data Preview</h4>
+                    <div id="previewContent">
+                        <!-- Preview will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-secondary me-2" onclick="prevStep(2)">
+                        <i class="fas fa-arrow-left me-2"></i> Back
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="nextStep(4)">
+                        Next: Export Data <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Export Confirmation -->
+            <div class="export-form" id="step4" style="display: none;">
+                <div class="form-section">
+                    <h3><i class="fas fa-check-circle"></i>Step 4: Export Confirmation</h3>
+                    <p class="text-muted mb-4">Review your export settings and start the export process.</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Export Summary</h5>
+                                    <p class="mb-1"><strong>Data Type:</strong> <span id="summary-data-type">-</span></p>
+                                    <p class="mb-1"><strong>Format:</strong> <span id="summary-format">-</span></p>
+                                    <p class="mb-1"><strong>Filters Applied:</strong> <span id="summary-filters">-</span></p>
+                                    <p class="mb-0"><strong>Fields Selected:</strong> <span id="summary-fields">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-info text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Important Notes</h5>
+                                    <ul class="mb-0">
+                                        <li>Large exports may take time to process</li>
+                                        <li>Check your downloads folder after export</li>
+                                        <li>Exports are limited to 10,000 records for performance</li>
+                                        <li>PDF exports are limited to 1,000 records</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                        <i class="fas fa-arrow-left me-2"></i> Back
+                    </button>
+                    <button type="submit" class="btn-export" id="exportBtn">
+                        <div class="loading-spinner" id="loadingSpinner"></div>
+                        <span id="exportBtnText"><i class="fas fa-download me-2"></i>Start Export</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Global variables
+let selectedDataType = null;
+let selectedFormat = 'csv';
+let currentStep = 1;
+let availableFields = [];
+
+// Data type configurations with comprehensive field coverage
+const dataTypeConfigs = {
+    clergy_details: {
+        name: 'Clergy Details',
+        fields: [
+            // Personal Information (12 fields)
+            'clergy_id', 'first_name', 'middle_name', 'last_name', 'alias', 'gender', 'marital_status', 'dob',
+            'place_of_birth', 'nationality', 'state_of_origin', 'lga_if_nigerian',
+
+            // Contact Information (6 fields)
+            'permanent_address', 'resident_address', 'parish', 'parish_address', 'telephone', 'email_address',
+
+            // Health Information (7 fields)
+            'blood_group', 'genotype', 'any_ailment', 'any_disabilities', 'ailment', 'disability',
+
+            // Religious Background (6 fields)
+            'former_religion', 'denomination', 'status_former_religion', 'entry_date_in_ccc', 'first_parish',
+            'shepherd_who_baptized_you', 'shepherd_who_sanctified_you', 'date_when_baptized', 'parish_where_baptized',
+
+            // Annointment Information (4 fields)
+            'first_annointment', 'date_of_first_annointment', 'present_annointment', 'date_of_present_annointment',
+
+            // Education & Skills (5 fields)
+            'edu_level', 'edu_qualification', 'apprenticeship', 'hobbies', 'area_of_calling',
+
+            // Professional Information (3 fields)
+            'working_experience_option', 'work_experience_ifyes', 'spoken_languages',
+
+            // Family Information (5 fields)
+            'spouse', 'father', 'mother', 'next_of_kin', 'relation_in_ccc', 'children_info',
+
+            // System Fields (3 fields)
+            'profile_picture', 'reg_number', 'trg_number'
+        ]
+    },
+    annointments: {
+        name: 'Annointment Records',
+        fields: [
+            'clergy', 'rank', 'year_of_annointment', 'month_of_annointment', 'place_of_annoitment', 'annoiter'
+        ]
+    },
+    parish_directory: {
+        name: 'Parish Directory',
+        fields: [
+            'name', 'address', 'register_status'
+        ]
+    },
+    parish_registrations: {
+        name: 'Parish Registrations',
+        fields: [
+            // Basic Information (6 fields)
+            'parish', 'country', 'state', 'city', 'diocese', 'date_of_establishment',
+
+            // Administration (4 fields)
+            'founding_patron', 'name_of_shepherd', 'phone', 'email',
+
+            // Application Details (4 fields)
+            'date_applied', 'date_approved', 'date_issued_certificate', 'notes',
+
+            // Documentation (9 fields)
+            'parish_picture', 'application_for_registration', 'original_receipt_of_land', 'original_survey_plan',
+            'building_plan', 'sworn_affidavit', 'passport_photograph', 'approval_from_government_diaspora',
+            'payment_proof_of_auditorium'
+        ]
+    },
+    transfer_records: {
+        name: 'Transfer Records',
+        fields: [
+            // Transfer Information (6 fields)
+            'clergy', 'parishFrm', 'parishTo', 'date_transfered', 'trf_begin', 'trf_end',
+
+            // Status & Administration (4 fields)
+            'trf_status', 'designation_frm', 'designation_to', 'trf_extended',
+
+            // Additional Details (2 fields)
+            'extended_date', 'remarks'
+        ]
+    },
+    posting_history: {
+        name: 'Posting History',
+        fields: [
+            'clergy', 'parish', 'designation', 'date_of_entry', 'date_of_exit', 'purpose'
+        ]
+    },
+    clergy_transfer_bio: {
+        name: 'Clergy Transfer Bio',
+        fields: [
+            'clergy', 'floating'
+        ]
+    },
+};
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default format
+    selectFormat('csv');
+});
+
+// Step navigation functions
+function nextStep(step) {
+    if (validateCurrentStep()) {
+        showStep(step);
+    }
+}
+
+function prevStep(step) {
+    showStep(step);
+}
+
+function showStep(step) {
+    // Hide all steps
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`step${i}`).style.display = 'none';
+    }
+
+    // Show target step
+    document.getElementById(`step${step}`).style.display = 'block';
+    currentStep = step;
+
+    // Update step-specific content
+    if (step === 3) {
+        updateFieldSelection();
+    } else if (step === 4) {
+        updateSummary();
+    }
+}
+
+function validateCurrentStep() {
+    if (currentStep === 1 && !selectedDataType) {
+        alert('Please select a data type to continue.');
+        return false;
+    }
+    return true;
+}
+
+// Data type selection
+function selectDataType(dataType) {
+    selectedDataType = dataType;
+
+    // Update UI
+    document.querySelectorAll('.data-type-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.querySelector(`[data-type="${dataType}"]`).classList.add('selected');
+
+    // Update hidden input
+    document.getElementById('selectedDataType').value = dataType;
+
+    // Update available fields
+    availableFields = dataTypeConfigs[dataType].fields;
+
+    // Update field selection UI
+    updateFieldSelection();
+}
+
+// Format selection
+function selectFormat(format) {
+    selectedFormat = format;
+
+    // Update UI
+    document.querySelectorAll('.format-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    document.querySelector(`[data-format="${format}"]`).classList.add('selected');
+
+    // Update hidden input
+    document.getElementById('selectedFormat').value = format;
+}
+
+// Update field selection UI with organized categories
+function updateFieldSelection() {
+    const fieldSelection = document.getElementById('fieldSelection');
+    fieldSelection.innerHTML = '';
+
+    if (!selectedDataType || !dataTypeConfigs[selectedDataType]) {
+        fieldSelection.innerHTML = '<p class="text-muted">Please select a data type first.</p>';
+        return;
+    }
+
+    const config = dataTypeConfigs[selectedDataType];
+    const fields = config.fields;
+
+    // Group fields by category for better organization
+    const fieldCategories = getFieldCategories(selectedDataType);
+
+    Object.keys(fieldCategories).forEach(category => {
+        const categoryFields = fieldCategories[category];
+        if (categoryFields.length === 0) return;
+
+        // Create category header
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'field-category mb-3';
+
+        // Create collapsible header
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'category-header d-flex justify-content-between align-items-center';
+        headerDiv.style.cursor = 'pointer';
+        headerDiv.onclick = () => toggleCategory(categoryDiv);
+
+        const headerContent = document.createElement('h6');
+        headerContent.className = 'text-primary mb-0';
+        headerContent.innerHTML = `<i class="fas fa-folder me-1"></i>${category} <small class="text-muted">(${categoryFields.length} fields)</small>`;
+
+        const toggleIcon = document.createElement('i');
+        toggleIcon.className = 'fas fa-chevron-down category-toggle';
+
+        headerDiv.appendChild(headerContent);
+        headerDiv.appendChild(toggleIcon);
+
+        // Create field grid for this category
+        const categoryGrid = document.createElement('div');
+        categoryGrid.className = 'field-grid mb-3 category-content';
+
+        categoryFields.forEach(field => {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-checkbox';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'selected_fields';
+            checkbox.value = field;
+            checkbox.id = `field_${field}`;
+            checkbox.checked = true; // Default to selected
+
+            // Add event listener to update summary when checkbox changes
+            checkbox.addEventListener('change', updateSummary);
+
+            const label = document.createElement('label');
+            label.htmlFor = `field_${field}`;
+            label.textContent = formatFieldName(field);
+
+            fieldDiv.appendChild(checkbox);
+            fieldDiv.appendChild(label);
+            categoryGrid.appendChild(fieldDiv);
+        });
+
+        categoryDiv.appendChild(headerDiv);
+        categoryDiv.appendChild(categoryGrid);
+        fieldSelection.appendChild(categoryDiv);
+    });
+
+    // Update field count display
+    updateFieldCountDisplay();
+
+    // Update summary after creating fields
+    updateSummary();
+}
+
+// Filter fields based on search input
+function filterFields() {
+    const searchTerm = document.getElementById('fieldSearch').value.toLowerCase();
+    const fieldCheckboxes = document.querySelectorAll('.field-checkbox');
+
+    fieldCheckboxes.forEach(checkboxDiv => {
+        const label = checkboxDiv.querySelector('label');
+        const fieldName = label.textContent.toLowerCase();
+        const fieldValue = checkboxDiv.querySelector('input').value.toLowerCase();
+
+        if (fieldName.includes(searchTerm) || fieldValue.includes(searchTerm)) {
+            checkboxDiv.style.display = 'flex';
+        } else {
+            checkboxDiv.style.display = 'none';
+        }
+    });
+
+    // Hide empty categories
+    const categories = document.querySelectorAll('.field-category');
+    categories.forEach(category => {
+        const visibleFields = category.querySelectorAll('.field-checkbox[style*="flex"]');
+        if (visibleFields.length === 0) {
+            category.style.display = 'none';
+        } else {
+            category.style.display = 'block';
+        }
+    });
+}
+
+// Clear field search
+function clearFieldSearch() {
+    document.getElementById('fieldSearch').value = '';
+    filterFields(); // This will show all fields again
+}
+
+// Toggle category visibility
+function toggleCategory(categoryDiv) {
+    const content = categoryDiv.querySelector('.category-content');
+    const toggleIcon = categoryDiv.querySelector('.category-toggle');
+
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggleIcon.className = 'fas fa-chevron-down category-toggle';
+        categoryDiv.classList.remove('collapsed');
+    } else {
+        content.style.display = 'none';
+        toggleIcon.className = 'fas fa-chevron-right category-toggle';
+        categoryDiv.classList.add('collapsed');
+    }
+}
+
+// Expand all categories
+function expandAllCategories() {
+    const categories = document.querySelectorAll('.field-category');
+    categories.forEach(category => {
+        const content = category.querySelector('.category-content');
+        const toggleIcon = category.querySelector('.category-toggle');
+
+        content.style.display = 'block';
+        toggleIcon.className = 'fas fa-chevron-down category-toggle';
+        category.classList.remove('collapsed');
+    });
+}
+
+// Collapse all categories
+function collapseAllCategories() {
+    const categories = document.querySelectorAll('.field-category');
+    categories.forEach(category => {
+        const content = category.querySelector('.category-content');
+        const toggleIcon = category.querySelector('.category-toggle');
+
+        content.style.display = 'none';
+        toggleIcon.className = 'fas fa-chevron-right category-toggle';
+        category.classList.add('collapsed');
+    });
+}
+
+// Update field count display
+function updateFieldCountDisplay() {
+    if (!selectedDataType || !dataTypeConfigs[selectedDataType]) {
+        document.getElementById('fieldCountDisplay').textContent = 'Please select a data type first.';
+        return;
+    }
+
+    const totalFields = dataTypeConfigs[selectedDataType].fields.length;
+    const categories = getFieldCategories(selectedDataType);
+    const categoryCount = Object.keys(categories).length;
+
+    document.getElementById('fieldCountDisplay').innerHTML =
+        `<strong>${totalFields}</strong> fields available in <strong>${categoryCount}</strong> categories for <strong>${dataTypeConfigs[selectedDataType].name}</strong>`;
+}
+
+// Get field categories for better organization
+function getFieldCategories(dataType) {
+    let categories = {};
+
+    switch(dataType) {
+        case 'clergy_details':
+            categories = {
+                'Personal Information': ['clergy_id', 'first_name', 'middle_name', 'last_name', 'alias', 'gender', 'marital_status', 'dob', 'place_of_birth', 'nationality', 'state_of_origin', 'lga_if_nigerian'],
+                'Contact Information': ['permanent_address', 'resident_address', 'parish', 'parish_address', 'telephone', 'email_address'],
+                'Health Information': ['blood_group', 'genotype', 'any_ailment', 'any_disabilities', 'ailment', 'disability'],
+                'Religious Background': ['former_religion', 'denomination', 'status_former_religion', 'entry_date_in_ccc', 'first_parish', 'shepherd_who_baptized_you', 'shepherd_who_sanctified_you', 'date_when_baptized', 'parish_where_baptized'],
+                'Annointment Information': ['first_annointment', 'date_of_first_annointment', 'present_annointment', 'date_of_present_annointment'],
+                'Education & Skills': ['edu_level', 'edu_qualification', 'apprenticeship', 'hobbies', 'area_of_calling'],
+                'Professional Information': ['working_experience_option', 'work_experience_ifyes', 'spoken_languages'],
+                'Family Information': ['spouse', 'father', 'mother', 'next_of_kin', 'relation_in_ccc', 'children_info'],
+                'System Fields': ['profile_picture', 'reg_number', 'trg_number']
+            };
+            break;
+
+        case 'parish_directory':
+            categories = {
+                'Basic Information': ['name', 'address', 'register_status']
+            };
+            break;
+
+        case 'parish_registrations':
+            categories = {
+                'Basic Information': ['parish', 'country', 'state', 'city', 'diocese', 'date_of_establishment'],
+                'Administration': ['founding_patron', 'name_of_shepherd', 'phone', 'email'],
+                'Application Details': ['date_applied', 'date_approved', 'date_issued_certificate', 'notes'],
+                'Documentation': ['parish_picture', 'application_for_registration', 'original_receipt_of_land', 'original_survey_plan', 'building_plan', 'sworn_affidavit', 'passport_photograph', 'approval_from_government_diaspora', 'payment_proof_of_auditorium']
+            };
+            break;
+
+        case 'transfer_records':
+            categories = {
+                'Transfer Information': ['clergy', 'parishFrm', 'parishTo', 'date_transfered', 'trf_begin', 'trf_end'],
+                'Status & Administration': ['trf_status', 'designation_frm', 'designation_to', 'trf_extended'],
+                'Additional Details': ['extended_date', 'remarks']
+            };
+            break;
+
+        case 'annointments':
+            categories = {
+                'Annointment Details': ['clergy', 'rank', 'year_of_annointment', 'month_of_annointment', 'place_of_annoitment', 'annoiter']
+            };
+            break;
+
+        case 'posting_history':
+            categories = {
+                'Posting Information': ['clergy', 'parish', 'designation', 'date_of_entry', 'date_of_exit', 'purpose']
+            };
+            break;
+
+        case 'clergy_transfer_bio':
+            categories = {
+                'Transfer Bio': ['clergy', 'floating']
+            };
+            break;
+
+        case 'users':
+            categories = {
+                'User Information': ['id', 'username', 'first_name', 'last_name', 'email', 'last_login', 'date_joined', 'is_active', 'is_staff', 'is_superuser'],
+                'UserProfile Fields': ['user', 'pic']
+            };
+            break;
+
+        default:
+            categories = {
+                'All Fields': dataTypeConfigs[dataType].fields
+            };
+    }
+
+    return categories;
+}
+
+// Format field names for display
+function formatFieldName(field) {
+    return field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+// Bulk selection functions
+function selectAllFields() {
+    const checkboxes = document.querySelectorAll('input[name="selected_fields"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateSummary();
+}
+
+function selectNoneFields() {
+    const checkboxes = document.querySelectorAll('input[name="selected_fields"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSummary();
+}
+
+function selectRecommendedFields() {
+    // Define recommended fields for each data type
+    const recommendedFields = {
+        clergy_details: ['clergy_id', 'first_name', 'last_name', 'telephone', 'email_address', 'parish', 'present_annointment'],
+        parish_directory: ['name', 'address', 'register_status'],
+        parish_registrations: ['parish', 'country', 'state', 'city', 'diocese', 'date_of_establishment', 'application_for_registration'],
+        transfer_records: ['clergy', 'parishFrm', 'parishTo', 'date_transfered', 'trf_status'],
+        annointments: ['clergy', 'rank', 'year_of_annointment', 'month_of_annointment', 'place_of_annoitment'],
+        posting_history: ['clergy', 'parish', 'designation', 'date_of_entry', 'date_of_exit'],
+        clergy_transfer_bio: ['clergy', 'floating'],
+        users: ['id', 'username', 'email', 'first_name', 'last_name', 'is_active']
+    };
+
+    const checkboxes = document.querySelectorAll('input[name="selected_fields"]');
+    const recommended = recommendedFields[selectedDataType] || [];
+
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = recommended.includes(checkbox.value);
+    });
+    updateSummary();
+}
+
+// Update export summary
+function updateSummary() {
+    if (!selectedDataType) return;
+
+    const dataTypeName = dataTypeConfigs[selectedDataType].name;
+    const formatName = document.querySelector(`[data-format="${selectedFormat}"] .format-name`).textContent;
+
+    document.getElementById('summary-data-type').textContent = dataTypeName;
+    document.getElementById('summary-format').textContent = formatName;
+
+    // Count applied filters
+    let filterCount = 0;
+    if (document.getElementById('date_from').value) filterCount++;
+    if (document.getElementById('date_to').value) filterCount++;
+    if (document.getElementById('status_filter').value) filterCount++;
+    if (document.getElementById('search_query').value) filterCount++;
+
+    document.getElementById('summary-filters').textContent = filterCount > 0 ? `${filterCount} applied` : 'None';
+
+    // Count selected fields
+    const selectedFields = document.querySelectorAll('input[name="selected_fields"]:checked');
+    const totalFields = document.querySelectorAll('input[name="selected_fields"]').length;
+
+    if (selectedFields.length === 0) {
+        document.getElementById('summary-fields').textContent = 'None selected';
+    } else if (selectedFields.length === totalFields) {
+        document.getElementById('summary-fields').textContent = 'All fields';
+    } else {
+        document.getElementById('summary-fields').textContent = `${selectedFields.length} of ${totalFields} selected`;
+    }
+}
+
+// Form submission handler
+document.getElementById('exportForm').addEventListener('submit', function(e) {
+    // Validate that a data type is selected
+    const selectedDataType = document.getElementById('selectedDataType').value;
+    if (!selectedDataType) {
+        e.preventDefault();
+        alert('Please select a data type before exporting.');
+        return false;
+    }
+
+    // Validate that a format is selected
+    const selectedFormat = document.querySelector('input[name="format"]:checked');
+    if (!selectedFormat) {
+        e.preventDefault();
+        alert('Please select an export format.');
+        return false;
+    }
+
+    const exportBtn = document.getElementById('exportBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const exportBtnText = document.getElementById('exportBtnText');
+
+    // Show loading state
+    exportBtn.disabled = true;
+    loadingSpinner.style.display = 'inline-block';
+    exportBtnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Export...';
+
+    // Hide global loading screen immediately since form has its own loading state
+    const globalLoadingScreen = document.getElementById('loading');
+    if (globalLoadingScreen) {
+        globalLoadingScreen.style.display = 'none';
+    }
+
+    // Set a timeout to handle cases where download doesn't start
+    setTimeout(function() {
+        const exportBtn = document.getElementById('exportBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const exportBtnText = document.getElementById('exportBtnText');
+
+        // Only reset if still in loading state (download hasn't started)
+        if (loadingSpinner.style.display !== 'none') {
+            exportBtn.disabled = false;
+            loadingSpinner.style.display = 'none';
+            exportBtnText.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Export Timeout';
+            exportBtnText.style.color = '#f59e0b'; // Orange color for warning
+
+            // Reset to normal state after showing warning
+            setTimeout(function() {
+                exportBtnText.innerHTML = '<i class="fas fa-download me-2"></i>Start Export';
+                exportBtnText.style.color = '';
+            }, 3000);
+        }
+    }, 30000); // 30 second timeout
+
+    // Don't prevent default - let the form submit normally for file download
+    // The loading state will remain until the download starts or timeout occurs
+});
+
+// Function to reset export button state
+function resetExportButton() {
+    const exportBtn = document.getElementById('exportBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const exportBtnText = document.getElementById('exportBtnText');
+
+    exportBtn.disabled = false;
+    loadingSpinner.style.display = 'none';
+    exportBtnText.innerHTML = '<i class="fas fa-download me-2"></i>Start Export';
+}
+
+// Function to show success message briefly
+function showExportSuccess() {
+    const exportBtnText = document.getElementById('exportBtnText');
+    exportBtnText.innerHTML = '<i class="fas fa-check me-2"></i>Export Started!';
+    exportBtnText.style.color = '#10b981'; // Green color
+
+    setTimeout(function() {
+        resetExportButton();
+        exportBtnText.style.color = ''; // Reset color
+    }, 2000);
+}
+
+// Handle page visibility change to reset button if user navigates away and back
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        // Reset button state when user returns to page
+        resetExportButton();
+
+        // Hide global loading screen if it's still showing
+        const loadingScreen = document.getElementById('loading');
+        if (loadingScreen && loadingScreen.style.display !== 'none') {
+            loadingScreen.style.display = 'none';
+        }
+    }
+});
+
+// Detect when download starts (page unloads for file download)
+window.addEventListener('beforeunload', function() {
+    // Show success message briefly before the page unloads
+    showExportSuccess();
+});
+
+// Auto-format date inputs
+document.getElementById('date_from').addEventListener('change', function() {
+    if (this.value && document.getElementById('date_to').value === '') {
+        document.getElementById('date_to').value = this.value;
+    }
+});
+
+// Search input enhancement
+document.getElementById('search_query').addEventListener('input', function() {
+    // Could add debounced search suggestions here
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.ctrlKey) {
+        if (currentStep < 4) {
+            nextStep(currentStep + 1);
+        }
+    }
+});
+
+// Bulk Export Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Export mode toggle
+    const singleExportRadio = document.getElementById('singleExport');
+    const bulkExportRadio = document.getElementById('bulkExportMode');
+
+    singleExportRadio.addEventListener('change', function() {
+        if (this.checked) {
+            showSingleExport();
+        }
+    });
+
+    bulkExportRadio.addEventListener('change', function() {
+        if (this.checked) {
+            showBulkExport();
+        }
+    });
+
+    // Select all functionality for bulk export
+    const selectAllCheckbox = document.getElementById('selectAllBulk');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const bulkCheckboxes = document.querySelectorAll('.bulk-checkbox');
+            bulkCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+});
+
+function showBulkExport() {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step4').style.display = 'none';
+    document.getElementById('bulkExport').style.display = 'block';
+    currentStep = 0; // Reset step counter
+}
+
+function showSingleExport() {
+    document.getElementById('bulkExport').style.display = 'none';
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step2').style.display = 'none';
+    document.getElementById('step3').style.display = 'none';
+    document.getElementById('step4').style.display = 'none';
+    currentStep = 1;
+}
+
+// Bulk export form validation
+function validateBulkExport() {
+    const selectedTypes = document.querySelectorAll('input[name="data_types"]:checked');
+    if (selectedTypes.length === 0) {
+        alert('Please select at least one data type for bulk export.');
+        return false;
+    }
+
+    const selectedFormat = document.querySelector('input[name="format"]:checked');
+    if (!selectedFormat) {
+        alert('Please select an export format.');
+        return false;
+    }
+
+    return true;
+}
+
+// Add validation to bulk export form
+document.addEventListener('DOMContentLoaded', function() {
+    const bulkForm = document.querySelector('form[action*="bulk_export"]');
+    if (bulkForm) {
+        bulkForm.addEventListener('submit', function(e) {
+            if (!validateBulkExport()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

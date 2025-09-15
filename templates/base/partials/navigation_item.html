@@ -1,0 +1,8 @@
+<li class="nav-item">
+    <a href="{{ url }}" 
+       class="nav-link d-flex align-items-center text-light sidebar-link {% if is_active %}active{% endif %} {% if is_disabled %}disabled{% endif %}"
+       {% if description %}data-bs-toggle="tooltip" data-bs-placement="right" title="{{ description }}"{% endif %}>
+        <i class="{{ icon }} me-3 sidebar-icon"></i>
+        <span class="sidebar-text">{{ name }}</span>
+    </a>
+</li>

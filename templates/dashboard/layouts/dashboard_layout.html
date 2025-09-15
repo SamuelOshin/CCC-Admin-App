@@ -1,0 +1,308 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-content-wrapper">
+    <!-- Dashboard Header Section -->
+    <div class="dashboard-header-section mb-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="dashboard-title">
+                    <h3 class="text-light text-bg-primary mb-4 dashboard-heading rounded">
+                        <strong>{% block dashboard_title %}WELCOME {{ request.user.get_full_name|default:request.user.username|upper }}{% endblock %}</strong>
+                    </h3>
+                    <p class="text-muted mb-0">
+                        {% block dashboard_subtitle %}
+                            Welcome to the {{ current_module.name|default:"CCC Administrative" }} dashboard
+                        {% endblock %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="dashboard-actions">
+                    {% block dashboard_actions %}
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="location.reload()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-plus me-1"></i>Quick Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% if user_permissions.can_manage_clergy %}
+                            <li><a class="dropdown-item" href="{% url 'register_clergy' %}">
+                                <i class="fas fa-user-plus me-2"></i>Add Clergy
+                            </a></li>
+                            {% endif %}
+                            {% if user_permissions.can_manage_transfers %}
+                            <li><a class="dropdown-item" href="{% url 'clergy' %}">
+                                <i class="fas fa-exchange-alt me-2"></i>New Transfer
+                            </a></li>
+                            {% endif %}
+                            {% if user_permissions.can_manage_parishes %}
+                            <li><a class="dropdown-item" href="{% url 'parish-registration' %}">
+                                <i class="fas fa-church me-2"></i>Register Parish
+                            </a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Stats Cards -->
+    {% block dashboard_stats %}
+    <div class="dashboard-stats mb-4">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="fas fa-users text-primary fa-lg"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-bold text-dark h5 mb-0">{{ stats.total_clergy|default:"--" }}</div>
+                                <div class="text-muted small">Total Clergy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="fas fa-church text-success fa-lg"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-bold text-dark h5 mb-0">{{ stats.total_parishes|default:"--" }}</div>
+                                <div class="text-muted small">Total Parishes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="fas fa-exchange-alt text-warning fa-lg"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-bold text-dark h5 mb-0">{{ stats.pending_transfers|default:"--" }}</div>
+                                <div class="text-muted small">Pending Transfers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-info-subtle d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="fas fa-clock text-info fa-lg"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-bold text-dark h5 mb-0">{{ stats.recent_registrations|default:"--" }}</div>
+                                <div class="text-muted small">Recent Registrations</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    <!-- Dashboard Main Content -->
+    <div class="dashboard-main-content">
+        <div class="row">
+            <!-- Main Content Column -->
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="card-title mb-0">
+                            {% block main_content_title %}Recent Activity{% endblock %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% block main_content %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Dashboard Content</h4>
+                            <p class="text-muted">Override the main_content block to add your dashboard content here.</p>
+                        </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Content Column -->
+            <div class="col-lg-4 mb-4">
+                <div class="row">
+                    <!-- Quick Stats -->
+                    <div class="col-12 mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Quick Overview
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% block sidebar_stats %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">Active Users</span>
+                                    <span class="fw-bold">{{ stats.active_users|default:"--" }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">System Health</span>
+                                    <span class="badge bg-success">Good</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Last Updated</span>
+                                    <span class="text-muted small">Just now</span>
+                                </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Actions -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-history me-2"></i>Recent Actions
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% block recent_actions %}
+                                <div class="timeline">
+                                    <div class="timeline-item mb-3">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0">
+                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" 
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-user-plus fa-sm"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="fw-semibold small">New Clergy Added</div>
+                                                <div class="text-muted small">2 hours ago</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="timeline-item mb-3">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0">
+                                                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white" 
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-check fa-sm"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="fw-semibold small">Transfer Approved</div>
+                                                <div class="text-muted small">4 hours ago</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="timeline-item">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0">
+                                                <div class="rounded-circle bg-info d-flex align-items-center justify-content-center text-white" 
+                                                     style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-church fa-sm"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <div class="fw-semibold small">Parish Registered</div>
+                                                <div class="text-muted small">1 day ago</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Dashboard Content -->
+    {% block additional_content %}{% endblock %}
+</div>
+
+<style>
+    .dashboard-content-wrapper .card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .dashboard-content-wrapper .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .timeline-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 16px;
+        top: 40px;
+        width: 2px;
+        height: calc(100% - 40px);
+        background-color: #e9ecef;
+    }
+
+    .timeline-item {
+        position: relative;
+    }
+
+    .dashboard-stats .card-body {
+        padding: 1.5rem;
+    }
+
+    .bg-primary-subtle {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+
+    .bg-success-subtle {
+        background-color: rgba(25, 135, 84, 0.1) !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+
+    .bg-info-subtle {
+        background-color: rgba(13, 202, 240, 0.1) !important;
+    }
+    .dashboard-heading {
+        padding: 1rem;
+        font-size: 1.2rem !important;
+    }
+</style>
+{% endblock %}

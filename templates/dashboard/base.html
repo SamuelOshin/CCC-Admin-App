@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>{% block title %}{{ app_title }}{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/777899999.png' %}">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/buttons.bootstrap5.min.css' %}">
+    
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/modern-dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modern-sidebar.css' %}">
+    
+    <!-- Dashboard Specific CSS -->
+    
+
+        
+    <!-- Additional Styles -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body id="page-top">
+    <!-- Loading Screen -->
+    <div id="loading" style="display: none;">
+        <img src="{% static 'icons/loading.gif' %}" alt="Loading...">
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        {% include 'dashboard/components/sidebar_modern.html' %}
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Header -->
+            {% include 'dashboard/components/header_new.html' %}
+
+            <!-- Page Content -->
+            <div class="dashboard-content">
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Breadcrumb -->
+                {% include 'dashboard/components/breadcrumb.html' %}
+
+                <!-- Page Content -->
+                {% block content %}{% endblock %}
+            </div>
+            <!-- End of Dashboard Content -->
+
+            <!-- Footer -->
+            {% include 'dashboard/components/footer.html' %}
+        </div>
+        <!-- End of Main Content -->
+    </div>
+    <!-- End of Dashboard Layout -->    <!-- Scroll to Top Button -->
+    <a class="scroll-to-top rounded d-inline" href="#page-top" 
+       style="display: none;">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Core JavaScript -->
+    <script src="{% static 'assets/js/jquery-3.7.0.js' %}"></script>
+    <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script>
+        $(document).ready(function() {
+            // Scroll to top button appear
+            $(document).on('scroll', function() {
+                var scrollDistance = $(this).scrollTop();
+                if (scrollDistance > 100) {
+                    $('.scroll-to-top').fadeIn();
+                } else {
+                    $('.scroll-to-top').fadeOut();
+                }
+            });
+
+            // Smooth scrolling using jQuery easing
+            $(document).on('click', 'a.scroll-to-top', function(e) {
+                var $anchor = $(this);
+                $('html, body').stop().animate({
+                    scrollTop: ($($anchor.attr('href')).offset().top)
+                }, 1000, 'easeInOutExpo');
+                e.preventDefault();
+            });
+
+            $('.parishSelect').select2(); 
+        });
+    </script>
+    <script src="{% static 'assets/js/jquery-3.7.0.js' %}"></script>
+    <!-- DataTables -->
+    <script src="{% static 'assets/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'assets/js/buttons.bootstrap4.min.js' %}"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+
+    <!-- Additional Libraries -->
+    <script src="{% static 'assets/js/bs-init.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="{% static 'assets/js/theme.js' %}"></script>
+    <script src="{% static 'assets/js/countries.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Google Maps (if needed) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&libraries=places&callback=initAutocomplete" async defer></script>
+
+    <!-- Dashboard Core JavaScript -->
+    <script>
+        $(document).ready(function() {
+            // Modern sidebar toggle functionality
+            $('#sidebarToggle, #sidebarToggleTop').on('click', function() {
+                $('.modern-sidebar').toggleClass('collapsed');
+                $('body').toggleClass('sidebar-collapsed');
+                $('.main-content').toggleClass('expanded');
+            });
+
+            // Mobile sidebar toggle
+            $('#mobileToggle, #sidebarToggleTop').on('click', function() {
+                if ($(window).width() <= 768) {
+                    $('.modern-sidebar').toggleClass('show');
+                    $('.sidebar-overlay').toggleClass('show');
+                }
+            });
+
+            // Close mobile sidebar when overlay is clicked
+            $(document).on('click', '.sidebar-overlay', function() {
+                $('.modern-sidebar').removeClass('show');
+                $(this).removeClass('show');
+            });
+
+            // Auto-collapse sidebar on small screens
+            function checkScreenSize() {
+                if ($(window).width() <= 768) {
+                    $('.modern-sidebar').removeClass('show');
+                    $('.sidebar-overlay').removeClass('show');
+                }
+            }
+
+            $(window).resize(checkScreenSize);
+            checkScreenSize();
+
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Initialize Bootstrap popovers
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+
+            // Smooth scrolling for scroll to top button
+            $(document).on('click', 'a.scroll-to-top', function(e) {
+                e.preventDefault();
+                $('html, body').animate({
+                    scrollTop: 0
+                }, 600, 'easeInOutExpo');
+            });
+
+            // Show/hide scroll to top button
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 100) {
+                    $('.scroll-to-top').fadeIn();
+                } else {
+                    $('.scroll-to-top').fadeOut();
+                }
+            });
+
+            // Loading screen helper functions
+            window.showLoading = function() {
+                $('#loading').show();
+            };
+
+            window.hideLoading = function() {
+                $('#loading').hide();
+            };
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+
+            // File upload handling with preview functionality
+            $('#id_profile_picture').off('change.profilePicture').on('change.profilePicture', function() {
+                console.log('File input changed');
+                const file = this.files[0];
+                if (file) {
+                    console.log('File selected:', file.name);
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#profileImage').attr('src', e.target.result);
+                        console.log('Image preview updated');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    console.log('No file selected');
+                }
+            });
+
+            // Handle other file input
+            $('#id_pic').change(function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#userImage').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+
+        });
+
+        // Country select initialization (if available)
+        if (typeof print_country === 'function') {
+            print_country("id_country");
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
