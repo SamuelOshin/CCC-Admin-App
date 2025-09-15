@@ -1,0 +1,92 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+            <!-- Page Header -->
+            {% block page_header %}
+                {% if page_title %}
+                <div class="page-header mb-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h2 class="page-title mb-1">{{ page_title }}</h2>
+                            {% if page_description %}
+                                <p class="text-muted mb-0">{{ page_description }}</p>
+                            {% endif %}
+                        </div>
+                        {% block page_actions %}{% endblock %}
+                    </div>
+                </div>
+                {% endif %}
+            {% endblock %}
+            
+            <!-- Main Content Card -->
+            <div class="card shadow-sm">
+                {% block card_header %}
+                    {% if card_title %}
+                    <div class="card-header bg-white">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h5 class="card-title mb-0">
+                                {% if card_icon %}
+                                    <i class="{{ card_icon }} me-2"></i>
+                                {% endif %}
+                                {{ card_title }}
+                            </h5>
+                            {% block card_actions %}{% endblock %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endblock %}
+                
+                <div class="card-body">
+                    {% block card_content %}
+                        <!-- This is where the main content goes -->
+                        <p class="text-muted">Content goes here...</p>
+                    {% endblock %}
+                </div>
+                
+                {% block card_footer %}{% endblock %}
+            </div>
+            
+            <!-- Additional Content -->
+            {% block additional_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
+    }
+    
+    .page-title {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        color: #495057;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}

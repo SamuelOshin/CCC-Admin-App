@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCC Administrative Management System</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/777899999.png' %}">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --bg-primary: #0a0f1c;
+            --bg-secondary: #1a1f2e;
+            --bg-card: #252a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #a8b2d1;
+            --text-muted: #6b7898;
+            --accent-primary: #ef4444;
+            --accent-secondary: #f97316;
+            --accent-gradient: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            --accent-glow: 0 0 60px rgba(239, 68, 68, 0.3);
+            --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation Styles */
+        .navbar {
+            background: rgba(10, 15, 28, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-primary) !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-brand img {
+            filter: brightness(0) invert(1);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            margin: 0 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--text-primary) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-primary);
+            padding-top: 80px; /* Account for navbar */
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 50%, 
+                rgba(239, 68, 68, 0.15) 0%, 
+                rgba(249, 115, 22, 0.1) 30%, 
+                transparent 70%);
+            z-index: 1;
+        }
+
+        .hero-silhouette {
+            position: absolute;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 400px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300'%3E%3Cpath d='M100 50c15 0 25 10 25 25s-10 25-25 25-25-10-25-25 10-25 25-25zm-10 60h20v40l15 120h-50l15-120V110z' fill='%23000' fill-opacity='0.7'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+            opacity: 0.8;
+            z-index: 2;
+        }
+
+        .hero-glow {
+            position: absolute;
+            right: 15%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 400px;
+            height: 400px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            z-index: 1;
+            animation: pulse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translateY(-50%) scale(1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-50%) scale(1.1);
+                opacity: 0.5;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 650px;
+            padding-left: 1rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            box-shadow: var(--accent-glow);
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            max-width: 600px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+            max-width: 550px;
+        }
+
+        /* Button Styles */
+        .btn-custom {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary-custom {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(239, 68, 68, 0.4);
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary-custom:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 100px 0;
+            background: var(--bg-secondary);
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--accent-gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .feature-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Trust Section */
+        .trust-section {
+            padding: 60px 0;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .trust-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .trust-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .trust-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 1rem;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .trust-logo:hover {
+            opacity: 1;
+        }
+
+        .trust-logo i {
+            font-size: 1.5rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+            background: var(--bg-card);
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .cta-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .cta-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .animate-on-scroll.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 60px 0 30px;
+            color: var(--text-secondary);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .footer-logo img {
+            border-radius: 8px;
+        }
+
+        .footer-logo-text strong {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .footer-logo-text .small {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 2rem 0 1rem;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 120px 0 60px;
+                text-align: left;
+                min-height: 100vh;
+            }
+
+            .hero-glow,
+            .hero-silhouette {
+                display: none;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                padding-left: 0;
+            }
+
+            .hero-title {
+                font-size: clamp(2rem, 8vw, 3rem);
+                max-width: 100%;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+                max-width: 100%;
+            }
+
+            .btn-custom {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+                margin: 0.5rem 0.5rem 0.5rem 0;
+            }
+
+            .trust-logos {
+                gap: 2rem;
+            }
+
+            .trust-logo {
+                font-size: 0.9rem;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .footer-links {
+                justify-content: center;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .hero-silhouette {
+                width: 200px;
+                height: 300px;
+            }
+
+            .hero-glow {
+                width: 300px;
+                height: 300px;
+            }
+
+            .hero-content {
+                max-width: 600px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .hero-content {
+                padding-left: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'assets/img/777899999.png' %}" alt="CCC Logo" width="30" height="30">
+                CCC Admin
+            </a>
+            <div class="d-flex align-items-center gap-4">
+                <ul class="navbar-nav d-none d-lg-flex flex-row">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Services</a>
+                    </li>
+                </ul>
+                <a href="{% url 'login_user' %}" class="btn btn-primary-custom btn-custom">
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-glow"></div>
+        <div class="hero-silhouette"></div>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="hero-content">
+                        <div class="hero-badge animate-on-scroll">
+                            Transform Church Administration
+                        </div>
+                        
+                        <h1 class="hero-title animate-on-scroll">
+                            Advanced church management solutions tailored to your mission.
+                        </h1>
+                        
+                        <p class="hero-subtitle animate-on-scroll">
+                            Whether you need comprehensive clergy management or sophisticated parish organization systems, our platform ensures seamless operations for your divine calling.
+                        </p>
+                        
+                        <div class="d-flex gap-3 align-items-center animate-on-scroll">
+                            <a href="{% url 'login_user' %}" class="btn btn-primary-custom btn-custom">
+                                <i class="fas fa-arrow-right"></i>
+                                Access Dashboard
+                            </a>
+                            <a href="#features" class="btn btn-secondary-custom btn-custom">
+                                Explore Features
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container mt-5">
+            <div class="trust-label animate-on-scroll">
+                Trusted by Church Leaders
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Section -->
+    <section class="trust-section">
+        <div class="container">
+            <div class="trust-logos">
+                <div class="trust-logo">
+                    <i class="fas fa-church"></i>
+                    <span>CCC Global</span>
+                </div>
+                <div class="trust-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SecureChurch</span>
+                </div>
+                <div class="trust-logo">
+                    <i class="fas fa-award"></i>
+                    <span>Ministry Pro</span>
+                </div>
+                <div class="trust-logo">
+                    <i class="fas fa-users"></i>
+                    <span>FaithTech</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title animate-on-scroll">
+                    Choose Your Perfect Plan
+                </h2>
+                <p class="section-subtitle animate-on-scroll">
+                    Comprehensive tools designed to elevate your church administration to new heights
+                </p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h3 class="feature-title">Clergy Management</h3>
+                        <p class="feature-description">
+                            Complete clergy registration system with appointment tracking, qualification records, and comprehensive personnel data management for spiritual leaders.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Parish Administration</h3>
+                        <p class="feature-description">
+                            Streamlined parish restructuring and management with location tracking, regional organization, and approval workflows for new establishments.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Transfer Management</h3>
+                        <p class="feature-description">
+                            Efficient clergy transfer processes with posting history, transfer requests, and comprehensive tracking of personnel movements.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Analytics Dashboard</h3>
+                        <p class="feature-description">
+                            Advanced analytics with comprehensive reporting, data visualization, and export capabilities for informed decision-making.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Enterprise Security</h3>
+                        <p class="feature-description">
+                            Bank-level security with role-based access control, data encryption, and comprehensive audit trails for all operations.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card animate-on-scroll">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Mobile Optimized</h3>
+                        <p class="feature-description">
+                            Fully responsive design that works seamlessly across all devices, ensuring accessibility for administrators anywhere.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="cta-title animate-on-scroll">
+                        Ready to transform your church administration?
+                    </h2>
+                    <p class="cta-subtitle animate-on-scroll">
+                        Join thousands of church leaders who have modernized their operations with our comprehensive management platform.
+                    </p>
+                    <div class="animate-on-scroll">
+                        <a href="{% url 'login_user' %}" class="btn btn-primary-custom btn-custom">
+                            <i class="fas fa-rocket"></i>
+                            Launch Your Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="{% static 'assets/img/777899999.png' %}" alt="CCC Logo" width="40" height="40">
+                    <div class="footer-logo-text">
+                        <strong>Office of the Pastor © CCC <script>document.write(new Date().getFullYear())</script></strong>
+                        <div class="small">Celestial Church of Christ Administrative System</div>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="{% url 'login_user' %}">Sign In</a>
+                    <a href="#features">Features</a>
+                    <a href="#about">About</a>
+                    <a href="#support">Support</a>
+                    <a href="#privacy">Privacy</a>
+                    <a href="#terms">Terms</a>
+                </div>
+            </div>
+            
+            <div class="footer-divider"></div>
+            
+            <div class="footer-bottom">
+                <p class="mb-0">Empowering spiritual leadership through innovative technology solutions.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'assets/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Animation Script -->
+    <script>
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animate-on-scroll elements
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Enhanced navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(10, 15, 28, 0.98)';
+                navbar.style.backdropFilter = 'blur(20px)';
+            } else {
+                navbar.style.background = 'rgba(10, 15, 28, 0.95)';
+                navbar.style.backdropFilter = 'blur(20px)';
+            }
+        });
+
+        // Preload critical animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Trigger hero animations immediately
+            setTimeout(() => {
+                document.querySelectorAll('.hero-section .animate-on-scroll').forEach(el => {
+                    el.classList.add('animate');
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>

@@ -1,164 +1,805 @@
-{% extends 'ParishRestructure/base.html' %}
-{% include 'ParishRestructure/head.html' %}
+{% extends 'dashboard/layouts/detail_layout.html' %}
 {% load static %}
-{% load widget_tweaks %}
 
+{% block title %}CCC {{ parish.parish.name }} - Registered Parish Details{% endblock %}
 
+{% block page_title %}CCC {{ parish.parish.name }}{% endblock %}
+{% block page_subtitle %}Complete Registered Parish Information{% endblock %}
 
+{% block back_url %}{% url 'approved' %}{% endblock %}
+{% block breadcrumb_parent_url %}{% url 'approved' %}{% endblock %}
+{% block breadcrumb_parent %}Registered Parishes{% endblock %}
+{% block breadcrumb_current %}Parish Details{% endblock %}
 
-{% block content %}
+{% block parish_image_src %}{{ parish.parish_picture.url }}{% endblock %}
+{% block parish_image_alt %}{{ parish.parish.name }} Parish{% endblock %}
 
-<div class="container">
-    <div class="d-flex justify-content-end ">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="{% url 'parish_dashboard' %}">Home</a></li>
-              <li class="breadcrumb-item"><a href="{% url 'approved' %}">Registered Parish</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Parish</li>
-            </ol>
-          </nav>
-    </div>
-    <h3 class="text-light text-bg-primary mb-4">
-        <strong>CCC {{parish.parish.name}}</strong>
-    </h3>
-    <div class="cardd">
-        <div class="card-body">
-            {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+{% block parish_details %}
+<div class="row g-4">
+    <!-- Parish Name -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-primary me-3">
+                <i class="bi bi-building"></i>
             </div>
-            {% endfor %}
-            {% endif %}
+            <div>
+                <div class="text-muted small">Parish Name</div>
+                <div class="fw-bold fs-5">CCC {{ parish.parish.name }}</div>
+            </div>
+        </div>
+    </div>
 
-            <div class="parish-details-card">
-                <div class="row row-gap-3 ">
-                    <div class="col-md-12 mb-3  ">
-                        <div class="gallery">
-                            <div id="product-preview">
-                                <div class="zoomed-image"></div>
-                                <div class="parishImg">
-                                    <img class="img-fluid d-block small-preview" src="{{ parish.parish_picture.url }}" />
-                                    
+    <!-- Parish Address -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-info me-3">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Address</div>
+                <div class="fw-bold">{{ parish.parish.address }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Status -->
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-success me-3">
+                <i class="bi bi-bookmark-check"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Registration Status</div>
+                <span class="badge bg-success fs-6 px-3 py-2">
+                    <i class="bi bi-check-circle-fill me-1"></i>Registered
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date of Establishment -->
+    {% if parish.date_of_establishment %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-calendar me-3">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Date of Establishment</div>
+                <div class="fw-bold">{{ parish.date_of_establishment|date:"F j, Y" }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Founding Patron -->
+    {% if parish.founding_patron %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-warning me-3">
+                <i class="bi bi-person"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Founding Patron</div>
+                <div class="fw-bold">{{ parish.founding_patron }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Name of Shepherd -->
+    {% if parish.name_of_shepherd %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-primary me-3">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Name of Shepherd</div>
+                <div class="fw-bold">{{ parish.name_of_shepherd }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Contact Information -->
+    {% if parish.phone %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-success me-3">
+                <i class="bi bi-telephone"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Phone</div>
+                <div class="fw-bold">{{ parish.phone }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if parish.email %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-info me-3">
+                <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Email</div>
+                <div class="fw-bold">{{ parish.email }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Location Information -->
+    {% if parish.diocese %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-secondary me-3">
+                <i class="bi bi-geo"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Diocese</div>
+                <div class="fw-bold">{{ parish.diocese.name }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if parish.state %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-warning me-3">
+                <i class="bi bi-map"></i>
+            </div>
+            <div>
+                <div class="text-muted small">State</div>
+                <div class="fw-bold">{{ parish.state }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if parish.city %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-info me-3">
+                <i class="bi bi-building"></i>
+            </div>
+            <div>
+                <div class="text-muted small">City</div>
+                <div class="fw-bold">{{ parish.city }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if parish.country %}
+    <div class="col-md-6">
+        <div class="d-flex align-items-center mb-3">
+            <div class="card-icon icon-primary me-3">
+                <i class="bi bi-globe"></i>
+            </div>
+            <div>
+                <div class="text-muted small">Country</div>
+                <div class="fw-bold">{{ parish.country }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Registration Timeline -->
+<div class="mt-4 pt-4 border-top">
+    <h6 class="text-muted mb-3">
+        <i class="bi bi-timeline me-2"></i>Registration Timeline
+    </h6>
+    <div class="row g-3">
+        {% if parish.date_applied %}
+        <div class="col-md-4">
+            <small class="text-muted d-block">Application Date</small>
+            <span class="fw-medium">{{ parish.date_applied|date:"M j, Y" }}</span>
+        </div>
+        {% endif %}
+
+        {% if parish.date_approved %}
+        <div class="col-md-4">
+            <small class="text-muted d-block">Approval Date</small>
+            <span class="fw-medium">{{ parish.date_approved|date:"M j, Y" }}</span>
+        </div>
+        {% endif %}
+
+        {% if parish.date_issued_certificate %}
+        <div class="col-md-4">
+            <small class="text-muted d-block">Certificate Issued</small>
+            <span class="fw-medium">{{ parish.date_issued_certificate|date:"M j, Y" }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Notes Section -->
+{% if parish.notes %}
+<div class="mt-4 pt-4 border-top">
+    <h6 class="text-muted mb-3">
+        <i class="bi bi-sticky me-2"></i>Additional Notes
+    </h6>
+    <div class="alert alert-light">
+        <p class="mb-0">{{ parish.notes }}</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block map_address %}{{ parish.parish.address }}{% endblock %}
+
+{% block stat_value %}Registered{% endblock %}
+
+{% block stat_date %}
+{% if parish.date_of_establishment %}
+{{ parish.date_of_establishment|date:"Y" }}
+{% else %}N/A{% endif %}
+{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'approved' %}" class="btn btn-outline-primary">
+    <i class="bi bi-arrow-left me-2"></i>Back
+</a>
+<a href="{% url 'edit_regparish' parish.id %}" class="btn btn-primary">
+    <i class="bi bi-pencil me-2"></i>Edit Registration
+</a>
+{% endblock %}
+                        </div>
+                        <div>
+                            <div class="text-muted small">Address</div>
+                            <div class="fw-bold">{{ parish.parish.address }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon icon-success me-3">
+                            <i class="bi bi-bookmark-check"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Registration Status</div>
+                            <div>
+                                {% if parish.parish.register_status %}
+                                <span class="badge bg-success">Registered</span>
+                                {% else %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-danger">Not Registered</span>
+                                    <a href="{% url 'reg-old-parish' %}" class="btn btn-sm btn-primary">Register Now</a>
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="info">
-                            <p>Parish Details</p>
-                            <div class="parish-info-body">
-                               <div class="parishinfo">
-                                    <i class="fa-regular fa-church"></i>
-                                    <span>CCC {{parish.parish.name}}</span>
-                                </div>
-                                <div class="parishinfo">
-                                    <i class="fa-solid fa-location-dot"></i>
-                                    <span>{{parish.parish.address}}</span>
-                                </div> 
-                                <div class="mt-4">
-                                    <p class="mt-3">Registration Status</p>
-                                    <div class="parishinfo">
-                                        {% if parish.parish.register_status %}
-                                        <span class="badge text-bg-success text-white ">Registered</span>
-                                        {% else %}
-                                        <div class="badge text-bg-danger">Not Registered!</div>
-                                        <div class="ms-2  "><a href="{% url 'reg-old-parish' %}">Register</a></div>
-                                        {% endif %}
-                                    </div>
-                                </div>    
-                            </div>
-                            
-                           
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                       <div class="map">
-                        <iframe 
-                            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&q={{parish.parish.address}}"
-                            width="90%" 
-                            height="300px" 
-                            style="border: 1px;; border-radius: 10px;" 
-                            allowfullscreen="" 
-                            loading="lazy" 
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
-                       </div>
-                    </div>
-                    {% if parish.parish.register_status %}
-                    <div class="col-md-6 mt-2 ">
-                        <div class="info">
-                            <p>Documents Submitted<p>
-                            <div class="parish-info-body">
-                               
-                                
-                                <div class="parishinfo">
-                                    {% if parish.application_for_registration %}
-                                    <p>Parish Application for Registration</p><div class="badge text-bg-success text-white ">Submitted</div>
-                                    {% else %}
-                                    <p>Parish Application for Registration:</p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                                <div class="parishinfo">
-                                    {% if parish.original_receipt_of_land %}
-                                    <p>Original Receipt of Land: </p><span class="badge text-bg-success text-white ">Submitted</span>
-                                    {% else %}
-                                    <p>Original Receipt of Land: </p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                                <div class="parishinfo">
-                                    {% if parish.original_survey_plan %}
-                                    <p>Original Survey Plan: </p><span class="badge text-bg-success text-white ">Submitted</span>
-                                    {% else %}
-                                    <p>Original Survey Plan: </p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                                <div class="parishinfo">
-                                    {% if parish.building_plan %}
-                                    <p>Building Plan: </p><span class="badge text-bg-success text-white ">Submitted</span>
-                                    {% else %}
-                                    <p>Building Plan: </p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                                <div class="parishinfo">
-                                    {% if parish.sworn_affidavit %}
-                                    <p>Sworn Affidavit: </p><span class="badge text-bg-success text-white ">Submitted</span>
-                                    {% else %}
-                                    <p>Sworn Affidavit: </p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                                <div class="parishinfo">
-                                    {% if parish.passport_photograph %}
-                                    <p>Passport photograph:</p><span class="badge text-bg-success text-white ">Submitted</span>
-                                    {% else %}
-                                    <p>Passport photograph:</p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                                <div class="parishinfo">
-                                    {% if parish.payment_proof_of_auditorium %}
-                                    <p>Proof of Payment of Auditorium:</p><span class="badge text-bg-success text-white ">Submitted</span>
-                                    {% else %}
-                                    <p>Proof of Payment of Auditorium:</p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                                <div class="parishinfo">
-                                    {% if parish.approval_from_government_diaspora %}
-                                    <p>Approval from Government Diaspora:</p><span class="badge text-bg-success text-white ">Submitted</span>
-                                    {% else %}
-                                    <p>Approval from Government Diaspora:</p><div class="badge text-bg-danger">Not Submitted!</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                           
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
+            </div>
+            
+            <!-- Map -->
+            <div class="col-md-6">
+                <h5 class="card-title">Location Map</h5>
+                <iframe 
+                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&q={{parish.parish.address}}"
+                    width="100%" 
+                    height="300" 
+                    style="border-radius: 12px;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
         </div>
     </div>
 </div>
 
+{% if parish.parish.register_status %}
+<div class="dashboard-card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Documents Submitted</h5>
+        
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.application_for_registration %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Parish Application</h6>
+                            {% if parish.application_for_registration %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.application_for_registration %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.original_receipt_of_land %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Land Receipt</h6>
+                            {% if parish.original_receipt_of_land %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.original_receipt_of_land %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.original_survey_plan %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Survey Plan</h6>
+                            {% if parish.original_survey_plan %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.original_survey_plan %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.building_plan %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Building Plan</h6>
+                            {% if parish.building_plan %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.building_plan %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.sworn_affidavit %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Sworn Affidavit</h6>
+                            {% if parish.sworn_affidavit %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.sworn_affidavit %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.passport_photograph %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Passport Photo</h6>
+                            {% if parish.passport_photograph %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.passport_photograph %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.payment_proof_of_auditorium %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Auditorium Payment</h6>
+                            {% if parish.payment_proof_of_auditorium %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.payment_proof_of_auditorium %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card h-100 {% if parish.approval_from_government_diaspora %}bg-success bg-opacity-10{% else %}bg-danger bg-opacity-10{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Government Approval</h6>
+                            {% if parish.approval_from_government_diaspora %}
+                            <div class="card-icon icon-success">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            {% else %}
+                            <div class="card-icon icon-danger">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <p class="card-text small text-muted mb-0">
+                            {% if parish.approval_from_government_diaspora %}
+                            Document has been submitted and verified
+                            {% else %}
+                            Document has not been submitted
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Documents Section for Registered Parishes -->
+{% block documents_section %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-file-earmark-text me-2 text-success"></i>Document Submission Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Parish Application for Registration -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.application_for_registration %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Parish Application</h6>
+                                    {% if parish.application_for_registration %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.application_for_registration %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Original Receipt of Land -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.original_receipt_of_land %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Land Receipt</h6>
+                                    {% if parish.original_receipt_of_land %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.original_receipt_of_land %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Original Survey Plan -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.original_survey_plan %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Survey Plan</h6>
+                                    {% if parish.original_survey_plan %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.original_survey_plan %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Building Plan -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.building_plan %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Building Plan</h6>
+                                    {% if parish.building_plan %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.building_plan %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sworn Affidavit -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.sworn_affidavit %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Sworn Affidavit</h6>
+                                    {% if parish.sworn_affidavit %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.sworn_affidavit %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passport Photograph -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.passport_photograph %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Passport Photo</h6>
+                                    {% if parish.passport_photograph %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.passport_photograph %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Proof of Auditorium -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.payment_proof_of_auditorium %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Auditorium Payment</h6>
+                                    {% if parish.payment_proof_of_auditorium %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.payment_proof_of_auditorium %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approval from Government Diaspora -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="document-card h-100 {% if parish.approval_from_government_diaspora %}bg-success bg-opacity-10 border-success{% else %}bg-danger bg-opacity-10 border-danger{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Government Approval</h6>
+                                    {% if parish.approval_from_government_diaspora %}
+                                    <div class="card-icon icon-success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-icon icon-danger">
+                                        <i class="bi bi-x-lg"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text small text-muted mb-0">
+                                    {% if parish.approval_from_government_diaspora %}
+                                    <i class="bi bi-check-circle text-success me-1"></i>Document has been submitted and verified
+                                    {% else %}
+                                    <i class="bi bi-x-circle text-danger me-1"></i>Document has not been submitted
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% endif %}
+
+{% block extra_js %}
+<script>
+// Add any registered parish-specific JavaScript here
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Registered Parish view loaded for: {{ parish.parish.name }}');
+
+    // Add document status animations
+    const documentCards = document.querySelectorAll('.document-card');
+    documentCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('fade-in');
+    });
+});
+</script>
+
+<style>
+.document-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.document-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.icon-success { background-color: rgba(25, 135, 84, 0.1); color: #198754; }
+.icon-danger { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; }
+.icon-warning { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; }
+.icon-info { background-color: rgba(13, 202, 240, 0.1); color: #0dcaf0; }
+.icon-primary { background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+.icon-secondary { background-color: rgba(108, 117, 125, 0.1); color: #6c757d; }
+.icon-calendar { background-color: rgba(23, 162, 184, 0.1); color: #17a2b8; }
+.icon-dark { background-color: rgba(33, 37, 41, 0.1); color: #212529; }
+</style>
 {% endblock %}

@@ -1,60 +1,399 @@
-{% extends 'ParishRestructure/base.html' %}
-{% include 'ParishRestructure/head.html' %}
+{% extends 'dashboard/layouts/table_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
+{% block title %}Edit Parish - CCC Administrative System{% endblock %}
+
+{% block page_title %}Edit Parish{% endblock %}
+{% block page_subtitle %}Update parish information and location details{% endblock %}
+
+{% block back_url %}{% url 'view_parishes' %}{% endblock %}
+{% block breadcrumb_parent_url %}{% url 'parish_dashboard' %}{% endblock %}
+{% block breadcrumb_parent %}Parish Management{% endblock %}
+{% block breadcrumb_current %}Edit Parish{% endblock %}
+
+{% block table_title %}Edit Parish Details{% endblock %}
+{% block table_subtitle %}Update parish information and location hierarchy{% endblock %}
 
 {% block content %}
+<div class="welcome-banner">
+    <h2 class="h4 mb-0">Edit Parish Details</h2>
+    <p class="mb-0 mt-2 opacity-75">Update information for this parish</p>
+</div>
 
-    <div class="container">
-        <h3 class="text-light text-bg-primary mb-4">
-                <strong>EDIT PARISH DETAILS</strong>
-        </h3>
-        <div class="card">
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="dashboard-card mb-4">
             <div class="card-body">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                <form method="POST" enctype="multipart/form-data" class="form-group">
+                <form method="POST" enctype="multipart/form-data" class="modern-form" id="parishForm">
                     {% csrf_token %}
-                    <div class="row">
-                        {{ form.non_field_errors }}                    
-                    
+                    {{ form.non_field_errors }}
 
-                        {% for field in form %}
-                        <div class="fieldWrapper mb-1">
-                            {% if field.field.widget.input_type != 'checkbox' %}
-                            {{ field.label_tag }}
-                            {% if field.field.widget.input_type == 'select' %}
-                                {{ field|add_class:"mb-2 form-select" }}
-                            {% else %}
-                                {{ field|add_class:"form-control" }}
-                            {% endif %}
-                            {{ field.errors }}
-                        {% else %}
-                            <div class="form-check">
-                                {{ field.label_tag }}
-                                {{ field.field.widget.attrs.checked }}
-                                {{ field|add_class:"form-check-input" }}
-                                {{ field.errors }}
-                            </div>
-                        {% endif %}
-                        
+                    <!-- Parish Selection Section -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <h5 class="section-title mb-3">
+                                <i class="bi bi-building me-2"></i>Parish Information
+                            </h5>
                         </div>
-                        {% endfor %}
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.parish.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-building text-primary me-1"></i>{{ form.parish.label }}
+                                </label>
+                                {{ form.parish|add_class:"form-select" }}
+                                {% if form.parish.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.parish.errors }}
+                                    </div>
+                                {% endif %}
+                                {% if form.parish.help_text %}
+                                    <div class="form-text">{{ form.parish.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.address.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-geo-alt text-primary me-1"></i>{{ form.address.label }}
+                                </label>
+                                {{ form.address|add_class:"form-control" }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.address.errors }}
+                                    </div>
+                                {% endif %}
+                                {% if form.address.help_text %}
+                                    <div class="form-text">{{ form.address.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                    <button type="submit"  value="Submit" class="btn btn-primary mt-3">Submit</button>
-                    <a href="{% url 'view_parishes' %}" class="btn btn-danger  mt-3">Cancel</a>
+
+                    <!-- Location Hierarchy Section -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <h5 class="section-title mb-3">
+                                <i class="bi bi-geo-alt-fill me-2"></i>Location Hierarchy
+                            </h5>
+                            <p class="text-muted small mb-3">Select the location details for this parish. Fields will populate based on your selections.</p>
+                        </div>
+
+                        <!-- Diocese Selection -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="mb-3">
+                                <label for="{{ form.diocese.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-diagram-3 text-success me-1"></i>{{ form.diocese.label }}
+                                </label>
+                                {{ form.diocese|add_class:"form-select location-select" }}
+                                {% if form.diocese.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.diocese.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Region Selection -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="mb-3">
+                                <label for="{{ form.region.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-geo text-info me-1"></i>{{ form.region.label }}
+                                </label>
+                                {{ form.region|add_class:"form-select location-select" }}
+                                {% if form.region.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.region.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- State Selection -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="mb-3">
+                                <label for="{{ form.state.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-flag text-warning me-1"></i>{{ form.state.label }}
+                                </label>
+                                {{ form.state|add_class:"form-select location-select" }}
+                                {% if form.state.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.state.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Area Selection -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="mb-3">
+                                <label for="{{ form.area.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-bounding-box text-danger me-1"></i>{{ form.area.label }}
+                                </label>
+                                {{ form.area|add_class:"form-select location-select" }}
+                                {% if form.area.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.area.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- District Selection -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="mb-3">
+                                <label for="{{ form.district.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-map text-secondary me-1"></i>{{ form.district.label }}
+                                </label>
+                                {{ form.district|add_class:"form-select location-select" }}
+                                {% if form.district.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.district.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Circuit Selection -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="mb-3">
+                                <label for="{{ form.circuit.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-circle text-primary me-1"></i>{{ form.circuit.label }}
+                                </label>
+                                {{ form.circuit|add_class:"form-select location-select" }}
+                                {% if form.circuit.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.circuit.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>Save Changes
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+                                </button>
+                                <a href="{% url 'view_parishes' %}" class="btn btn-outline-danger">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
-        <div class="row justify-content-end">
-            <a href="{% url 'parish_dashboard' %}" class="btn btn-primary mt-3">Back to Dashboard</a>
+
+        <!-- Navigation Footer -->
+        <div class="d-flex flex-wrap justify-content-between gap-2 mb-4">
+            <a href="{% url 'view_parishes' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Parish List
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'parish_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+                <a href="{% url 'approved' %}" class="btn btn-outline-info">
+                    <i class="bi bi-check-circle me-2"></i>Approved Parishes
+                </a>
+            </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+// Define form field IDs as JavaScript variables
+const FORM_FIELD_IDS = {
+    diocese: '{{ form.diocese.id_for_label }}',
+    region: '{{ form.region.id_for_label }}',
+    state: '{{ form.state.id_for_label }}',
+    area: '{{ form.area.id_for_label }}',
+    district: '{{ form.district.id_for_label }}',
+    circuit: '{{ form.circuit.id_for_label }}'
+};
+
+$(document).ready(function() {
+    // Initialize location hierarchy cascading
+    initializeLocationHierarchy();
+
+    // Add loading states for location selects
+    $('.location-select').on('change', function() {
+        const $select = $(this);
+        const nextSelectId = getNextSelectId($select.attr('id'));
+
+        if (nextSelectId && $select.val()) {
+            const $nextSelect = $('#' + nextSelectId);
+            $nextSelect.prop('disabled', true).html('<option>Loading...</option>');
+        }
+    });
+});
+
+function initializeLocationHierarchy() {
+    // Diocese change handler
+    $('#' + FORM_FIELD_IDS.diocese).on('change', function() {
+        const dioceseId = $(this).val();
+        if (dioceseId) {
+            loadRegions(dioceseId);
+        } else {
+            resetLocationFields(['region', 'state', 'area', 'district', 'circuit']);
+        }
+    });
+
+    // Region change handler
+    $('#' + FORM_FIELD_IDS.region).on('change', function() {
+        const regionId = $(this).val();
+        if (regionId) {
+            loadStates(regionId);
+        } else {
+            resetLocationFields(['state', 'area', 'district', 'circuit']);
+        }
+    });
+
+    // State change handler
+    $('#' + FORM_FIELD_IDS.state).on('change', function() {
+        const stateId = $(this).val();
+        if (stateId) {
+            loadAreas(stateId);
+        } else {
+            resetLocationFields(['area', 'district', 'circuit']);
+        }
+    });
+
+    // Area change handler
+    $('#' + FORM_FIELD_IDS.area).on('change', function() {
+        const areaId = $(this).val();
+        if (areaId) {
+            loadDistricts(areaId);
+        } else {
+            resetLocationFields(['district', 'circuit']);
+        }
+    });
+
+    // District change handler
+    $('#' + FORM_FIELD_IDS.district).on('change', function() {
+        const districtId = $(this).val();
+        if (districtId) {
+            loadCircuits(districtId);
+        } else {
+            resetLocationFields(['circuit']);
+        }
+    });
+}
+
+function loadRegions(dioceseId) {
+    $.get('/get_regions_and_areas/', { diocese_id: dioceseId })
+        .done(function(data) {
+            updateSelect(FORM_FIELD_IDS.region, data.regions, 'Select Region');
+        })
+        .fail(function() {
+            showError('Failed to load regions');
+        });
+}
+
+function loadStates(regionId) {
+    $.get('/get_regions_and_areas/', { region_id: regionId })
+        .done(function(data) {
+            updateSelect(FORM_FIELD_IDS.state, data.states, 'Select State');
+        })
+        .fail(function() {
+            showError('Failed to load states');
+        });
+}
+
+function loadAreas(stateId) {
+    $.get('/get_regions_and_areas/', { state_id: stateId })
+        .done(function(data) {
+            updateSelect(FORM_FIELD_IDS.area, data.areas, 'Select Area');
+        })
+        .fail(function() {
+            showError('Failed to load areas');
+        });
+}
+
+function loadDistricts(areaId) {
+    // For now, districts are not implemented in the existing API
+    // We'll need to add this functionality later
+    updateSelect(FORM_FIELD_IDS.district, [], 'Select District');
+}
+
+function loadCircuits(districtId) {
+    // For now, circuits are not implemented in the existing API
+    // We'll need to add this functionality later
+    updateSelect(FORM_FIELD_IDS.circuit, [], 'Select Circuit');
+}
+
+function updateSelect(selectId, data, placeholder) {
+    const $select = $('#' + selectId);
+    $select.html(`<option value="">${placeholder}</option>`);
+
+    data.forEach(function(item) {
+        $select.append(`<option value="${item.id}">${item.name}</option>`);
+    });
+
+    $select.prop('disabled', false);
+}
+
+function resetLocationFields(fieldNames) {
+    fieldNames.forEach(function(fieldName) {
+        const fieldId = FORM_FIELD_IDS[fieldName];
+        $('#' + fieldId).html('<option value="">Select ' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + '</option>').prop('disabled', true);
+    });
+}
+
+function getNextSelectId(currentId) {
+    const hierarchy = ['diocese', 'region', 'state', 'area', 'district', 'circuit'];
+    const currentIndex = hierarchy.findIndex(level => currentId.includes(level));
+
+    if (currentIndex !== -1 && currentIndex < hierarchy.length - 1) {
+        return FORM_FIELD_IDS[hierarchy[currentIndex + 1]];
+    }
+    return null;
+}
+
+function resetForm() {
+    $('#parishForm')[0].reset();
+    resetLocationFields(['region', 'state', 'area', 'district', 'circuit']);
+}
+
+function showError(message) {
+    // Create a temporary alert
+    const alertHtml = `
+        <div class="alert alert-danger alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    $('body').append(alertHtml);
+
+    // Auto-remove after 5 seconds
+    setTimeout(function() {
+        $('.alert').fadeOut(function() {
+            $(this).remove();
+        });
+    }, 5000);
+}
+</script>
+<style>
+    .select2-container--default .select2-selection--single {
+  border: 1px solid #e3e6f0!important;
+  height: 50px !important;
+  padding: 10px !important;
+}
+</style>
 {% endblock %}

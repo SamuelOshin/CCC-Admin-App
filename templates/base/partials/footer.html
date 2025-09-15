@@ -1,0 +1,251 @@
+{% load static %}
+<footer class="dashboard-footer" id="main-footer">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <!-- Left side: Copyright and version info -->
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <small class="text-muted">
+                        © {% now "Y" %} Celestial Church of Christ Administrative System. 
+                        <span class="d-none d-sm-inline">All rights reserved.</span>
+                    </small>
+                    <span class="badge bg-secondary ms-2 d-none d-md-inline">v1.0.0</span>
+                </div>
+            </div>
+            
+            <!-- Right side: Links and system status -->
+            <div class="col-md-6">
+                <div class="d-flex align-items-center justify-content-md-end justify-content-start mt-2 mt-md-0">
+                    <!-- Quick Links -->
+                    <div class="footer-links me-3">
+                        <a href="#" class="text-muted text-decoration-none me-3" data-bs-toggle="modal" data-bs-target="#helpModal">
+                            <i class="fas fa-question-circle me-1"></i>Help
+                        </a>
+                        <a href="#" class="text-muted text-decoration-none me-3" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                            <i class="fas fa-comment me-1"></i>Feedback
+                        </a>
+                        {% if is_superuser %}
+                        <a href="{% url 'admin:index' %}" class="text-muted text-decoration-none me-3" target="_blank">
+                            <i class="fas fa-cog me-1"></i>Admin
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- System Status -->
+                    <div class="system-status d-none d-lg-flex align-items-center">
+                        <span class="status-indicator bg-success me-2" style="width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                        <small class="text-muted">System Online</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional info row (optional) -->
+        {% if current_module %}
+        <div class="row mt-2 pt-2 border-top d-none d-md-flex">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="{{ current_module.icon }} me-1"></i>
+                        Current Module: {{ current_module.name }}
+                    </small>
+                    <small class="text-muted">
+                        Last updated: {% now "M d, Y H:i" %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</footer>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="fas fa-question-circle me-2"></i>Help & Documentation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-users me-2 text-primary"></i>Clergy Management</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><a href="#" class="text-decoration-none">Registering New Clergy</a></li>
+                            <li><a href="#" class="text-decoration-none">Managing Clergy Records</a></li>
+                            <li><a href="#" class="text-decoration-none">Printing Reports</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-exchange-alt me-2 text-success"></i>Transfer Management</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><a href="#" class="text-decoration-none">Creating Transfers</a></li>
+                            <li><a href="#" class="text-decoration-none">Transfer History</a></li>
+                            <li><a href="#" class="text-decoration-none">Approval Process</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-church me-2 text-info"></i>Parish Management</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><a href="#" class="text-decoration-none">Parish Registration</a></li>
+                            <li><a href="#" class="text-decoration-none">Restructuring Process</a></li>
+                            <li><a href="#" class="text-decoration-none">Directory Management</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cog me-2 text-secondary"></i>System Features</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><a href="#" class="text-decoration-none">User Permissions</a></li>
+                            <li><a href="#" class="text-decoration-none">Dashboard Navigation</a></li>
+                            <li><a href="#" class="text-decoration-none">Data Export</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6><i class="fas fa-phone me-2"></i>Need Additional Help?</h6>
+                    <p class="mb-0">Contact the system administrator or IT support team for technical assistance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">
+                    <i class="fas fa-comment me-2"></i>Send Feedback
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackForm">
+                    <div class="mb-3">
+                        <label for="feedbackType" class="form-label">Feedback Type</label>
+                        <select class="form-select" id="feedbackType" required>
+                            <option value="">Select type...</option>
+                            <option value="bug">Bug Report</option>
+                            <option value="feature">Feature Request</option>
+                            <option value="improvement">Improvement Suggestion</option>
+                            <option value="general">General Feedback</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackSubject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="feedbackSubject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackMessage" class="form-label">Message</label>
+                        <textarea class="form-control" id="feedbackMessage" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackPriority" class="form-label">Priority</label>
+                        <select class="form-select" id="feedbackPriority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitFeedback()">
+                    <i class="fas fa-paper-plane me-2"></i>Send Feedback
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-footer {
+        font-size: 0.875rem;
+        background-color: #fff;
+    }
+    
+    .footer-links a {
+        transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+        color: var(--bs-primary) !important;
+    }
+    
+    .status-indicator {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    
+    .modal-content {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header {
+        background-color: var(--bs-light);
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+</style>
+
+<script>
+    function submitFeedback() {
+        const form = document.getElementById('feedbackForm');
+        const formData = new FormData(form);
+        
+        // Basic validation
+        const type = document.getElementById('feedbackType').value;
+        const subject = document.getElementById('feedbackSubject').value;
+        const message = document.getElementById('feedbackMessage').value;
+        
+        if (!type || !subject || !message) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+        
+        // Here you would typically send the feedback to your backend
+        // For now, we'll just show a success message
+        alert('Thank you for your feedback! We will review it soon.');
+        
+        // Close modal and reset form
+        const modal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
+        modal.hide();
+        form.reset();
+    }
+    
+    // Auto-hide alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                if (alert.querySelector('.btn-close')) {
+                    alert.style.transition = 'opacity 0.5s ease';
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        if (alert.parentNode) {
+                            alert.remove();
+                        }
+                    }, 500);
+                }
+            });
+        }, 5000);
+    });
+</script>

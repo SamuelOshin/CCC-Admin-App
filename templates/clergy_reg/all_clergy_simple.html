@@ -1,0 +1,69 @@
+{% extends 'dashboard/layouts/table_layout.html' %}
+{% load static %}
+
+{% block title %}Clergy Directory - {{ block.super }}{% endblock %}
+
+{% block table_title %}Clergy Directory{% endblock %}
+{% block table_subtitle %}Comprehensive list of all registered clergy members{% endblock %}
+
+{% block add_new_url %}{% url 'register_clergy' %}{% endblock %}
+{% block add_new_text %}Register New Clergy{% endblock %}
+
+{% block table_icon %}fas fa-users{% endblock %}
+{% block table_card_title %}Clergy Members{% endblock %}
+
+{% block table_headers %}
+<th scope="col">
+    <i class="fas fa-user me-1"></i>Name
+</th>
+<th scope="col">
+    <i class="fas fa-id-card me-1"></i>Registration No
+</th>
+<th scope="col">
+    <i class="fas fa-envelope me-1"></i>Email
+</th>
+<th scope="col">
+    <i class="fas fa-phone me-1"></i>Mobile
+</th>
+<th scope="col" class="text-center">
+    <i class="fas fa-cogs me-1"></i>Actions
+</th>
+{% endblock %}
+
+{% block table_body %}
+{% for clergy in all_clergy %}
+<tr>
+    <td>
+        <div class="d-flex align-items-center">
+            {% if clergy.profile_picture %}
+            <img class="rounded-circle me-3" src="{{ clergy.profile_picture.url }}" alt="{{ clergy }}" style="width: 40px; height: 40px; object-fit: cover;">
+            {% endif %}
+            <div>
+                <div class="fw-semibold">{{ clergy }}</div>
+            </div>
+        </div>
+    </td>
+    <td>{{ clergy.reg_number }}</td>
+    <td>{{ clergy.email_address }}</td>
+    <td>{{ clergy.telephone }}</td>
+    <td class="text-center">
+        <a href="{% url 'view_profile' clergy.clergy_id %}" class="btn btn-sm btn-primary me-1" title="View">
+            <i class="fas fa-eye"></i>
+        </a>
+        <a href="{% url 'edit_clergy_new' clergy.clergy_id %}" class="btn btn-sm btn-success me-1" title="Edit">
+            <i class="fas fa-edit"></i>
+        </a>
+        <a href="{% url 'delete_clergy' clergy.clergy_id %}" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure?')">
+            <i class="fas fa-trash"></i>
+        </a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5" class="text-center py-4">
+        <i class="fas fa-users fa-2x text-muted mb-2"></i>
+        <p class="text-muted">No clergy members found</p>
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}

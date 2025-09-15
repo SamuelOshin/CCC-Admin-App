@@ -1,0 +1,184 @@
+{% load static %}
+<div class="dashboard-footer">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <!-- Copyright Info -->
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <img src="{% static 'assets/img/777899999.png' %}" alt="CCC Logo" width="30" height="30" class="me-2">
+                    <div>
+                        <strong>Office of the Pastor © CCC</strong>
+                        <script>document.write(new Date().getFullYear())</script>
+                        <div class="small text-muted">Celestial Church of Christ Administrative System</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Links & System Info -->
+            <div class="col-md-6 text-md-end">
+                <div class="d-flex align-items-center justify-content-md-end flex-wrap gap-3">
+                    <!-- System Status -->
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="fas fa-circle fa-xs me-1"></i>System Online
+                        </span>
+                    </div>
+                    
+                    <!-- Quick Links -->
+                    <div class="footer-links d-flex gap-3">
+                        {% if user.is_superuser %}
+                        <a href="/admin/" class="text-decoration-none text-muted small" title="Django Admin">
+                            <i class="fas fa-cogs me-1"></i>Admin
+                        </a>
+                        {% endif %}
+                        
+                        <a href="#" class="text-decoration-none text-muted small" title="Help & Documentation">
+                            <i class="fas fa-question-circle me-1"></i>Help
+                        </a>
+                        
+                        <a href="#" class="text-decoration-none text-muted small" title="Support">
+                            <i class="fas fa-life-ring me-1"></i>Support
+                        </a>
+                        
+                        <a href="{% url 'edit_profile' %}" class="text-decoration-none text-muted small" title="Contact">
+                            <i class="fas fa-envelope me-1"></i>Contact
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Version & Performance Info -->
+                <div class="small text-muted mt-2">
+                    <div class="d-flex align-items-center justify-content-md-end flex-wrap gap-3">
+                        <span title="Application Version">
+                            <i class="fas fa-code-branch me-1"></i>v1.0.0
+                        </span>
+                        
+                        <span title="Server Response Time">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="response-time">--</span>ms
+                        </span>
+                        
+                        <span title="Current User Session">
+                            <i class="fas fa-user me-1"></i>{{ user.username }}
+                        </span>
+                        
+                        {% if current_app %}
+                        <span title="Current Module">
+                            <i class="fas fa-layer-group me-1"></i>
+                            {{ current_app|title }} Module
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Footer Information -->
+        <div class="row mt-3 pt-3 border-top">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <!-- Legal/Compliance -->
+                    <div class="small text-muted">
+                        <span>
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Secure Connection | 
+                            <i class="fas fa-lock me-1"></i>
+                            HTTPS Enabled | 
+                            <i class="fas fa-database me-1"></i>
+                            Data Protected
+                        </span>
+                    </div>
+                    
+                    <!-- Server Info (for admins) -->
+                    {% if user.is_superuser %}
+                    <div class="small text-muted">
+                        <span title="Server Information">
+                            <i class="fas fa-server me-1"></i>
+                            {% if settings.DEBUG %}Development{% else %}Production{% endif %} Environment |
+                            <i class="fas fa-memory me-1"></i>
+                            Django {{ django_version|default:"4.2+" }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-footer {
+        background-color: #ffffff;
+        border-top: 1px solid #e9ecef;
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+
+    .footer-links a {
+        transition: color 0.15s ease-in-out;
+    }
+
+    .footer-links a:hover {
+        color: var(--primary-color) !important;
+    }
+
+    .badge {
+        font-size: 0.8rem !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .dashboard-footer .row {
+            text-align: center;
+        }
+        
+        .dashboard-footer .col-md-6:not(:last-child) {
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            justify-content: center !important;
+        }
+    }
+
+    /* Animation for status indicator */
+    .badge .fa-circle {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Measure and display page response time
+    const navigationStart = performance.timing.navigationStart;
+    const domContentLoaded = performance.timing.domContentLoadedEventEnd;
+    const responseTime = domContentLoaded - navigationStart;
+    
+    const responseTimeElement = document.getElementById('response-time');
+    if (responseTimeElement) {
+        responseTimeElement.textContent = Math.round(responseTime);
+    }
+    
+    // Update current time periodically (optional)
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        
+        // You can add a time display element if needed
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+            timeElement.textContent = timeString;
+        }
+    }
+    
+    // Update time every minute
+    setInterval(updateTime, 60000);
+    updateTime();
+});
+</script>

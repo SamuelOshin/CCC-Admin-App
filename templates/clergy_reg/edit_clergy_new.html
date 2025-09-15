@@ -1,0 +1,543 @@
+{% extends 'dashboard/layouts/form_layout.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Clergy Details{% endblock %}
+{% block form_title %}Edit Clergy Details{% endblock %}
+{% block form_subtitle %}Update information for {{ clergy.get_full_name }}{% endblock %}
+{% block form_icon %}fas fa-user-edit{% endblock %}
+{% block card_title %}Edit Clergy Information{% endblock %}
+
+{% block form_content %}
+<div class="row">
+    <!-- Profile Picture Section -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-camera me-2"></i>Profile Picture
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <img src="{{ clergy.profile_picture.url|default:'/static/assets/img/default-avatar.png' }}"
+                             alt="Current Profile Picture"
+                             class="rounded-circle shadow"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="id_profile_picture" class="form-label fw-bold">Change Profile Picture</label>
+                            <input type="file" class="form-control" id="id_profile_picture" name="profile_picture" accept="image/*">
+                            <div class="form-text">Supported formats: JPG, PNG, GIF. Max size: 5MB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Details -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-id-card me-2"></i>Registration Details
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="id_reg_number" class="form-label fw-bold">Clergy Registration Number <span class="text-danger">*</span></label>
+                    {% render_field form.reg_number class="form-control" placeholder="Enter registration number" %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_trg_number" class="form-label fw-bold">TRG Number</label>
+                    {% render_field form.trg_number class="form-control" placeholder="Enter TRG number" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-user me-2"></i>Personal Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="id_first_name" class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
+                        {% render_field form.first_name class="form-control" placeholder="First name" %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_middle_name" class="form-label fw-bold">Middle Name</label>
+                        {% render_field form.middle_name class="form-control" placeholder="Middle name" %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="id_last_name" class="form-label fw-bold">Last Name <span class="text-danger">*</span></label>
+                        {% render_field form.last_name class="form-control" placeholder="Last name" %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_alias" class="form-label fw-bold">Alias (if any)</label>
+                    {% render_field form.alias class="form-control" placeholder="Enter alias" %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_gender" class="form-label fw-bold">Gender <span class="text-danger">*</span></label>
+                        {{ form.gender|add_class:"form-select" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_marital_status" class="form-label fw-bold">Marital Status <span class="text-danger">*</span></label>
+                        {{ form.marital_status|add_class:"form-select" }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_dob" class="form-label fw-bold">Date of Birth <span class="text-danger">*</span></label>
+                        {% render_field form.dob class="form-control" type="date" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_nationality" class="form-label fw-bold">Nationality <span class="text-danger">*</span></label>
+                        {{ form.nationality|add_class:"form-select" }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_state_of_origin" class="form-label fw-bold">State of Origin <span class="text-danger">*</span></label>
+                        {% render_field form.state_of_origin class="form-control" placeholder="State" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_lga_if_nigerian" class="form-label fw-bold">LGA (If Nigerian)</label>
+                        {% render_field form.lga_if_nigerian class="form-control" placeholder="LGA" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-address-book me-2"></i>Contact Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_permanent_address" class="form-label fw-bold">Permanent Address <span class="text-danger">*</span></label>
+                        {% render_field form.permanent_address class="form-control" placeholder="Enter permanent address" rows="3" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_resident_address" class="form-label fw-bold">Resident Address <span class="text-danger">*</span></label>
+                        {% render_field form.resident_address class="form-control" placeholder="Enter resident address" rows="3" %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_parish" class="form-label fw-bold">Parish <span class="text-danger">*</span></label>
+                        {% render_field form.parish class="form-control" placeholder="Enter parish" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_parish_address" class="form-label fw-bold">Parish Address <span class="text-danger">*</span></label>
+                        {% render_field form.parish_address class="form-control" placeholder="Enter parish address" %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_telephone" class="form-label fw-bold">Telephone <span class="text-danger">*</span></label>
+                        {% render_field form.telephone class="form-control" placeholder="+234 xxx xxx xxxx" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_email_address" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                        {% render_field form.email_address class="form-control" placeholder="email@example.com" type="email" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Information -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-danger text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-heartbeat me-2"></i>Medical Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_blood_group" class="form-label fw-bold">Blood Group</label>
+                        {{ form.blood_group|add_class:"form-select" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_genotype" class="form-label fw-bold">Genotype</label>
+                        {{ form.genotype|add_class:"form-select" }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_any_ailment" class="form-label fw-bold">Any Ailment?</label>
+                        {{ form.any_ailment|add_class:"form-select" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_any_disabilities" class="form-label fw-bold">Any Disability?</label>
+                        {{ form.any_disabilities|add_class:"form-select" }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_ailment" class="form-label fw-bold">Specify Ailment (if any)</label>
+                    {% render_field form.ailment class="form-control" placeholder="Describe ailment" %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_disability" class="form-label fw-bold">Specify Disability (if any)</label>
+                    {% render_field form.disability class="form-control" placeholder="Describe disability" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Faith Background -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-pray me-2"></i>Faith Background
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_former_religion" class="form-label fw-bold">Former Religion</label>
+                        {% render_field form.former_religion class="form-control" placeholder="Former religion" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_denomination" class="form-label fw-bold">Denomination</label>
+                        {% render_field form.denomination class="form-control" placeholder="Denomination" %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_status_former_religion" class="form-label fw-bold">Status in Former Religion</label>
+                    {% render_field form.status_former_religion class="form-control" placeholder="Status" %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_entry_date_in_ccc" class="form-label fw-bold">Entry Date in CCC <span class="text-danger">*</span></label>
+                        {% render_field form.entry_date_in_ccc class="form-control" type="date" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_first_parish" class="form-label fw-bold">First Parish in CCC <span class="text-danger">*</span></label>
+                        {% render_field form.first_parish class="form-control" placeholder="First parish" %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_shepherd_who_baptized_you" class="form-label fw-bold">Shepherd who Baptized You <span class="text-danger">*</span></label>
+                        {% render_field form.shepherd_who_baptized_you class="form-control" placeholder="Shepherd name" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_shepherd_who_sanctified_you" class="form-label fw-bold">Shepherd who Sanctified You <span class="text-danger">*</span></label>
+                        {% render_field form.shepherd_who_sanctified_you class="form-control" placeholder="Shepherd name" %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_date_when_baptized" class="form-label fw-bold">Date when Baptized <span class="text-danger">*</span></label>
+                        {% render_field form.date_when_baptized class="form-control" type="date" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_parish_where_baptized" class="form-label fw-bold">Parish where Baptized <span class="text-danger">*</span></label>
+                        {% render_field form.parish_where_baptized class="form-control" placeholder="Parish name" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annointment Information -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-crown me-2"></i>Annointment Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_first_annointment" class="form-label fw-bold">First Annointment <span class="text-danger">*</span></label>
+                        {{ form.first_annointment|add_class:"form-select" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_date_of_first_annointment" class="form-label fw-bold">Date of First Annointment <span class="text-danger">*</span></label>
+                        {% render_field form.date_of_first_annointment class="form-control" type="date" %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_present_annointment" class="form-label fw-bold">Present Annointment <span class="text-danger">*</span></label>
+                        {{ form.present_annointment|add_class:"form-select" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_date_of_present_annointment" class="form-label fw-bold">Date of Present Annointment</label>
+                        {% render_field form.date_of_present_annointment class="form-control" type="date" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Education & Skills -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-graduation-cap me-2"></i>Education & Skills
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Education Level</label>
+                    <div class="border rounded p-2">
+                        {{ form.edu_level }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Education Qualifications</label>
+                    <div class="border rounded p-2">
+                        {{ form.edu_qualification }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_apprenticeship" class="form-label fw-bold">Apprenticeship</label>
+                    {% render_field form.apprenticeship class="form-control" placeholder="Apprenticeship details" %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_hobbies" class="form-label fw-bold">Hobbies</label>
+                    {% render_field form.hobbies class="form-control" placeholder="List hobbies" %}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Area of Calling</label>
+                    <div class="border rounded p-2">
+                        {{ form.area_of_calling }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Experience & Relations -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-briefcase me-2"></i>Work & Relations
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_working_experience_option" class="form-label fw-bold">Working Experience?</label>
+                        {{ form.working_experience_option|add_class:"form-select" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_work_experience_ifyes" class="form-label fw-bold">Work Experience Details</label>
+                        {% render_field form.work_experience_ifyes class="form-control" placeholder="Describe work experience" rows="2" %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_spouse" class="form-label fw-bold">Spouse</label>
+                    {% render_field form.spouse class="form-control" placeholder="Spouse name" %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_father" class="form-label fw-bold">Father</label>
+                        {% render_field form.father class="form-control" placeholder="Father name" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_mother" class="form-label fw-bold">Mother</label>
+                        {% render_field form.mother class="form-control" placeholder="Mother name" %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_next_of_kin" class="form-label fw-bold">Next of Kin</label>
+                        {% render_field form.next_of_kin class="form-control" placeholder="Next of kin" %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_relation_in_ccc" class="form-label fw-bold">Relation in CCC</label>
+                        {% render_field form.relation_in_ccc class="form-control" placeholder="Relation" %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_children_info" class="form-label fw-bold">Children Information</label>
+                    {% render_field form.children_info class="form-control" placeholder="List children" rows="3" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Languages -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-language me-2"></i>Spoken Languages
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="border rounded p-3">
+                    {{ form.spoken_languages }}
+                </div>
+                <div class="form-text">Select all languages you can speak fluently</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Fields -->
+<input type="hidden" name="clergy_id" value="{{ clergy.clergy_id }}">
+{% endblock %}
+
+{% block form_sidebar %}
+<div class="col-lg-3">
+    <div class="form-sidebar">
+        <!-- Current Information Summary -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light border-bottom">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-user-circle me-2"></i>Current Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <img src="{{ clergy.profile_picture.url|default:'/static/assets/img/default-avatar.png' }}"
+                         alt="Profile Picture"
+                         class="rounded-circle"
+                         style="width: 80px; height: 80px; object-fit: cover;">
+                </div>
+                <h6 class="text-center mb-2">{{ clergy.get_full_name }}</h6>
+                <p class="text-muted text-center small mb-3">Reg #: {{ clergy.reg_number }}</p>
+                <div class="small">
+                    <strong>Present Annointment:</strong><br>
+                    {{ clergy.get_present_annointment_display|default:"Not set" }}<br><br>
+                    <strong>Parish:</strong><br>
+                    {{ clergy.parish|default:"Not set" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Tips -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-bottom">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Form Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Required fields are marked with <span class="text-danger">*</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Upload a clear profile picture
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Double-check contact information
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Save changes before leaving
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block submit_text %}Update Clergy Details{% endblock %}
+
+{% block form_modals %}
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Success
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Clergy details have been updated successfully!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script>
+// Image preview functionality
+document.getElementById('id_profile_picture').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.querySelector('.card-body img');
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Form validation
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            } else {
+                // Show loading state
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+                submitBtn.disabled = true;
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})();
+
+// Auto-save draft functionality
+let autoSaveTimeout;
+function autoSave() {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(() => {
+        // Implement auto-save logic here if needed
+        console.log('Auto-saving draft...');
+    }, 30000); // Save after 30 seconds of inactivity
+}
+
+document.querySelectorAll('input, select, textarea').forEach(element => {
+    element.addEventListener('input', autoSave);
+    element.addEventListener('change', autoSave);
+});
+</script>
+{% endblock %}

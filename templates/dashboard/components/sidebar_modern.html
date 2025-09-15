@@ -1,0 +1,263 @@
+{% load static %}
+<nav class="modern-sidebar" id="dashboard-sidebar">
+    <div class="sidebar-container">
+        <!-- Brand Section -->
+        <div class="sidebar-brand">
+            <a href="{% url 'dashboard' %}" class="brand-link">
+                <div class="brand-icon">
+                    <img src="{% static 'assets/img/777899999.png' %}" alt="CCC Logo" width="32" height="32">
+                </div>
+                <span class="brand-text">CCC Administrative System</span>
+            </a>
+        </div>
+
+
+
+        <!-- Main Navigation -->
+        <div class="sidebar-navigation">
+            <!-- Primary Navigation -->
+            <div class="nav-section">
+                <h6 class="nav-section-title">Main</h6>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'centralized_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'centralized_dashboard' %}active{% endif %}">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Church Management Section -->
+            <div class="nav-section">
+                <h6 class="nav-section-title">Church Management</h6>
+                <ul class="nav-menu">
+                    {% if user_permissions.can_manage_clergy %}
+                    <li class="nav-item has-submenu">
+                        <a href="#" class="nav-link {% if 'clergy' in request.resolver_match.url_name %}active{% endif %}" 
+                           data-bs-toggle="collapse" data-bs-target="#clergySubmenu" 
+                           aria-expanded="{% if 'clergy' in request.resolver_match.url_name %}true{% else %}false{% endif %}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <span class="nav-text">Clergy Management</span>
+                            <i class="submenu-arrow fas fa-chevron-right"></i>
+                        </a>
+                        <ul class="submenu collapse {% if 'clergy' in request.resolver_match.url_name %}show{% endif %}" 
+                            id="clergySubmenu" data-bs-parent=".nav-menu">
+                            <li class="submenu-item">
+                                <a href="{% url 'dashboard' %}" 
+                                   class="submenu-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                                    <i class="submenu-icon fas fa-plus-circle"></i>
+                                    <span>Clergy Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{% url 'register_clergy' %}" 
+                                   class="submenu-link {% if request.resolver_match.url_name == 'register_clergy' %}active{% endif %}">
+                                    <i class="submenu-icon fas fa-plus-circle"></i>
+                                    <span>Register New Clergy</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{% url 'all_clergy' %}" 
+                                   class="submenu-link {% if request.resolver_match.url_name == 'all_clergy' %}active{% endif %}">
+                                    <i class="submenu-icon fas fa-list"></i>
+                                    <span>View All Clergy</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="#" class="submenu-link">
+                                    <i class="submenu-icon fas fa-chart-bar"></i>
+                                    <span>Clergy Reports</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    {% if user_permissions.can_manage_transfers %}
+                    <li class="nav-item has-submenu">
+                        <a href="#" class="nav-link {% if 'transfer' in request.resolver_match.url_name %}active{% endif %}" 
+                           data-bs-toggle="collapse" data-bs-target="#transferSubmenu" 
+                           aria-expanded="{% if 'transfer' in request.resolver_match.url_name %}true{% else %}false{% endif %}">
+                            <i class="nav-icon fas fa-exchange-alt"></i>
+                            <span class="nav-text">Transfer Management</span>
+                            <i class="submenu-arrow fas fa-chevron-right"></i>
+                        </a>
+                        <ul class="submenu collapse {% if 'transfer' in request.resolver_match.url_name %}show{% endif %}" 
+                            id="transferSubmenu" data-bs-parent=".nav-menu">
+                            <li class="submenu-item">
+                                <a href="{% url 't_dashboard' %}" 
+                                   class="submenu-link {% if request.resolver_match.url_name == 'new_transfer' %}active{% endif %}">
+                                    <i class="submenu-icon fas fa-paper-plane"></i>
+                                    <span>Create Transfer</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{% url 'trfTable' %}" 
+                                   class="submenu-link {% if request.resolver_match.url_name == 'trfTable' %}active{% endif %}">
+                                    <i class="submenu-icon fas fa-table"></i>
+                                    <span>View Transfers</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="#" class="submenu-link">
+                                    <i class="submenu-icon fas fa-chart-pie"></i>
+                                    <span>Transfer Reports</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    {% if user_permissions.can_manage_parishes %}
+                    <li class="nav-item has-submenu">
+                        <a href="#" class="nav-link {% if 'parish' in request.resolver_match.url_name %}active{% endif %}" 
+                           data-bs-toggle="collapse" data-bs-target="#parishSubmenu" 
+                           aria-expanded="{% if 'parish' in request.resolver_match.url_name %}true{% else %}false{% endif %}">
+                            <i class="nav-icon fas fa-church"></i>
+                            <span class="nav-text">Parish Management</span>
+                            <i class="submenu-arrow fas fa-chevron-right"></i>
+                        </a>
+                        <ul class="submenu collapse {% if 'parish' in request.resolver_match.url_name %}show{% endif %}" 
+                            id="parishSubmenu" data-bs-parent=".nav-menu">
+                            <li class="submenu-item">
+                                <a href="{% url 'parish_dashboard' %}" class="submenu-link">
+                                    <i class="submenu-icon fas fa-tachometer-alt"></i>
+                                    <span>Parish Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{% url 'parish-registration' %}" 
+                                   class="submenu-link {% if request.resolver_match.url_name == 'parish-registration' %}active{% endif %}">
+                                    <i class="submenu-icon fas fa-plus-circle"></i>
+                                    <span>Register Parish</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{% url 'all-parish' %}" 
+                                   class="submenu-link {% if request.resolver_match.url_name == 'parish-registration' %}active{% endif %}">
+                                    <i class="submenu-icon bi bi-folder2"></i>
+                                    <span>Parish Directory</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="{% url 'view_parishes' %}" class="submenu-link">
+                                    <i class="submenu-icon fas fa-list"></i>
+                                    <span>Restructured Parishes</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Reports & Analytics Section -->
+            <div class="nav-section">
+                <h6 class="nav-section-title">Reports & Analytics</h6>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'analytics_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics_dashboard' %}active{% endif %}">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <span class="nav-text">Analytics Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'export_data' %}" class="nav-link {% if request.resolver_match.url_name == 'export_data' %}active{% endif %}">
+                            <i class="nav-icon fas fa-file-export"></i>
+                            <span class="nav-text">Export Data</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showExportModal()">
+                            <i class="nav-icon fas fa-file-export"></i>
+                            <span class="nav-text">Quick Export</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- System Administration Section (Only for Superusers) -->
+            {% if user.is_superuser %}
+            <div class="nav-section">
+                <h6 class="nav-section-title">System Administration</h6>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/admin/" class="nav-link" target="_blank">
+                            <i class="nav-icon fas fa-tools"></i>
+                            <span class="nav-text">Django Admin</span>
+                            <i class="external-link fas fa-external-link-alt"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item has-submenu">
+                        <a href="#" class="nav-link" 
+                           data-bs-toggle="collapse" data-bs-target="#systemSubmenu" 
+                           aria-expanded="false">
+                            <i class="nav-icon fas fa-cogs"></i>
+                            <span class="nav-text">System Settings</span>
+                            <i class="submenu-arrow fas fa-chevron-right"></i>
+                        </a>
+                        <ul class="submenu collapse" id="systemSubmenu" data-bs-parent=".nav-menu">
+                            <li class="submenu-item">
+                                <a href="#" class="submenu-link">
+                                    <i class="submenu-icon fas fa-users-cog"></i>
+                                    <span>User Management</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="#" class="submenu-link">
+                                    <i class="submenu-icon fas fa-database"></i>
+                                    <span>Database Settings</span>
+                                </a>
+                            </li>
+                            <li class="submenu-item">
+                                <a href="#" class="submenu-link">
+                                    <i class="submenu-icon fas fa-shield-alt"></i>
+                                    <span>Security Settings</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+        <!-- User Profile Section -->
+        {% if user.is_authenticated %}
+        <div class="user-profile">
+            <div class="user-avatar">
+                {% if user.userprofile.pic %}
+                    <img src="{{ user.userprofile.pic.url }}" alt="User Avatar" class="avatar-img">
+                {% else %}
+                    <div class="avatar-placeholder">
+                        {{ user.first_name.0|default:user.username.0|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-role">
+                    {% if user.userprofile.designation %}
+                        {{ user.userprofile.designation.name }}
+                    {% else %}
+                        Administrator
+                    {% endif %}
+                </div>
+            </div>
+            <div class="user-actions">
+                <a href="{% url 'edit_profile' %}" class="user-action-btn" title="Edit Profile">
+                    <i class="fas fa-cog"></i>
+                </a>
+                <a href="{% url 'logout' %}" class="user-action-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        </div>
+    </div>
+</nav>

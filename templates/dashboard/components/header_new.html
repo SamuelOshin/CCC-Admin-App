@@ -1,0 +1,591 @@
+{% load static %}
+<nav class="navbar navbar-expand navbar-light bg-white topbar static-top shadow">
+    <!-- Sidebar Toggle (Desktop) -->
+    <button id="sidebarToggle" class="btn btn-link d-none d-md-inline-block rounded-circle mr-3">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Toggle (Mobile) -->
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <!-- Topbar Search -->
+    <form class="d-none d-sm-inline-block form-inline me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search" method="GET">
+        <div class="input-group">
+            <input type="text" class="form-control bg-light border-0 small" 
+                   placeholder="Search for..." 
+                   aria-label="Search" 
+                   aria-describedby="basic-addon2"
+                   name="q" 
+                   value="{{ request.GET.q }}"
+                   id="global-search">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search fa-sm"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Topbar Navbar -->
+    <ul class="navbar-nav ml-auto">
+
+        <!-- Nav Item - Alerts -->
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
+                <!-- Counter - Alerts -->
+                <span class="badge badge-danger badge-counter">3+</span>
+            </a>
+            <!-- Dropdown - Alerts -->
+            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                aria-labelledby="alertsDropdown">
+                <h6 class="dropdown-header">
+                    Alerts Center
+                </h6>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="me-3">
+                        <div class="icon-circle bg-primary">
+                            <i class="fas fa-file-alt text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-muted">December 12, 2025</div>
+                        <span class="fw-bold">A new clergy registration has been submitted!</span>
+                    </div>
+                </a>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="me-3">
+                        <div class="icon-circle bg-success">
+                            <i class="fas fa-exchange-alt text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-muted">December 7, 2025</div>
+                        Transfer request has been approved and processed.
+                    </div>
+                </a>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="me-3">
+                        <div class="icon-circle bg-warning">
+                            <i class="fas fa-exclamation-triangle text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-muted">December 2, 2025</div>
+                        Pending parish registrations require review.
+                    </div>
+                </a>
+                <a class="dropdown-item text-center small text-muted" href="#">Show All Alerts</a>
+            </div>
+        </li>
+
+        <!-- Nav Item - Messages -->
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-envelope fa-fw"></i>
+                <!-- Counter - Messages -->
+                <span class="badge badge-danger badge-counter">7</span>
+            </a>
+            <!-- Dropdown - Messages -->
+            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                aria-labelledby="messagesDropdown">
+                <h6 class="dropdown-header">
+                    Message Center
+                </h6>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="dropdown-list-image me-3">
+                        <img class="rounded-circle" src="{% static 'assets/img/undraw_profile_1.svg' %}"
+                            alt="..." width="40" height="40">
+                        <div class="status-indicator bg-success"></div>
+                    </div>
+                    <div class="fw-bold">
+                        <div class="text-truncate">Hi there! I need assistance with a clergy transfer process.</div>
+                        <div class="small text-muted">Diocese Administrator · 58m</div>
+                    </div>
+                </a>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="dropdown-list-image me-3">
+                        <img class="rounded-circle" src="{% static 'assets/img/undraw_profile_2.svg' %}"
+                            alt="..." width="40" height="40">
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div>
+                        <div class="text-truncate">Could you please review the parish registration documents?</div>
+                        <div class="small text-muted">Parish Secretary · 1d</div>
+                    </div>
+                </a>
+                <a class="dropdown-item d-flex align-items-center" href="#">
+                    <div class="dropdown-list-image me-3">
+                        <img class="rounded-circle" src="{% static 'assets/img/undraw_profile_3.svg' %}"
+                            alt="..." width="40" height="40">
+                        <div class="status-indicator bg-warning"></div>
+                    </div>
+                    <div>
+                        <div class="text-truncate">The quarterly report is ready for your review...</div>
+                        <div class="small text-muted">Report System · 2d</div>
+                    </div>
+                </a>
+                <a class="dropdown-item text-center small text-muted" href="#">Read More Messages</a>
+            </div>
+        </li>
+
+        <div class="topbar-divider d-none d-sm-block"></div>
+
+        <!-- Nav Item - User Information -->
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="me-2 d-none d-lg-inline text-muted small fw-bold">
+                    {{ user.get_full_name|default:user.username }}
+                </span>
+                {% if user.userprofile.pic %}
+                    <img class="img-profile rounded-circle" src="{{ user.userprofile.pic.url }}" 
+                         width="40" height="40" alt="User Avatar">
+                {% else %}
+                    <div class="img-profile rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" 
+                         style="width: 40px; height: 40px; font-size: 16px; font-weight: 600;">
+                        {{ user.first_name.0|default:user.username.0|upper }}
+                    </div>
+                {% endif %}
+            </a>
+            <!-- Dropdown - User Information -->
+            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
+                aria-labelledby="userDropdown">
+                <div class="dropdown-header d-flex align-items-center py-3">
+                    <div class="me-3">
+                        {% if user.userprofile.pic %}
+                            <img class="rounded-circle" src="{{ user.userprofile.pic.url }}" 
+                                 width="48" height="48" alt="User Avatar">
+                        {% else %}
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" 
+                                 style="width: 48px; height: 48px; font-size: 18px; font-weight: 600;">
+                                {{ user.first_name.0|default:user.username.0|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="user-info-text">
+                        <div class="fw-bold text-white">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="small text-white">
+                            {% if user.userprofile.designation %}
+                                {{ user.userprofile.designation.name }}
+                            {% else %}
+                                Administrator
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                
+                <!-- Quick Module Access -->
+                <h6 class="dropdown-header py-2 mb-0 ">
+                    <i class="fas fa-th-large me-2"></i>Quick Access
+                </h6>
+                
+                <!-- Always show these for superusers -->
+                {% if request.user.is_superuser %}
+                    <a class="dropdown-item d-flex align-items-center" href="{% url 'dashboard' %}">
+                        <i class="fas fa-users fa-sm fa-fw me-2 text-primary"></i>
+                        <span>Clergy Management</span>
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center" href="{% url 't_dashboard' %}">
+                        <i class="fas fa-exchange-alt fa-sm fa-fw me-2 text-success"></i>
+                        <span>Transfer Management</span>
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center" href="{% url 'parish_dashboard' %}">
+                        <i class="fas fa-church fa-sm fa-fw me-2 text-info"></i>
+                        <span>Parish Management</span>
+                    </a>
+                {% else %}
+                    <div class="dropdown-item text-muted">
+                        <i class="fas fa-info-circle fa-sm fa-fw me-2"></i>
+                        <span>No modules available</span>
+                    </div>
+                {% endif %}
+                
+                <div class="dropdown-divider"></div>
+                
+                <!-- User Account Options -->
+                <h6 class="dropdown-header py-2 mb-0">
+                    <i class="fas fa-user-cog me-2"></i>Account
+                </h6>
+                
+                <a class="dropdown-item d-flex align-items-center" href="{% url 'edit_profile' %}">
+                    <i class="fas fa-user fa-sm fa-fw me-2 text-muted"></i>
+                    <span>Profile Settings</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                    <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-danger"></i>
+                    <span class="text-danger">Logout</span>
+                </a>
+            </div>
+        </li>
+
+    </ul>
+
+</nav>
+
+<!-- Page Title and Breadcrumb -->
+<div class="d-sm-flex align-items-center justify-content-between mt-3 px-3">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            {% block page_title %}
+                {% if current_module %}
+                    {{ current_module.name }}
+                {% else %}
+                    CCC Admin Dashboard
+                {% endif %}
+            {% endblock %}
+        </h1>
+        {% if current_app %}
+        <p class="mb-0 text-gray-600">
+            {% if current_app == 'clergy' %}
+                Manage clergy members and their information
+            {% elif current_app == 'transfer' %}
+                Handle clergy transfers between parishes
+            {% elif current_app == 'parish' %}
+                Manage parish data and restructuring
+            {% else %}
+                CCC Administrative System
+            {% endif %}
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Logout Modal-->
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">Ready to Leave?</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Select "Logout" below if you are ready to end your current session.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Header Styles */
+.topbar {
+    height: 4.375rem;
+    border-bottom: 1px solid #e3e6f0;
+    padding: 0 1.5rem;
+}
+
+.topbar .navbar-search .input-group .form-control {
+    border: 1px solid #d1d3e2;
+    border-radius: 10rem;
+    font-size: 0.85rem;
+    padding-left: 1rem;
+    background-color: #f8f9fc;
+}
+
+.topbar .navbar-search .input-group .form-control:focus {
+    background-color: #fff;
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.topbar .navbar-search .input-group .input-group-append .btn {
+    border: 1px solid #d1d3e2;
+    border-radius: 10rem;
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.topbar .navbar-search .input-group .input-group-append .btn:hover {
+    background-color: #5a67d8;
+    border-color: #5a67d8;
+}
+
+.topbar .topbar-divider {
+    width: 0;
+    border-right: 1px solid #e3e6f0;
+    height: calc(4.375rem - 2rem);
+    margin: auto 1rem;
+}
+
+.topbar .nav-item .nav-link {
+    height: 4.375rem;
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    color: #5a5c69;
+    transition: all 0.15s ease-in-out;
+}
+
+.topbar .nav-item .nav-link:focus {
+    outline: none;
+}
+
+.topbar .nav-item .nav-link:hover {
+    color: #667eea;
+    background-color: rgba(102, 126, 234, 0.1);
+    border-radius: 0.375rem;
+}
+
+.topbar .dropdown-menu {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    min-width: 18rem;
+    max-width: 22rem;
+    overflow: hidden;
+}
+
+.topbar .dropdown-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+    padding: 1rem;
+    color: #5a5c69;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topbar .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f8f9fc;
+    transition: all 0.15s ease-in-out;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.topbar .dropdown-item span {
+    display: inline-block;
+    max-width: calc(100% - 2rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.topbar .user-info-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.2;
+}
+
+.topbar .small {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.topbar .dropdown-item:hover {
+    background-color: #f8f9fc;
+    color: #5a5c69;
+    text-decoration: none;
+}
+
+.topbar .dropdown-item:hover i {
+    color: #5e72e4;
+}
+
+.topbar .dropdown-divider {
+    margin: 0;
+    border-color: #e3e6f0;
+}
+
+.topbar .dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.topbar .dropdown-item:hover {
+    background-color: #f8f9fc;
+    color: #667eea;
+}
+
+.topbar .dropdown-item.text-danger:hover {
+    background-color: #f8d7da;
+    color: #dc3545;
+}
+
+.topbar .dropdown-list-image {
+    position: relative;
+    height: 2.5rem;
+    width: 2.5rem;
+}
+
+.topbar .dropdown-list-image img {
+    height: 2.5rem;
+    width: 2.5rem;
+}
+
+.topbar .status-indicator {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 0.75rem;
+    width: 0.75rem;
+    border-radius: 100%;
+    background-color: #eaecf4;
+    border: 0.125rem solid #fff;
+}
+
+.topbar .status-indicator.bg-success {
+    background-color: #1cc88a;
+}
+
+.topbar .status-indicator.bg-warning {
+    background-color: #f6c23e;
+}
+
+.topbar .nav-item .badge-counter {
+    position: absolute;
+    transform: scale(0.7);
+    transform-origin: top right;
+    right: 0.25rem;
+    margin-top: -0.25rem;
+    font-size: 0.65rem;
+}
+
+.topbar .nav-item .img-profile {
+    height: 2.5rem;
+    width: 2.5rem;
+    border: 2px solid #e3e6f0;
+    transition: all 0.15s ease-in-out;
+}
+
+.topbar .nav-item .img-profile:hover {
+    border-color: #667eea;
+}
+
+/* User dropdown specific styles */
+.topbar .nav-item.dropdown .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+.topbar .nav-item.dropdown .dropdown-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+    margin: -0.5rem -1rem 0.5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+    padding-left: 2rem;
+}
+
+/* Icon Circles */
+.icon-circle {
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Page Title Styles */
+.text-gray-800 {
+    color: #5a5c69;
+}
+
+.text-gray-600 {
+    color: #858796;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .topbar {
+        padding: 0 1rem;
+    }
+    
+    .topbar .navbar-search {
+        display: none !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Global search functionality
+    const globalSearch = document.getElementById('global-search');
+    if (globalSearch) {
+        globalSearch.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                // Implement global search logic here
+                console.log('Global search for:', this.value);
+            }
+        });
+    }
+
+    // Initialize Bootstrap 5 dropdowns
+    const dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+    const dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl);
+    });
+
+    // Enhanced user dropdown functionality
+    const userDropdown = document.getElementById('userDropdown');
+    if (userDropdown) {
+        userDropdown.addEventListener('click', function(e) {
+            e.preventDefault();
+        });
+    }
+
+    // Notification badge animation
+    const badges = document.querySelectorAll('.badge-counter');
+    badges.forEach(badge => {
+        badge.addEventListener('animationend', function() {
+            this.style.animation = '';
+        });
+        
+        // Pulse animation on hover
+        badge.parentElement.addEventListener('mouseenter', function() {
+            badge.style.animation = 'pulse 1s infinite';
+        });
+        
+        badge.parentElement.addEventListener('mouseleave', function() {
+            badge.style.animation = '';
+        });
+    });
+
+    // Auto-hide alerts and messages
+    const alertItems = document.querySelectorAll('[id*="Dropdown"] .dropdown-item');
+    alertItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (this.href === '#') {
+                e.preventDefault();
+            }
+        });
+    });
+});
+
+// Add pulse animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { transform: scale(0.7); }
+        50% { transform: scale(0.8); }
+        100% { transform: scale(0.7); }
+    }
+    
+    .dropdown-item:hover .icon-circle {
+        transform: scale(1.1);
+        transition: transform 0.2s ease-in-out;
+    }
+`;
+document.head.appendChild(style);
+</script>

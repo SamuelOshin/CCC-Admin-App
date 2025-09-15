@@ -1,111 +1,615 @@
-{% extends 'transfer/base.html' %}
+{% extends 'dashboard/layouts/table_form_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
 
-{% block content %}
+{% block title %}Posting History - {{ clergy }}{% endblock %}
+{% block page_title %}Posting History Management{% endblock %}
+{% block page_subtitle %}Manage posting history records for {{ clergy }}{% endblock %}
+{% block page_icon %}fas fa-user-clock{% endblock %}
 
-<div class="container">
-    <h3 class="text-light text-bg-primary mb-4">
-        <strong>Posting History</strong>
-    </h3>
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+{% block table_title %}Posting History Records{% endblock %}
+
+{% block table_content %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered" id="dataTable">
+        <thead class="table-primary text-white">
+            <tr>
+                <th>S/N</th>
+                <th>Clergy Member</th>
+                <th>Parish</th>
+                <th>Designation</th>
+                <th>Date of Entry</th>
+                <th>Date of Exit</th>
+                <th>Purpose</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        {% if post.clergy.profile_picture %}
+                        <img class="rounded-circle me-3"
+                             src="{{ post.clergy.profile_picture.url }}"
+                             alt="Profile Picture"
+                             style="width: 40px; height: 40px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center"
+                             style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <div class="fw-semibold">{{ post.clergy }}</div>
+                            <small class="text-muted">{{ post.clergy.reg_number }}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge bg-info">{{ post.parish }}</span>
+                </td>
+                <td>
+                    <span class="badge bg-success">{{ post.designation }}</span>
+                </td>
+                <td>
+                    <i class="fas fa-calendar-plus text-primary me-1"></i>
+                    {{ post.date_of_entry|date:"M d, Y" }}
+                </td>
+                <td>
+                    <i class="fas fa-calendar-minus text-danger me-1"></i>
+                    {{ post.date_of_exit|date:"M d, Y" }}
+                </td>
+                <td>
+                    {% if post.purpose %}
+                    <span class="text-truncate d-inline-block" style="max-width: 150px;" title="{{ post.purpose }}">
+                        {{ post.purpose }}
+                    </span>
+                    {% else %}
+                    <span class="text-muted">No purpose specified</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'posting' post.clergy.clergy_id %}"
+                           class="btn btn-outline-primary btn-sm"
+                           title="Edit Posting">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button type="button"
+                                class="btn btn-outline-danger btn-sm"
+                                title="Delete Posting"
+                                onclick="confirmDelete({{ post.id }}, '{{ post.clergy|escapejs }}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p>No posting history records found for this clergy member.</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block form_title %}Add New Posting History{% endblock %}
+
+{% block form_content %}
+<form method="post" id="postingForm">
+    {% csrf_token %}
+
+    <div class="row g-3">
+        <!-- Parish Field -->
+        <div class="col-md-6">
+            <label for="{{ posting_form.parish.id_for_label }}" class="form-label">
+                <i class="fas fa-church text-primary me-1"></i>Parish <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                <div class="form-control-container" style="flex: 1;">
+                    {{ posting_form.parish|add_class:"form-control parishSelect"|attr:"required" }}
+                </div>
+            </div>
+            {% if posting_form.parish.errors %}
+            <div class="text-danger small mt-1">
+                {% for error in posting_form.parish.errors %}
+                <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Designation Field -->
+        <div class="col-md-6">
+            <label for="{{ posting_form.designation.id_for_label }}" class="form-label">
+                <i class="fas fa-user-tag text-primary me-1"></i>Designation <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-crown"></i></span>
+                <div class="form-control-container" style="flex: 1;">
+                    {{ posting_form.designation|add_class:"form-select designationSelect"|attr:"required" }}
+                </div>
+            </div>
+            {% if posting_form.designation.errors %}
+            <div class="text-danger small mt-1">
+                {% for error in posting_form.designation.errors %}
+                <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Date of Entry Field -->
+        <div class="col-md-6">
+            <label for="{{ posting_form.date_of_entry.id_for_label }}" class="form-label">
+                <i class="fas fa-calendar-plus text-success me-1"></i>Date of Entry <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                {{ posting_form.date_of_entry|add_class:"form-control"|attr:"type:date"|attr:"required" }}
+            </div>
+            {% if posting_form.date_of_entry.errors %}
+            <div class="text-danger small mt-1">
+                {% for error in posting_form.date_of_entry.errors %}
+                <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Date of Exit Field -->
+        <div class="col-md-6">
+            <label for="{{ posting_form.date_of_exit.id_for_label }}" class="form-label">
+                <i class="fas fa-calendar-minus text-danger me-1"></i>Date of Exit <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                {{ posting_form.date_of_exit|add_class:"form-control"|attr:"type:date"|attr:"required" }}
+            </div>
+            {% if posting_form.date_of_exit.errors %}
+            <div class="text-danger small mt-1">
+                {% for error in posting_form.date_of_exit.errors %}
+                <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Purpose Field (Full Width) -->
+        <div class="col-12">
+            <label for="{{ posting_form.purpose.id_for_label }}" class="form-label">
+                <i class="fas fa-comment text-info me-1"></i>Purpose/Notes
+            </label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-sticky-note"></i></span>
+                {{ posting_form.purpose|add_class:"form-control"|attr:"rows:3"|attr:"placeholder:Enter the purpose or notes for this posting..." }}
+            </div>
+            {% if posting_form.purpose.errors %}
+            <div class="text-danger small mt-1">
+                {% for error in posting_form.purpose.errors %}
+                <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
     </div>
-    {% endfor %}
-    {% endif %}
-    <div class="cardd">
-        <div class="row justify-content-center align-items-start">
-            <div class="col-md-12">
-                <div class="">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover table-bordered clergyTable" id="clergyTable">
-                                <thead>
-                                    <tr>
-                                        <th>S/N</th>
-                                        <th>Name</th>
-                                        <th>Parish</th>
-                                        <th>Designation</th>
-                                        <th>Date of Entry</th>
-                                        <th>Date of Exit</th>
-                                        <th>Purpose</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for post in posts %}
-                                    <tr>
-                                        <td>{{forloop.counter}}</td>
-                                        <td>
-                                            <div class="d-flex align-items-center flex-wrap justify-content-center ">
-                                                <div class="position-relative me-3">
-                                                    <img class="rounded-circle" src="{{ post.clergy.profile_picture.url }}"
-                                                        style="max-width: 40px; max-height: 100px;">
-                                                    <!-- {% if transfer.trf_status == 'Pending' %}
-                                                    <div class="bg-warning status-indicator"></div>
-                                                    {% elif transfer.trf_status == 'Approved' %}
-                                                    <div class="bg-success status-indicator"></div>
-                                                    {% else %}
-                                                    <div class="bg-danger status-indicator"></div>
-                                                    {% endif %} -->
-                                                </div>
-                                                <div>
-                                                    <p class="fw-semibold ">{{ post.clergy }}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>{{ post.parish }}</td>
-                                        <td>{{ post.designation }}</td>
-                                        <td>{{ post.date_of_entry }}</td>
-                                        <td>{{ post.date_of_exit }}</td>
-                                        <td>{{post.purpose}}</td>
-                                        <td>
-                                            <a class="btn btn-primary btn-sm "
-                                                href="{% url 'posting' post.clergy_id %}">Edit</a>
-                                            <!-- Add Update button/link -->
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+
+    <!-- Hidden Clergy Field -->
+    {{ posting_form.clergy|add_class:"d-none" }}
+
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-save me-2"></i>Add Posting History
+            </button>
+            <button type="reset" class="btn btn-outline-secondary btn-lg ms-3">
+                <i class="fas fa-undo me-2"></i>Reset Form
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block submit_button_text %}Add Posting History{% endblock %}
+
+{% block additional_content %}
+<!-- Clergy Information Card -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-user-circle me-2"></i>Clergy Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 text-center">
+                        {% if clergy.profile_picture %}
+                        <img src="{{ clergy.profile_picture.url }}"
+                             alt="Profile Picture"
+                             class="rounded-circle mb-2"
+                             style="width: 80px; height: 80px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-secondary rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-user fa-2x text-white"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-10">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Name:</strong> {{ clergy }}</p>
+                                <p class="mb-1"><strong>Registration Number:</strong> {{ clergy.reg_number }}</p>
+                                <p class="mb-1"><strong>Phone:</strong> {{ clergy.telephone|default:"Not provided" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Email:</strong> {{ clergy.email_address|default:"Not provided" }}</p>
+                                <p class="mb-1"><strong>Date of Birth:</strong> {{ clergy.dob|date:"M d, Y"|default:"Not provided" }}</p>
+                                <p class="mb-1"><strong>Current Appointment:</strong> {{ clergy.present_annointment|default:"Not assigned" }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="cardd shadow mt-3">
-        <div class="card-header py-3">
-            <p class="m-0 fw-bold" id="text-blue">Add Posting History for {{ clergy }}</p>
-        </div>
-        
-            <div class="card-body">
-                <div class="row mb-3">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="col-11">
-
-                            {{posting_form}}
-                        </div>
-                        <div class="mt-3 text-center ">
-                            <div class="mb-3"><button class="btn btn-outline-primary btn-sm" 
-                                    type="submit">Click to Add</button></div>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-            <div class="text-center  ">
-                <a href="{% url 't_dashboard' %}" class="btn btn-outline-primary  mt-3">Back to dashboard</a>
-            </div>
-    </div>
-    
 </div>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTables for posting history table with a small delay
+    setTimeout(function() {
+        if (typeof $ !== 'undefined' && $.fn.DataTable) {
+            const tableElement = $('#dataTable');
 
+            // Check if table exists and has data
+            if (tableElement.length > 0 && tableElement.find('tbody tr').length > 0) {
+                // Verify table structure - check if header and body have matching column counts
+                const headerCols = tableElement.find('thead th').length;
+                const bodyCols = tableElement.find('tbody tr:first td').length;
 
+                console.log(`DataTables initialization: Header columns: ${headerCols}, Body columns: ${bodyCols}`);
 
+                if (headerCols !== bodyCols) {
+                    console.warn(`DataTables column count mismatch: Header has ${headerCols} columns, body has ${bodyCols} columns`);
+                    return; // Don't initialize DataTables if column counts don't match
+                }
+
+                if (headerCols === 0) {
+                    console.warn('DataTables initialization: No columns found in table header');
+                    return;
+                }
+
+                // Destroy any existing DataTable instance
+                if ($.fn.DataTable.isDataTable('#dataTable')) {
+                    tableElement.DataTable().destroy();
+                }
+
+                // Clear any existing DataTable wrapper to avoid double wrapping
+                if (tableElement.parent().hasClass('dataTables_wrapper')) {
+                    tableElement.unwrap();
+                }
+
+                // Initialize DataTables with proper configuration
+                const dataTable = tableElement.DataTable({
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    language: {
+                        search: "Search posting history:",
+                        lengthMenu: "Show _MENU_ entries",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                        infoEmpty: "No posting history records found",
+                        infoFiltered: "(filtered from _MAX_ total entries)",
+                        paginate: {
+                            first: "First",
+                            last: "Last",
+                            next: "Next",
+                            previous: "Previous"
+                        },
+                        emptyTable: "No posting history records available"
+                    },
+                    columnDefs: [
+                        { orderable: false, targets: -1 }, // Disable sorting on Actions column
+                        { width: "8%", targets: 0 }, // S/N column
+                        { width: "20%", targets: 1 }, // Clergy Member column
+                        { width: "12%", targets: 2 }, // Parish column
+                        { width: "15%", targets: 3 }, // Designation column
+                        { width: "12%", targets: 4 }, // Date of Entry column
+                        { width: "12%", targets: 5 }, // Date of Exit column
+                        { width: "15%", targets: 6 }, // Purpose column
+                        { width: "6%", targets: 7 } // Actions column
+                    ],
+                    order: [[4, 'desc']], // Sort by Date of Entry descending by default
+                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                         '<"row"<"col-sm-12"tr>>' +
+                         '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    initComplete: function() {
+                        // Add custom styling to DataTables elements
+                        $('.dataTables_length select').addClass('form-select form-select-sm');
+                        $('.dataTables_filter input').addClass('form-control form-control-sm');
+
+                        // Ensure table is properly responsive
+                        this.api().columns.adjust();
+                    },
+                    drawCallback: function() {
+                        // Re-adjust columns after each draw
+                        this.api().columns.adjust();
+                    }
+                });
+
+                // Store reference for potential cleanup
+                window.postingDataTable = dataTable;
+            }
+        }
+    }, 100); // Small delay to ensure DOM is ready
+
+    // Add custom CSS for Select2 input group compatibility
+    const style = document.createElement('style');
+    style.textContent = `
+        .form-control-container {
+            position: relative;
+        }
+        .form-control-container .select2-container {
+            width: 100% !important;
+        }
+        .form-control-container .select2-container .select2-selection {
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            height: calc(1.5em + 0.75rem + 2px) !important;
+            padding: 0.375rem 0.75rem !important;
+        }
+        .form-control-container .select2-container .select2-selection .select2-selection__rendered {
+            padding: 0 !important;
+            line-height: 1.5 !important;
+        }
+        .form-control-container .select2-container .select2-selection .select2-selection__arrow {
+            height: calc(1.5em + 0.75rem + 2px) !important;
+            right: 0.75rem !important;
+        }
+        .input-group .input-group-text {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize Select2 for parish selection with better input group compatibility
+    $('.parishSelect').select2({
+        placeholder: 'Select a parish...',
+        allowClear: true,
+        width: '100%',
+        containerCssClass: 'select2-container--custom',
+        dropdownCssClass: 'select2-dropdown--custom'
+    });
+
+    // Initialize Select2 for designation selection
+    $('.designationSelect').select2({
+        placeholder: 'Select a designation...',
+        allowClear: true,
+        width: '100%',
+        containerCssClass: 'select2-container--custom',
+        dropdownCssClass: 'select2-dropdown--custom'
+    });
+
+    // Ensure Select2 works properly within input group
+    $('.parishSelect, .designationSelect').on('select2:open', function() {
+        // Adjust positioning if needed
+        setTimeout(function() {
+            $('.select2-container--open').css('z-index', '9999');
+        }, 1);
+    });
+
+    // Fix for input group compatibility - ensure the select2 element takes full width
+    $('.parishSelect, .designationSelect').each(function() {
+        const $this = $(this);
+        const $container = $this.closest('.form-control-container');
+
+        if ($container.length) {
+            $this.on('select2:open', function() {
+                // Ensure the dropdown appears correctly within the input group
+                $('.select2-container--open .select2-selection').css({
+                    'border': 'none',
+                    'border-radius': '0',
+                    'background': 'transparent'
+                });
+            });
+        }
+    });
+
+    // Utility function to show alerts
+    function showAlert(message, type = 'info') {
+        const alertContainer = document.getElementById('alertContainer') || document.querySelector('.container-fluid');
+        if (!alertContainer) return;
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-info-circle me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        alertContainer.insertBefore(alertDiv, alertContainer.firstChild);
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (alertDiv && alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+
+    // Enhanced form validation with safety checks
+    function validatePostingForm() {
+        const form = document.getElementById('postingForm');
+        if (!form) {
+            console.warn('Posting form not found');
+            return false;
+        }
+
+        const requiredFields = [
+            'clergy_member', 'parish', 'designation', 'date_of_entry', 'purpose'
+        ];
+
+        let isValid = true;
+        let firstInvalidField = null;
+
+        requiredFields.forEach(fieldName => {
+            const field = form.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                const value = field.value ? field.value.trim() : '';
+                if (!value) {
+                    field.classList.add('is-invalid');
+                    if (!firstInvalidField) {
+                        firstInvalidField = field;
+                    }
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            }
+        });
+
+        // Validate date logic
+        const dateOfEntry = form.querySelector('[name="date_of_entry"]');
+        const dateOfExit = form.querySelector('[name="date_of_exit"]');
+
+        if (dateOfEntry && dateOfExit && dateOfEntry.value && dateOfExit.value) {
+            const entryDate = new Date(dateOfEntry.value);
+            const exitDate = new Date(dateOfExit.value);
+
+            if (exitDate <= entryDate) {
+                dateOfExit.classList.add('is-invalid');
+                if (!firstInvalidField) {
+                    firstInvalidField = dateOfExit;
+                }
+                isValid = false;
+                showAlert('Date of exit must be after date of entry', 'danger');
+            } else {
+                dateOfExit.classList.remove('is-invalid');
+            }
+        }
+
+        if (!isValid && firstInvalidField) {
+            firstInvalidField.focus();
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        return isValid;
+    }
+
+    // Form validation
+    const form = document.getElementById('postingForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!validatePostingForm()) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Find first invalid field and focus it
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            form.classList.add('was-validated');
+        });
+    }
+
+    // Date validation - ensure exit date is after entry date
+    const entryDate = document.getElementById('{{ posting_form.date_of_entry.id_for_label }}');
+    const exitDate = document.getElementById('{{ posting_form.date_of_exit.id_for_label }}');
+
+    function validateDates() {
+        if (entryDate && exitDate && entryDate.value && exitDate.value) {
+            const entry = new Date(entryDate.value);
+            const exit = new Date(exitDate.value);
+
+            if (exit <= entry) {
+                exitDate.setCustomValidity('Exit date must be after entry date');
+                exitDate.classList.add('is-invalid');
+            } else {
+                exitDate.setCustomValidity('');
+                exitDate.classList.remove('is-invalid');
+            }
+        }
+    }
+
+    if (entryDate && exitDate) {
+        entryDate.addEventListener('change', validateDates);
+        exitDate.addEventListener('change', validateDates);
+    }
+
+    // Reset form validation on reset
+    if (form) {
+        form.addEventListener('reset', function() {
+            form.classList.remove('was-validated');
+            $('.parishSelect, .designationSelect').val(null).trigger('change');
+        });
+    }
+});
+
+// Delete confirmation function with enhanced error handling
+function confirmDelete(postingId, clergyName) {
+    if (!postingId || !clergyName) {
+        showAlert('Invalid posting record information', 'danger');
+        return false;
+    }
+
+    if (confirm(`Are you sure you want to delete the posting history record for ${clergyName}? This action cannot be undone.`)) {
+        try {
+            // Create a form to submit delete request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `{% url 'posting' clergy.clergy_id %}`; // You'll need to add a delete URL
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (!csrfToken) {
+                showAlert('Security token not found. Please refresh the page and try again.', 'danger');
+                return false;
+            }
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+
+            const deleteInput = document.createElement('input');
+            deleteInput.type = 'hidden';
+            deleteInput.name = 'delete_posting';
+            deleteInput.value = postingId;
+
+            form.appendChild(csrfInput);
+            form.appendChild(deleteInput);
+            document.body.appendChild(form);
+            form.submit();
+        } catch (error) {
+            console.error('Error during delete operation:', error);
+            showAlert('An error occurred while processing the delete request', 'danger');
+        }
+    }
+}
+</script>
 {% endblock %}

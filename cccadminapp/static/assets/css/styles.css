@@ -5,6 +5,24 @@ body, html {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Global layout container */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Ensure all main content containers behave properly */
+.main-content,
+.dashboard-content,
+#content {
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* .container{
@@ -32,8 +50,23 @@ body, html {
   flex-shrink: none;
 }
 
+/* Updated content layout to match modern sidebar */
 #content {
-  margin-left: 224px;
+  margin-left: var(--sidebar-width, 280px);
+  transition: margin-left 0.3s ease;
+  padding: 0;
+  width: calc(100% - var(--sidebar-width, 280px));
+  max-width: calc(100% - var(--sidebar-width, 280px));
+  overflow-x: hidden;
+}
+
+/* Ensure content doesn't overflow on small screens */
+@media (max-width: 768px) {
+  #content {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 #loading {
   position: fixed;
@@ -67,6 +100,8 @@ body, html {
 
 .select2-container--default .select2-selection--single {
   border: 1px solid #e3e6f0!important;
+  /* height: 50px !important;
+  padding: 18px !important; */
 }
 
 .select2-container {
@@ -202,7 +237,6 @@ footer {
 }
 
 td{
-  text-align: center;
   white-space: nowrap;
   vertical-align: middle;
 }
@@ -643,4 +677,156 @@ footer > .container > strong{
     top: 0;
     animation: none;
   }
+}
+
+/* Global Text Size Reduction - 10% smaller */
+/* Apply 0.9 scale factor to all text elements */
+html {
+    font-size: 90%; /* Reduce base font size by 10% */
+}
+
+/* Ensure consistent text scaling across all elements */
+body, 
+.btn, 
+.form-control, 
+.form-select, 
+.form-label,
+.card-title,
+.card-text,
+.card-header,
+.card-body,
+.nav-link,
+.dropdown-item,
+.alert,
+.badge,
+.modal-title,
+.modal-body,
+.tooltip,
+.popover,
+.breadcrumb-item,
+.pagination,
+.table,
+thead,
+tbody,
+td,
+th,
+.list-group-item,
+.accordion-header,
+.accordion-body,
+h1, h2, h3, h4, h5, h6,
+p, span, div, a, label, input, textarea, select,
+.sidebar-text,
+.nav-item,
+.navbar-brand,
+.navbar-nav,
+.form-text,
+.text-muted,
+.small,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    font-size: inherit !important;
+}
+
+/* Specific adjustments for dashboard components */
+.modern-sidebar,
+.dashboard-content,
+.main-content {
+    font-size: inherit;
+}
+
+/* Maintain relative sizing for different text elements */
+.small, .text-sm {
+    font-size: 0.875em !important;
+}
+
+.lead {
+    font-size: 1.25em !important;
+}
+
+/* Adjust icon sizes proportionally */
+.fa, .fas, .far, .fab, .fal, .fad,
+.bi,
+[class*="icon-"] {
+    font-size: inherit;
+}
+
+/* DataTables text scaling */
+.dataTables_wrapper,
+.dataTables_info,
+.dataTables_paginate,
+.dataTables_length,
+.dataTables_filter {
+    font-size: inherit !important;
+}
+
+/* Form elements scaling */
+.form-control,
+.form-select,
+.btn {
+    font-size: inherit !important;
+}
+
+/* Alert and notification scaling */
+.alert,
+.toast,
+.modal {
+    font-size: inherit !important;
+}
+
+/* Comprehensive Layout Fixes */
+/* Prevent horizontal overflow on tables and large content */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dataTables_wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Prevent cards and content from exceeding container width */
+.card, .dashboard-card {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.col, .col-* {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+/* Form layout improvements */
+.form-layout, .clergy-registration-form {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Dashboard content specific fixes */
+.dashboard-content-wrapper,
+.dashboard-header-section,
+.dashboard-stats {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Button groups that might cause overflow */
+.btn-group {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 576px) {
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.25rem;
+    }
 }

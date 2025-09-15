@@ -1,0 +1,55 @@
+{% load static %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white p-3 rounded shadow-sm">
+        {% for item in breadcrumb %}
+            {% if not forloop.last %}
+                <li class="breadcrumb-item">
+                    {% if item.url and item.url != '#' %}
+                        <a href="{{ item.url }}" class="text-decoration-none">
+                            {% if forloop.first %}
+                                <i class="fas fa-home me-1"></i>
+                            {% endif %}
+                            {{ item.name }}
+                        </a>
+                    {% else %}
+                        {% if forloop.first %}
+                            <i class="fas fa-home me-1"></i>
+                        {% endif %}
+                        {{ item.name }}
+                    {% endif %}
+                </li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">
+                    <strong>{{ item.name }}</strong>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>
+
+<style>
+    .breadcrumb {
+        margin-bottom: 0;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+        font-weight: bold;
+    }
+    
+    .breadcrumb-item a {
+        color: #495057;
+        transition: color 0.2s ease;
+    }
+    
+    .breadcrumb-item a:hover {
+        color: var(--bs-primary);
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--bs-primary);
+    }
+</style>

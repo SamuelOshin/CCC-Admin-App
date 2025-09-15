@@ -1,0 +1,1349 @@
+{% extends 'dashboard/layouts/form_layout.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Register New Clergy - {{ app_title }}{% endblock %}
+
+{% block form_title %}Clergy Registration{% endblock %}
+{% block form_subtitle %}Register a new clergy member to the CCC Administrative System{% endblock %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Clergy Dashboard</a></li>
+    <li class="breadcrumb-item active">Register New Clergy</li>
+{% endblock %}
+
+{% block form_column_class %}col-lg-10{% endblock %}
+
+{% block form_icon %}fas fa-user-plus{% endblock %}
+{% block card_title %}New Clergy Registration Form{% endblock %}
+
+{% block form_progress %}
+<div class="progress" style="height: 4px;">
+    <div class="progress-bar bg-primary" role="progressbar" style="width: 25%" id="form-progress"></div>
+</div>
+<small class="text-muted mt-1 d-block">Step <span id="current-step">1</span> of 4</small>
+{% endblock %}
+
+{% block form_method %}post{% endblock %}
+{% block form_enctype %}multipart/form-data{% endblock %}
+
+{% block form_instructions %}
+<div class="alert alert-info border-0 mb-4">
+    <div class="d-flex">
+        <div class="flex-shrink-0">
+            <i class="fas fa-info-circle fa-lg"></i>
+        </div>
+        <div class="flex-grow-1 ms-3">
+            <strong>Registration Instructions:</strong>
+            <ul class="mb-0 mt-2">
+                <li>Complete all sections of the form with accurate information</li>
+                <li>Required fields are marked with <span class="text-danger">*</span></li>
+                <li>Upload a clear profile picture in JPG, PNG, or GIF format</li>
+                <li>Review all information before final submission</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_content %}
+<input type="hidden" id="clergy_id" name="clergy_id" value="{{ clergy_id }}">
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-pills nav-fill mb-4" id="registrationTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="identity-tab" data-bs-toggle="pill" 
+                data-bs-target="#identity-content" type="button" role="tab">
+            <i class="fas fa-id-card me-2"></i>Identity & Bio
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contact-tab" data-bs-toggle="pill" 
+                data-bs-target="#contact-content" type="button" role="tab">
+            <i class="fas fa-address-book me-2"></i>Contact & Faith
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="education-tab" data-bs-toggle="pill" 
+                data-bs-target="#education-content" type="button" role="tab">
+            <i class="fas fa-graduation-cap me-2"></i>Education & Experience
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="relations-tab" data-bs-toggle="pill" 
+                data-bs-target="#relations-content" type="button" role="tab">
+            <i class="fas fa-users me-2"></i>Relations & Review
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="registrationTabContent">
+    <!-- Identity & Bio Data Tab -->
+    <div class="tab-pane fade show active" id="identity-content" role="tabpanel">
+        <!-- Identity Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Identity Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Profile Picture Section -->
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div class="text-center mb-4 mb-sm-3">
+                            <div class="profile-upload-container">
+                                <img id="profileImage" 
+                                     src="{% static 'assets/img/User/circled_user_male_skin_type_5_480px.png' %}" 
+                                     class="rounded-circle shadow-sm" 
+                                     width="150" height="150" 
+                                     style="object-fit: cover; border: 4px solid #e9ecef;">
+                                <div class="mt-3">
+                                    <label for="id_profile_picture" class="btn btn-primary btn-sm position-relative overflow-hidden">
+                                        <i class="fas fa-camera me-1"></i>Change Photo
+                                        {{form.profile_picture}}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Registration Numbers -->
+                    <div class="col-12 col-sm-6 col-md-8 col-lg-9">
+                        <div class="row">
+                            <div class="col-12 col-lg-6 mb-3">
+                                <label class="form-label fw-bold">Clergy Registration Number <span class="text-danger">*</span></label>
+                                {% render_field form.reg_number class="form-control border-2" placeholder="Enter registration number" %}
+                            </div>
+                            <div class="col-12 col-lg-6 mb-3">
+                                <label class="form-label fw-bold">TRG Number</label>
+                                {% render_field form.trg_number class="form-control border-2" placeholder="Enter TRG number" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bio Data Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
+                        {% render_field form.first_name class="form-control border-2" placeholder="Enter first name" %}
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label fw-bold">Middle Name</label>
+                        {% render_field form.middle_name class="form-control border-2" placeholder="Enter middle name" %}
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label fw-bold">Last Name <span class="text-danger">*</span></label>
+                        {% render_field form.last_name class="form-control border-2" placeholder="Enter last name" %}
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label fw-bold">Alias (if any)</label>
+                        {% render_field form.alias class="form-control border-2" placeholder="Enter alias" %}
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <label class="form-label fw-bold">Gender <span class="text-danger">*</span></label>
+                        {{ form.gender|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <label class="form-label fw-bold">Marital Status</label>
+                        {{ form.marital_status|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label fw-bold">Date of Birth <span class="text-danger">*</span></label>
+                        {{ form.dob|add_class:"form-control border-2"|attr:"type:date" }}
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label fw-bold">Place of Birth</label>
+                        {{ form.place_of_birth|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label fw-bold">Nationality</label>
+                        {{ form.nationality|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label fw-bold">State of Origin</label>
+                        {{ form.state_of_origin|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label fw-bold">LGA (If Nigerian)</label>
+                        {{ form.lga_if_nigerian|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Spoken Languages</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start border-2" 
+                                    type="button" id="spokenLanguagesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="spokenLanguagesSelected">Select languages...</span>
+                            </button>
+                            <div class="dropdown-menu w-100 p-3" aria-labelledby="spokenLanguagesDropdown" style="max-height: 300px; overflow-y: auto;">
+                                <div class="row">
+                                    {% for choice in form.spoken_languages.field.choices %}
+                                        <div class="col-12 col-sm-6 col-md-4 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       value="{{ choice.0 }}" id="lang_{{ choice.0 }}" 
+                                                       name="spoken_languages" onchange="updateLanguageSelection()">
+                                                <label class="form-check-label" for="lang_{{ choice.0 }}">
+                                                    {{ choice.1 }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div id="spokenLanguagesTags" class="multi-select-selected-items mt-2"></div>
+                        {{ form.spoken_languages.as_hidden }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Details Section -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Medical Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6 col-md-6 mb-3">
+                        <label class="form-label fw-bold">Blood Group</label>
+                        {{ form.blood_group|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-6 col-md-6 mb-3">
+                        <label class="form-label fw-bold">Genotype</label>
+                        {{ form.genotype|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label fw-bold">Any Ailment?</label>
+                        {{ form.any_ailment|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label fw-bold">Specify Ailment (if any)</label>
+                        {% render_field form.ailment class="form-control border-2" placeholder="Describe any ailment" %}
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label fw-bold">Any Disability?</label>
+                        {{ form.any_disabilities|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label class="form-label fw-bold">Specify Disability (if any)</label>
+                        {% render_field form.disability class="form-control border-2" placeholder="Describe any disability" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact & Faith Tab -->
+    <div class="tab-pane fade" id="contact-content" role="tabpanel">
+        <!-- Contact Information Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-address-book me-2"></i>Contact Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Permanent Address</label>
+                        {{ form.permanent_address|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Resident Address</label>
+                        {{ form.resident_address|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Parish</label>
+                        {{ form.parish|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Parish Address</label>
+                        {{ form.parish_address|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Telephone <span class="text-danger">*</span></label>
+                        <div class="telephone-input-container">
+                            <div class="phone-input-wrapper">
+                                <select id="country-select" class="form-select country-select" data-country-selector data-phone-input="id_telephone">
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                                {{ form.telephone }}
+                            </div>
+                        </div>
+                        <div class="invalid-feedback" id="telephone-error"></div>
+                        {% if form.telephone.errors %}
+                            <div class="text-danger small">{{ form.telephone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Email Address</label>
+                        {% render_field form.email_address class="form-control border-2" placeholder="name@email.com" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faith Background Section -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-praying-hands me-2"></i>Faith Background</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Former Religion</label>
+                        {{ form.former_religion|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Status in Former Religion</label>
+                        {{ form.status_former_religion|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Date of Membership into CCC</label>
+                        {{ form.entry_date_in_ccc|add_class:"form-control border-2"|attr:"type:date" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">First Parish in CCC</label>
+                        {{ form.first_parish|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Shepherd who Sanctified You</label>
+                        {{ form.shepherd_who_sanctified_you|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Shepherd who Baptized You</label>
+                        {{ form.shepherd_who_baptized_you|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Date when Baptized</label>
+                        {{ form.date_when_baptized|add_class:"form-control border-2"|attr:"type:date" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Parish where Baptized</label>
+                        {{ form.parish_where_baptized|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">First Anointment</label>
+                        {{ form.first_annointment|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Date of First Anointment</label>
+                        {{ form.date_of_first_annointment|add_class:"form-control border-2"|attr:"type:date" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Present Anointment</label>
+                        {{ form.present_annointment|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Date of Present Anointment</label>
+                        {{ form.date_of_present_annointment|add_class:"form-control border-2"|attr:"type:date" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Education & Experience Tab -->
+    <div class="tab-pane fade" id="education-content" role="tabpanel">
+        <!-- Educational Background Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Educational Background</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Educational Level</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start border-2" 
+                                    type="button" id="eduLevelDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="eduLevelSelected">Select education levels...</span>
+                            </button>
+                            <div class="dropdown-menu w-100 p-3" aria-labelledby="eduLevelDropdown">
+                                {% for choice in form.edu_level.field.choices %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               value="{{ choice.0 }}" id="edu_{{ choice.0 }}" 
+                                               name="edu_level" onchange="updateEduLevelSelection()">
+                                        <label class="form-check-label" for="edu_{{ choice.0 }}">
+                                            {{ choice.1 }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div id="eduLevelTags" class="multi-select-selected-items mt-2"></div>
+                        {{ form.edu_level.as_hidden }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Educational Qualifications</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start border-2" 
+                                    type="button" id="eduQualDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="eduQualSelected">Select qualifications...</span>
+                            </button>
+                            <div class="dropdown-menu w-100 p-3" aria-labelledby="eduQualDropdown" style="max-height: 400px; overflow-y: auto;">
+                                {% for choice in form.edu_qualification.field.choices %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               value="{{ choice.0 }}" id="qual_{{ choice.0|slugify }}" 
+                                               name="edu_qualification" onchange="updateEduQualSelection()">
+                                        <label class="form-check-label" for="qual_{{ choice.0|slugify }}">
+                                            {{ choice.1 }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div id="eduQualTags" class="multi-select-selected-items mt-2"></div>
+                        {{ form.edu_qualification.as_hidden }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Apprenticeship</label>
+                        {{ form.apprenticeship|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Hobbies</label>
+                        {{ form.hobbies|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Area of Calling</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start border-2" 
+                                    type="button" id="areaCallingDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="areaCallingSelected">Select areas of calling...</span>
+                            </button>
+                            <div class="dropdown-menu w-100 p-3" aria-labelledby="areaCallingDropdown" style="max-height: 300px; overflow-y: auto;">
+                                <div class="row">
+                                    {% for choice in form.area_of_calling.field.choices %}
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       value="{{ choice.0 }}" id="calling_{{ choice.0|slugify }}" 
+                                                       name="area_of_calling" onchange="updateAreaCallingSelection()">
+                                                <label class="form-check-label" for="calling_{{ choice.0|slugify }}">
+                                                    {{ choice.1 }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div id="areaCallingTags" class="multi-select-selected-items mt-2"></div>
+                        {{ form.area_of_calling.as_hidden }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Working Experience Section -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i>Working Experience</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Working Experience?</label>
+                        {{ form.working_experience_option|add_class:"form-select border-2" }}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Work Experience Details (if yes)</label>
+                        {% render_field form.work_experience_ifyes class="form-control border-2" rows="4" placeholder="Describe your work experience" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relations & Review Tab -->
+    <div class="tab-pane fade" id="relations-content" role="tabpanel">
+        <!-- Relations Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Family Relations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Spouse</label>
+                        {{ form.spouse|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Father</label>
+                        {{ form.father|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Mother</label>
+                        {{ form.mother|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Relation in CCC</label>
+                        {{ form.relation_in_ccc|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Next of Kin</label>
+                        {{ form.next_of_kin|add_class:"form-control border-2" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Children</label>
+                        <div class="input-group">
+                            <input type="text" id="childrenInput" class="form-control border-2" placeholder="Enter child name" aria-label="Children">
+                            <button class="btn btn-outline-primary" type="button" onclick="addChildren()">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                        <ul id="childrenList" class="list-group mt-2"></ul>
+                        {% render_field form.children_info class="form-control border-2 mt-2" style="display:none;" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Review Section -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Review & Submit</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Please review all the information you have entered before submitting the form. 
+                    Once submitted, you may need approval to make changes.
+                </div>
+                <div id="formValidationSummary"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Buttons -->
+<div class="d-flex justify-content-between mt-4">
+    <button type="button" class="btn btn-outline-secondary" id="prevBtn" onclick="changeTab(-1)" disabled>
+        <i class="fas fa-arrow-left me-1"></i>Previous
+    </button>
+    <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeTab(1)">
+        Next<i class="fas fa-arrow-right ms-1"></i>
+    </button>
+</div>
+{% endblock %}
+
+{% block form_primary_actions %}
+<button type="button" class="btn btn-outline-info me-2" onclick="saveDraft()">
+    <i class="fas fa-save me-1"></i>Save Draft
+</button>
+<button type="submit" class="btn btn-success" id="submit-btn" style="display:none;">
+    <i class="fas fa-check me-1"></i>Submit Registration
+</button>
+{% endblock %}
+
+{% block form_sidebar %}
+<div class="col-lg-2">
+    <div class="form-sidebar">
+        <!-- Progress Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light border-bottom">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-tasks me-2"></i>Progress
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="progress-steps">
+                    <div class="step active" id="step-1">
+                        <i class="fas fa-id-card"></i>
+                        <span>Identity</span>
+                    </div>
+                    <div class="step" id="step-2">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contact</span>
+                    </div>
+                    <div class="step" id="step-3">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Education</span>
+                    </div>
+                    <div class="step" id="step-4">
+                        <i class="fas fa-users"></i>
+                        <span>Relations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light border-bottom">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-question-circle me-2"></i>Need Help?
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    If you need assistance with clergy registration, contact the administrative office.
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-phone me-1"></i>Call Support
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-envelope me-1"></i>Email Help
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light border-bottom">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Have documents ready
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Use clear profile photo
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Double-check dates
+                    </li>
+                    <li>
+                        <i class="fas fa-check text-success me-2"></i>
+                        Save progress frequently
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="{% static 'css/clergy-registration.css' %}">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentTabIndex = 0;
+    const tabs = ['identity-tab', 'contact-tab', 'education-tab', 'relations-tab'];
+    const tabContents = ['identity-content', 'contact-content', 'education-content', 'relations-content'];
+
+    // Prevent dropdown from closing when clicking inside
+    document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
+        dropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+
+    // Enhanced multi-select functionality with tags
+    function createSelectedTag(value, text, fieldName) {
+        return `
+            <span class="multi-select-tag">
+                ${text}
+                <button type="button" class="multi-select-tag-remove" onclick="removeSelection('${fieldName}', '${value}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </span>
+        `;
+    }
+
+    window.removeSelection = function(fieldName, value) {
+        const checkbox = document.querySelector(`input[name="${fieldName}"][value="${value}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+            // Trigger the appropriate update function
+            switch(fieldName) {
+                case 'spoken_languages':
+                    updateLanguageSelection();
+                    break;
+                case 'edu_level':
+                    updateEduLevelSelection();
+                    break;
+                case 'edu_qualification':
+                    updateEduQualSelection();
+                    break;
+                case 'area_of_calling':
+                    updateAreaCallingSelection();
+                    break;
+            }
+        }
+    }
+
+    // Enhanced update functions with tag display
+    window.updateLanguageSelection = function() {
+        const checkboxes = document.querySelectorAll('input[name="spoken_languages"]:checked');
+        const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+        const selectedTexts = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent.trim());
+        
+        // Update hidden field
+        document.querySelector('input[name="spoken_languages"][type="hidden"]').value = selectedValues.join(',');
+        
+        // Update button text
+        const buttonText = selectedTexts.length > 0 
+            ? `${selectedTexts.length} language(s) selected`
+            : 'Select languages...';
+        document.getElementById('spokenLanguagesSelected').innerHTML = selectedTexts.length > 0 
+            ? `<span class="multi-select-selected-count">${buttonText}</span>`
+            : `<span class="multi-select-placeholder">${buttonText}</span>`;
+
+        // Update tags container
+        const tagsContainer = document.getElementById('spokenLanguagesTags');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = selectedTexts.map((text, index) => 
+                createSelectedTag(selectedValues[index], text, 'spoken_languages')
+            ).join('');
+        }
+    }
+
+    window.updateEduLevelSelection = function() {
+        const checkboxes = document.querySelectorAll('input[name="edu_level"]:checked');
+        const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+        const selectedTexts = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent.trim());
+        
+        // Update hidden field
+        document.querySelector('input[name="edu_level"][type="hidden"]').value = selectedValues.join(',');
+        
+        // Update button text
+        const buttonText = selectedTexts.length > 0 
+            ? `${selectedTexts.length} level(s) selected`
+            : 'Select education levels...';
+        document.getElementById('eduLevelSelected').innerHTML = selectedTexts.length > 0 
+            ? `<span class="multi-select-selected-count">${buttonText}</span>`
+            : `<span class="multi-select-placeholder">${buttonText}</span>`;
+
+        // Update tags container
+        const tagsContainer = document.getElementById('eduLevelTags');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = selectedTexts.map((text, index) => 
+                createSelectedTag(selectedValues[index], text, 'edu_level')
+            ).join('');
+        }
+    }
+
+    window.updateEduQualSelection = function() {
+        const checkboxes = document.querySelectorAll('input[name="edu_qualification"]:checked');
+        const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+        const selectedTexts = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent.trim());
+        
+        // Update hidden field
+        document.querySelector('input[name="edu_qualification"][type="hidden"]').value = selectedValues.join(',');
+        
+        // Update button text
+        const buttonText = selectedTexts.length > 0 
+            ? `${selectedTexts.length} qualification(s) selected`
+            : 'Select qualifications...';
+        document.getElementById('eduQualSelected').innerHTML = selectedTexts.length > 0 
+            ? `<span class="multi-select-selected-count">${buttonText}</span>`
+            : `<span class="multi-select-placeholder">${buttonText}</span>`;
+
+        // Update tags container
+        const tagsContainer = document.getElementById('eduQualTags');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = selectedTexts.map((text, index) => 
+                createSelectedTag(selectedValues[index], text, 'edu_qualification')
+            ).join('');
+        }
+    }
+
+    window.updateAreaCallingSelection = function() {
+        const checkboxes = document.querySelectorAll('input[name="area_of_calling"]:checked');
+        const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+        const selectedTexts = Array.from(checkboxes).map(cb => cb.nextElementSibling.textContent.trim());
+        
+        // Update hidden field
+        document.querySelector('input[name="area_of_calling"][type="hidden"]').value = selectedValues.join(',');
+        
+        // Update button text
+        const buttonText = selectedTexts.length > 0 
+            ? `${selectedTexts.length} calling(s) selected`
+            : 'Select areas of calling...';
+        document.getElementById('areaCallingSelected').innerHTML = selectedTexts.length > 0 
+            ? `<span class="multi-select-selected-count">${buttonText}</span>`
+            : `<span class="multi-select-placeholder">${buttonText}</span>`;
+
+        // Update tags container
+        const tagsContainer = document.getElementById('areaCallingTags');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = selectedTexts.map((text, index) => 
+                createSelectedTag(selectedValues[index], text, 'area_of_calling')
+            ).join('');
+        }
+    }
+    
+    // Tab navigation functions
+    window.changeTab = function(direction) {
+        const newIndex = currentTabIndex + direction;
+        if (newIndex >= 0 && newIndex < tabs.length) {
+            // Validate current tab before moving
+            if (direction > 0 && !validateCurrentTab()) {
+                return;
+            }
+            
+            currentTabIndex = newIndex;
+            showTab(currentTabIndex);
+        }
+    }
+
+    function showTab(index) {
+        // Update active tab
+        document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(content => {
+            content.classList.remove('show', 'active');
+        });
+        
+        document.getElementById(tabs[index]).classList.add('active');
+        document.getElementById(tabContents[index]).classList.add('show', 'active');
+        
+        // Update progress steps
+        document.querySelectorAll('.step').forEach((step, i) => {
+            if (i <= index) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
+            }
+        });
+        
+        // Update progress bar
+        const progress = ((index + 1) / tabs.length) * 100;
+        document.getElementById('form-progress').style.width = progress + '%';
+        document.getElementById('current-step').textContent = index + 1;
+        
+        // Update navigation buttons
+        document.getElementById('prevBtn').disabled = index === 0;
+        document.getElementById('nextBtn').style.display = index === tabs.length - 1 ? 'none' : 'inline-block';
+        document.getElementById('submit-btn').style.display = index === tabs.length - 1 ? 'inline-block' : 'none';
+        
+        // Update next button text
+        if (index === tabs.length - 2) {
+            document.getElementById('nextBtn').innerHTML = 'Review <i class="fas fa-eye ms-1"></i>';
+        } else {
+            document.getElementById('nextBtn').innerHTML = 'Next <i class="fas fa-arrow-right ms-1"></i>';
+        }
+    }
+
+    function validateCurrentTab() {
+        const currentTab = tabContents[currentTabIndex];
+        const requiredFields = document.querySelectorAll(`#${currentTab} [required], #${currentTab} .form-control.border-2`);
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (field.type === 'tel' && field.id === 'id_telephone') {
+                if (!validatePhoneNumber()) {
+                    isValid = false;
+                }
+            } else if (!field.value.trim() && field.hasAttribute('required')) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            showToast('Please fill in all required fields correctly', 'error');
+        }
+        
+        return isValid;
+    }
+
+    // Children management
+    let childrenArray = [];
+    
+    window.addChildren = function() {
+        const input = document.getElementById('childrenInput');
+        const childName = input.value.trim();
+        
+        if (childName) {
+            childrenArray.push(childName);
+            updateChildrenDisplay();
+            input.value = '';
+        }
+    }
+
+    function updateChildrenDisplay() {
+        const list = document.getElementById('childrenList');
+        list.innerHTML = '';
+        
+        childrenArray.forEach((child, index) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `
+                ${child}
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeChild(${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            list.appendChild(li);
+        });
+        
+        // Update hidden field - format as required by the backend
+        const childrenString = childrenArray.map(child => `• ${child}`).join('\n');
+        document.querySelector('[name="children_info"]').value = childrenString;
+    }
+
+    window.removeChild = function(index) {
+        childrenArray.splice(index, 1);
+        updateChildrenDisplay();
+    }
+
+    // Auto-save functionality
+    window.saveDraft = function() {
+        showToast('Draft saved successfully', 'success');
+    }
+
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+    
+    // Form submission validation
+    document.getElementById('main-form').addEventListener('submit', function(e) {
+        // Validate phone number before submission
+        if (!validatePhoneNumber()) {
+            e.preventDefault();
+            showToast('Please enter a valid phone number', 'error');
+            return;
+        }
+        
+        if (!validateCurrentTab()) {
+            e.preventDefault();
+        }
+    });
+
+    // Setup phone input functionality
+    setupPhoneInput();
+});
+
+    // Initialize form with existing values if any
+    initializeFormValues();
+
+    // Phone number validation function
+    function validatePhoneNumber() {
+        const phoneInput = document.getElementById('id_telephone');
+        const countrySelect = document.getElementById('country-select');
+        const errorElement = document.getElementById('telephone-error');
+
+        if (!phoneInput || !countrySelect) {
+            return true; // Elements not found, skip validation
+        }
+
+        const phoneValue = phoneInput.value.trim();
+        const selectedCountry = countrySelect.value;
+
+        // Clear previous error
+        phoneInput.classList.remove('is-invalid');
+        if (errorElement) {
+            errorElement.textContent = '';
+        }
+
+        // Check if phone number is empty
+        if (!phoneValue) {
+            phoneInput.classList.add('is-invalid');
+            if (errorElement) {
+                errorElement.textContent = 'Phone number is required.';
+            }
+            return false;
+        }
+
+        // Get country data
+        const country = window.COUNTRIES ? window.COUNTRIES.find(c => c.code === selectedCountry) : null;
+        const dialCode = country ? country.dialCode : '';
+
+        // Basic validation - check minimum length (dial code + at least 6 digits)
+        const minLength = dialCode ? 6 : 10; // At least 6 digits for international, 10 for local
+        if (phoneValue.length < minLength) {
+            phoneInput.classList.add('is-invalid');
+            if (errorElement) {
+                errorElement.textContent = `Phone number must be at least ${minLength} digits.`;
+            }
+            return false;
+        }
+
+        // Check maximum length (reasonable limit for phone numbers)
+        if (phoneValue.length > 15) {
+            phoneInput.classList.add('is-invalid');
+            if (errorElement) {
+                errorElement.textContent = 'Phone number is too long.';
+            }
+            return false;
+        }
+
+        // Basic format validation - allow only digits, spaces, hyphens, parentheses
+        const phoneRegex = /^[\d\s\-\(\)\+]+$/;
+        if (!phoneRegex.test(phoneValue)) {
+            phoneInput.classList.add('is-invalid');
+            if (errorElement) {
+                errorElement.textContent = 'Phone number contains invalid characters.';
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    // Ensure phone input allows full length numbers
+    function setupPhoneInput() {
+        const phoneInput = document.getElementById('id_telephone');
+        if (phoneInput) {
+            // Remove any maxlength restrictions
+            phoneInput.removeAttribute('maxlength');
+            phoneInput.removeAttribute('maxLength');
+
+            // Set a reasonable max length to prevent extremely long inputs
+            phoneInput.maxLength = '20';
+
+            // Simple input validation - only restrict on blur to avoid interfering with typing
+            phoneInput.addEventListener('blur', function(e) {
+                const value = e.target.value;
+                // Remove any invalid characters
+                const cleanedValue = value.replace(/[^\d\s\-\(\)\+]/g, '');
+                if (cleanedValue !== value) {
+                    e.target.value = cleanedValue;
+                }
+                // Validate the phone number
+                validatePhoneNumber();
+            });
+
+            // Optional: Add input event for real-time feedback without interfering with typing
+            phoneInput.addEventListener('input', function(e) {
+                // Just clear any previous error styling while typing
+                const errorElement = document.getElementById('telephone-error');
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+                phoneInput.classList.remove('is-invalid');
+            });
+        }
+    }
+
+    function initializeFormValues() {
+        // Initialize existing multi-select values if editing
+        {% if form.spoken_languages.value %}
+            const spokenLangs = '{{ form.spoken_languages.value|join:"," }}';
+            if (spokenLangs) {
+                spokenLangs.split(',').forEach(lang => {
+                    const checkbox = document.querySelector(`input[name="spoken_languages"][value="${lang}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateLanguageSelection();
+            }
+        {% endif %}
+        
+        {% if form.edu_level.value %}
+            const eduLevels = '{{ form.edu_level.value|join:"," }}';
+            if (eduLevels) {
+                eduLevels.split(',').forEach(level => {
+                    const checkbox = document.querySelector(`input[name="edu_level"][value="${level}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateEduLevelSelection();
+            }
+        {% endif %}
+    }
+
+    // Country Phone Number Handling
+    const countryCodeMap = {
+        'NG': '+234',
+        'GH': '+233', 
+        'BJ': '+229',
+        'TG': '+228',
+        'CM': '+237',
+        'CI': '+225',
+        'LR': '+231',
+        'SL': '+232',
+        'GN': '+224',
+        'SN': '+221',
+        'US': '+1',
+        'GB': '+44',
+        'CA': '+1',
+        'FR': '+33',
+        'DE': '+49'
+    };
+
+    // Initialize phone number field handling
+    function initPhoneNumberField() {
+        const countrySelect = document.getElementById('country-select');
+        const phoneInput = document.querySelector('input[name="telephone"]');
+        
+        if (countrySelect && phoneInput) {
+            // Set placeholder based on selected country
+            updatePhonePlaceholder(countrySelect.value);
+            
+            // Handle country selection changes
+            countrySelect.addEventListener('change', function() {
+                updatePhonePlaceholder(this.value);
+                // formatPhoneNumber(); // REMOVED to prevent conflicts
+            });
+            
+            // Handle phone number input - REMOVED to prevent conflicts
+            // phoneInput.addEventListener('input', function() {
+            //     formatPhoneNumber();
+            // });
+            
+            // Handle phone number paste - REMOVED to prevent conflicts
+            // phoneInput.addEventListener('paste', function() {
+            //     setTimeout(formatPhoneNumber, 10);
+            // });
+        }
+    }
+
+    function updatePhonePlaceholder(countryCode) {
+        const phoneInput = document.querySelector('input[name="telephone"]');
+        const countryDialCode = countryCodeMap[countryCode];
+        
+        if (phoneInput && countryDialCode) {
+            // Set appropriate placeholder based on country
+            let placeholder = '';
+            switch(countryCode) {
+                case 'NG':
+                    placeholder = 'e.g., 8012345678';
+                    break;
+                case 'US':
+                case 'CA':
+                    placeholder = 'e.g., 5551234567';
+                    break;
+                case 'GB':
+                    placeholder = 'e.g., 7400123456';
+                    break;
+                case 'FR':
+                    placeholder = 'e.g., 612345678';
+                    break;
+                default:
+                    placeholder = 'Enter phone number';
+            }
+            phoneInput.placeholder = placeholder;
+            phoneInput.setAttribute('data-country-code', countryDialCode);
+        }
+    }
+
+    // REMOVED: formatPhoneNumber function was causing input conflicts
+    // function formatPhoneNumber() {
+    //     const countrySelect = document.getElementById('country-select');
+    //     const phoneInput = document.querySelector('input[name="telephone"]');
+    //     
+    //     if (!countrySelect || !phoneInput) return;
+    //     
+    //     const selectedCountry = countrySelect.value;
+    //     const countryCode = countryCodeMap[selectedCountry];
+    //     let phoneValue = phoneInput.value.trim();
+    //     
+    //     // Remove any existing country code or special characters for formatting
+    //     phoneValue = phoneValue.replace(/^\+?\d{1,4}/, '').replace(/\D/g, '');
+    //     
+    //     // Format the phone number with the selected country code
+    //     if (phoneValue && countryCode) {
+    //         // For display purposes, we can add basic formatting
+    //         phoneInput.value = phoneValue;
+    //         
+    //         // Store the full international format in a hidden field or data attribute
+    //         const fullNumber = countryCode + phoneValue;
+    //         phoneInput.setAttribute('data-full-number', fullNumber);
+    //     }
+    // }
+
+    // Initialize when DOM is ready
+    initPhoneNumberField();
+
+    // Initialize Country Selector
+    const countrySelector = document.querySelector('[data-country-selector]');
+    const phoneInput = document.querySelector('[data-phone-input]');
+    
+    if (countrySelector && phoneInput) {
+        // Load the country selector script dynamically
+        const script = document.createElement('script');
+        script.src = '{% static "js/country-selector.js" %}';
+        script.onload = function() {
+            // Initialize the country selector after script loads
+            if (window.CountrySelector) {
+                new window.CountrySelector(countrySelector, phoneInput);
+            }
+        };
+        document.head.appendChild(script);
+    }
+
+</script>
+
+<script>
+$(document).ready(function () {
+    console.log('Profile picture script loaded');
+    
+    // No need for label click handler - file input now covers the button area
+    // and will receive clicks directly due to CSS positioning
+    
+    // Handle change event for file input - simplified approach
+    $('#id_profile_picture').off('change.profilePicture').on('change.profilePicture', function () {
+        console.log('Profile picture change event triggered');
+        const file = this.files[0];
+        console.log('Selected file:', file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                console.log('File loaded, updating image src');
+                $('#profileImage').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
+        } else {
+            console.log('No file selected');
+        }
+    });
+
+    // Handle change event for file input with ID #id_pic (outside of #id_profile_picture)
+    $('#id_pic').change(function () {
+        console.log('User picture change event triggered');
+        const file = this.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            // Handle the file change event as desired
+            $('#userImage').attr('src', e.target.result);
+        }
+        reader.readAsDataURL(file);
+    });
+    
+});
+</script>
+
+<style>
+.profile-upload-container {
+    position: relative;
+}
+
+.progress-steps .step {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    color: #6c757d;
+    transition: color 0.3s;
+}
+
+.progress-steps .step.active {
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+.progress-steps .step i {
+    margin-right: 0.5rem;
+    width: 16px;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0.5rem;
+    margin: 0 0.25rem;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
+}
+
+.card-header {
+    border-bottom: 2px solid rgba(0,0,0,.125);
+}
+
+.form-control.border-2, .form-select.border-2 {
+    border-width: 2px !important;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+/* Phone input styling */
+.telephone-input-container {
+    position: relative;
+}
+
+.phone-input-wrapper {
+    display: flex;
+    align-items: stretch;
+}
+
+.phone-input-wrapper .country-select {
+    flex: 0 0 auto;
+    width: 200px;
+    margin-right: 10px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.phone-input-wrapper .form-control {
+    flex: 1;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Emoji flag rendering fixes */
+.country-select option {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 14px;
+}
+
+.country-select {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Ensure emoji flags are visible */
+.flag-emoji {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", "EmojiOne Mozilla", "Twemoji Mozilla", "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Profile picture upload styling */
+#id_profile_picture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.profile-upload-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-upload-container label {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+}
+
+.profile-upload-container label:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

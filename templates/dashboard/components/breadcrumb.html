@@ -1,0 +1,56 @@
+{% if breadcrumb and breadcrumb|length > 1 %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white rounded shadow-sm p-3 mb-0">
+        {% for item in breadcrumb %}
+            {% if not forloop.last %}
+                <li class="breadcrumb-item">
+                    {% if item.url and item.url != '#' %}
+                        <a href="{{ item.url }}" class="text-decoration-none text-primary">
+                            {% if forloop.first %}
+                                <i class="fas fa-home me-1"></i>
+                            {% endif %}
+                            {{ item.name }}
+                        </a>
+                    {% else %}
+                        {% if forloop.first %}
+                            <i class="fas fa-home me-1"></i>
+                        {% endif %}
+                        {{ item.name }}
+                    {% endif %}
+                </li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="{% if current_module %}{{ current_module.icon }}{% else %}fas fa-file{% endif %} me-1"></i>
+                    {{ item.name }}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>
+
+<style>
+    .breadcrumb {
+        background-color: #ffffff;
+        border: 1px solid #e9ecef;
+        padding: 1rem !important;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: #6c757d;
+        content: var(--bs-breadcrumb-divider, ">>");
+    }
+
+    .breadcrumb-item.active {
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .breadcrumb a {
+        transition: color 0.15s ease-in-out;
+    }
+
+    .breadcrumb a:hover {
+        color: var(--primary-color) !important;
+    }
+</style>
+{% endif %}

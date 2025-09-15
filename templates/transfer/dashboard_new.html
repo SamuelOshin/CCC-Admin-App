@@ -1,0 +1,381 @@
+{% extends 'dashboard/layouts/dashboard_layout.html' %}
+{% load static %}
+
+{% block title %}Transfer Management Dashboard - {{ app_title }}{% endblock %}
+
+{% block dashboard_title %}WELCOME {{ request.user.get_full_name|default:request.user.username|upper }}{% endblock %}
+{% block dashboard_subtitle %}Manage clergy transfers and track transfer activities{% endblock %}
+
+{% block dashboard_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'clergy' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i>New Transfer
+    </a>
+    <a href="{% url 'trfTable' %}" class="btn btn-outline-primary">
+        <i class="fas fa-list me-1"></i>View All Transfers
+    </a>
+    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
+        <i class="fas fa-sync-alt me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_stats %}
+<div class="dashboard-stats mb-4">
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px; background-color: #2222ddd1;">
+                                <i class="fas fa-exchange-alt text-white fa-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold text-dark h5 mb-0">{{ total_transfers }}</div>
+                            <div class="text-muted small">Total Transfers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px; background-color: #ffc107;">
+                                <i class="fas fa-clock text-white fa-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold text-dark h5 mb-0">{{ pending_transfers }}</div>
+                            <div class="text-muted small">Pending Transfers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px; background-color: #28a745;">
+                                <i class="fas fa-check-circle text-white fa-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold text-dark h5 mb-0">{{ approved_transfers }}</div>
+                            <div class="text-muted small">Approved Transfers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px; background-color: #dc3545;">
+                                <i class="fas fa-user-slash text-white fa-lg"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold text-dark h5 mb-0">{{ floating_clergy }}</div>
+                            <div class="text-muted small">Floating Clergy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block main_content_title %}Transfer Activities Overview{% endblock %}
+
+{% block main_content %}
+<div class="row">
+    <!-- Transfer Status Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="card border-0" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px;">
+            <div class="card-header bg-white border-bottom" style="border-radius: 10px 10px 0 0;">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2" style="color: #2222ddd1;"></i>Transfer Status Distribution
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Panel -->
+    <div class="col-lg-4 mb-4">
+        <div class="card border-0" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px;">
+            <div class="card-header bg-white border-bottom" style="border-radius: 10px 10px 0 0;">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2" style="color: #2222ddd1;"></i>Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'clergy' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Initiate New Transfer
+                    </a>
+                    <a href="{% url 'trfTable' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i>View Transfer History
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="exportTransfers()">
+                        <i class="fas fa-download me-2"></i>Export Transfer Data
+                    </button>
+                    <button class="btn btn-outline-info" onclick="generateReport()">
+                        <i class="fas fa-chart-bar me-2"></i>Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transfers Table -->
+    <div class="col-12">
+        <div class="card border-0" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px;">
+            <div class="card-header bg-white border-bottom" style="border-radius: 10px 10px 0 0;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-history me-2" style="color: #2222ddd1;"></i>Recent Transfer Activities
+                    </h6>
+                    <a href="{% url 'trfTable' %}" class="btn btn-sm btn-outline-primary" style="color: #2222ddd1; border-color: #2222ddd1;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Clergy Name</th>
+                                <th>From Parish</th>
+                                <th>To Parish</th>
+                                <th>Transfer Date</th>
+                                <th>Status</th>
+                                <th>Designation</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transfer in recent_transfers %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if transfer.clergy.profile_picture %}
+                                            <img src="{{ transfer.clergy.profile_picture.url }}"
+                                                 class="rounded-circle me-2"
+                                                 width="32" height="32"
+                                                 alt="{{ transfer.clergy.full_name }}">
+                                        {% else %}
+                                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white me-2"
+                                                 style="width: 32px; height: 32px;">
+                                                <i class="fas fa-user fa-sm"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-bold">{{ transfer.clergy.first_name }} {{ transfer.clergy.last_name }}</div>
+                                            <small class="text-muted">{{ transfer.clergy.clergy_id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if transfer.parishFrm %}
+                                        {{ transfer.parishFrm.parish.name }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transfer.parishTo %}
+                                        {{ transfer.parishTo.parish.name }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transfer.date_transfered|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if transfer.trf_status == 'Approved' %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% elif transfer.trf_status == 'Pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif transfer.trf_status == 'Withdrawn' %}
+                                        <span class="badge bg-danger">Withdrawn</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ transfer.trf_status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transfer.designation_to|default:"--" }}</td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'view_transfer' transfer.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'update_transfer' transfer.id %}" class="btn btn-sm btn-outline-secondary" title="Update Transfer">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                                        <p>No recent transfers found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_content %}
+<!-- Transfer Trends Chart -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px;">
+            <div class="card-header bg-white border-bottom" style="border-radius: 10px 10px 0 0;">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2" style="color: #2222ddd1;"></i>Transfer Trends (Last 6 Months)
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="trendsChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart');
+    if (statusCtx) {
+        const statusData = {{ status_counts|safe }};
+        const statusLabels = statusData.map(function(item) { return item.trf_status; });
+        const statusValues = statusData.map(function(item) { return item.count; });
+
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusValues,
+                    backgroundColor: [
+                        '#ffc107', // Pending - Yellow
+                        '#28a745', // Approved - Green
+                        '#dc3545', // Withdrawn - Red
+                        '#6c757d'  // Other - Gray
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Transfer Trends Chart
+    const trendsCtx = document.getElementById('trendsChart');
+    if (trendsCtx) {
+        const trendsData = {{ monthly_transfers|safe }};
+        const monthLabels = trendsData.map(function(item) {
+            const date = new Date(item.month + '-01');
+            return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        });
+        const monthValues = trendsData.map(function(item) { return item.count; });
+
+        new Chart(trendsCtx, {
+            type: 'line',
+            data: {
+                labels: monthLabels,
+                datasets: [{
+                    label: 'Transfers',
+                    data: monthValues,
+                    borderColor: '#2222ddd1',
+                    backgroundColor: 'rgba(34, 34, 221, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#2222ddd1',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+});
+
+// Export functionality
+function exportTransfers() {
+    // Implement export functionality
+    alert('Export functionality will be implemented');
+}
+
+// Generate report functionality
+function generateReport() {
+    // Implement report generation
+    alert('Report generation will be implemented');
+}
+</script>
+{% endblock %}
+</content>
+<parameter name="filePath">c:\Users\PC\Videos\CS Harvard\django_project\CCC\administative_app\templates\transfer\dashboard_new.html

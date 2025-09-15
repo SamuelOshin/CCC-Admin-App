@@ -1,0 +1,260 @@
+{% load static %}
+<aside class="dashboard-sidebar" id="sidebar">
+    <div class="sidebar-content h-100 d-flex flex-column">
+        <!-- Module Header -->
+        {% if current_module %}
+        <div class="sidebar-header p-3 border-bottom border-light border-opacity-25">
+            <div class="d-flex align-items-center">
+                <div class="module-icon me-3">
+                    <i class="{{ current_module.icon }} fa-2x"></i>
+                </div>
+                <div class="module-info">
+                    <h6 class="mb-0 text-white sidebar-text">{{ current_module.name }}</h6>
+                    <small class="text-light opacity-75 sidebar-text">Management System</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav flex-grow-1 p-3">
+            {% if navigation_items %}
+                <ul class="nav flex-column">
+                    {% for item in navigation_items %}
+                        <li class="nav-item mb-1">
+                            <a href="{{ item.url }}" 
+                               class="nav-link d-flex align-items-center text-light sidebar-link {% if item.is_active %}active{% endif %}"
+                               data-bs-toggle="tooltip" 
+                               data-bs-placement="right" 
+                               title="{{ item.description }}">
+                                <i class="{{ item.icon }} me-3 sidebar-icon"></i>
+                                <span class="sidebar-text">{{ item.name }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <!-- Divider -->
+                <hr class="sidebar-divider my-4">
+            {% endif %}
+            
+            <!-- Quick Actions (if current module has them) -->
+            {% if current_module and current_app == 'parish' %}
+                <div class="quick-actions mb-4">
+                    <h6 class="text-light opacity-75 mb-3 sidebar-text">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'add_parish' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-plus me-2"></i>
+                            <span class="sidebar-text">Add Parish</span>
+                        </a>
+                        <a href="{% url 'approval_queue' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-clock me-2"></i>
+                            <span class="sidebar-text">Review Queue</span>
+                        </a>
+                    </div>
+                </div>
+            {% elif current_module and current_app == 'clergy' %}
+                <div class="quick-actions mb-4">
+                    <h6 class="text-light opacity-75 mb-3 sidebar-text">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'register_clergy' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-user-plus me-2"></i>
+                            <span class="sidebar-text">Add Clergy</span>
+                        </a>
+                        <a href="{% url 'all_clergy' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-search me-2"></i>
+                            <span class="sidebar-text">Search Clergy</span>
+                        </a>
+                    </div>
+                </div>
+            {% elif current_module and current_app == 'transfer' %}
+                <div class="quick-actions mb-4">
+                    <h6 class="text-light opacity-75 mb-3 sidebar-text">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'clergy' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-exchange-alt me-2"></i>
+                            <span class="sidebar-text">New Transfer</span>
+                        </a>
+                        <a href="{% url 'trfTable' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-list me-2"></i>
+                            <span class="sidebar-text">View Transfers</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Module Switcher -->
+            {% if all_modules|length > 1 %}
+                <div class="module-switcher">
+                    <h6 class="text-light opacity-75 mb-3 sidebar-text">
+                        <i class="fas fa-th-large me-2"></i>Switch Module
+                    </h6>
+                    <div class="d-grid gap-1">
+                        {% for module in all_modules %}
+                            {% if not module.is_current %}
+                                <a href="{% if module.items %}{{ module.items.0.url }}{% else %}#{% endif %}" 
+                                   class="btn btn-outline-light btn-sm text-start">
+                                    <i class="{{ module.icon }} me-2"></i>
+                                    <span class="sidebar-text">{{ module.name }}</span>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </nav>
+        
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer p-3 border-top border-light border-opacity-25">
+            <div class="user-info text-center">
+                <div class="avatar-circle bg-white text-dark mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                     style="width: 40px; height: 40px; border-radius: 50%;">
+                    {{ request.user.username|first|upper }}
+                </div>
+                <div class="sidebar-text">
+                    <small class="text-light">{{ request.user.get_full_name|default:request.user.username }}</small>
+                    <br>
+                    <small class="text-light opacity-75">
+                        {% if is_superuser %}
+                            Admin
+                        {% elif user_groups %}
+                            {{ user_groups.0 }}
+                        {% else %}
+                            User
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<style>
+    .sidebar-link {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        position: relative;
+    }
+    
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white !important;
+        transform: translateX(4px);
+    }
+    
+    .sidebar-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-link.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: white;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .sidebar-divider {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .quick-actions .btn {
+        border-color: rgba(255, 255, 255, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .quick-actions .btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-1px);
+    }
+    
+    .module-switcher .btn {
+        border-color: rgba(255, 255, 255, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .module-switcher .btn:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Collapsed Sidebar Styles */
+    .dashboard-sidebar.collapsed .sidebar-text {
+        display: none;
+    }
+    
+    .dashboard-sidebar.collapsed .sidebar-header {
+        text-align: center;
+    }
+    
+    .dashboard-sidebar.collapsed .module-info {
+        display: none;
+    }
+    
+    .dashboard-sidebar.collapsed .quick-actions,
+    .dashboard-sidebar.collapsed .module-switcher {
+        display: none;
+    }
+    
+    .dashboard-sidebar.collapsed .sidebar-footer .user-info small {
+        display: none;
+    }
+    
+    .dashboard-sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding: 0.75rem;
+    }
+    
+    .dashboard-sidebar.collapsed .sidebar-icon {
+        margin-right: 0 !important;
+    }
+    
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+        .dashboard-sidebar {
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-text {
+            display: block !important;
+        }
+        
+        .quick-actions,
+        .module-switcher {
+            display: block !important;
+        }
+    }
+    
+    /* Scrollbar Styling */
+    .dashboard-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .dashboard-sidebar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+    }
+    
+    .dashboard-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+    
+    .dashboard-sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+</style>

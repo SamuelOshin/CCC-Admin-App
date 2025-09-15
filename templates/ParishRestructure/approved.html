@@ -1,76 +1,595 @@
-{% extends 'ParishRestructure/base.html' %}
-{% include 'ParishRestructure/head.html' %}
+{% extends 'dashboard/layouts/table_layout.html' %}
 {% load static %}
 {% load widget_tweaks %}
+{% block title %}Approved Parishes - CCC Administrative System{% endblock %}
 
-{% block content %}
-    <div class="container">
-        <h3 class="text-light text-bg-primary mb-4">
-                <strong>Registered Parish</strong>
-        </h3>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-            {% if parishes %}
-            
-                
-                <div class="row justify-content-center align-items-start">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover table-bordered clergyTable" id="clergyTable">
-                                        <thead>
-                                            <tr>
-                                                <th>S/N</th>
-                                                <th class="text-center">Parish Name</th>
-                                                <th class="text-center">Parish Address</th>
-                                                <th class="text-center">Date Applied</th>
-                                                <th class="text-center">Date Aprroved</th>
-                                                <th class="text-center">Status</th>
-                                                <th class="text-center">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for parish in parishes %}
-                                                <tr>
-                                                    <td>{{ forloop.counter }}</td>
-                                                    <td class="text-center">CCC {{ parish.parish.name }}</td>
-                                                    <td class="text-center">{{ parish.parish.address }}</td>
-                                                    <td class="text-center">{{ parish.date_applied }}</td>
-                                                    <td> {{ parish.date_approved }} </td>
-                                                    <td>
-                                                        {% if parish.date_approved %}
-                                                            <span class="badge text-bg-success text-white ">Approved</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <a href="{% url 'view-parish' parish.id %}" title="View Parish" class="viewparish">View Details</a>
-                                                       <div> <a href="{% url 'edit_regparish' parish.id %}" title="Edit Parish" class="viewparish">Edit Parish</a></div>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+{% block page_title %}Approved Parishes{% endblock %}
+{% block page_subtitle %}Manage approved parish registrations{% endblock %}
+
+{% block back_url %}{% url 'parish_dashboard' %}{% endblock %}
+{% block breadcrumb_parent_url %}{% url 'parish_dashboard' %}{% endblock %}
+{% block breadcrumb_parent %}Dashboard{% endblock %}
+{% block breadcrumb_current %}Approved Parishes{% endblock %}
+
+{% block table_title %}Approved Parish Registrations{% endblock %}
+{% block table_subtitle %}View and manage all approved parish applications{% endblock %}
+{% block table_stats %}
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-success-subtle">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-success fa-2x"></i>
                     </div>
-                </div>   
-                
-            
-
-            {% endif %}
-                  
-        <div class="row justify-content-end">
-            <a href="{% url 'parish_dashboard' %}" class="btn btn-primary mt-3">Back</a>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold h4 mb-0 text-success">{{ total_count|default_if_none:"--" }}</div>
+                        <div class="text-muted small">Total Approved</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-primary-subtle">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-calendar text-primary fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold h4 mb-0 text-primary">{{ recent_count|default_if_none:"--" }}</div>
+                        <div class="text-muted small">Recent (30 days)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-info-subtle">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-map-marker-alt text-info fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold h4 mb-0 text-info">{{ dioceses|length|default_if_none:"--" }}</div>
+                        <div class="text-muted small">Active Dioceses</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-warning-subtle">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-chart-line text-warning fa-2x"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold h4 mb-0 text-warning">{{ monthly_approvals|length|default_if_none:"--" }}</div>
+                        <div class="text-muted small">Approval Trends</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block table_actions %}
+<div class="d-flex gap-2 flex-wrap">
+    <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search parishes..." style="width: 250px;">
+    <select id="dioceseFilter" class="form-select form-select-sm" style="width: 200px;">
+        <option value="">All Dioceses</option>
+        {% for diocese in dioceses %}
+            <option value="{{ diocese.id }}" {% if current_diocese == diocese.id|stringformat:"s" %}selected{% endif %}>
+                {{ diocese.name }}
+            </option>
+        {% endfor %}
+    </select>
+    <input type="date" id="dateFromFilter" class="form-control form-control-sm" style="width: 150px;" value="{{ date_from }}">
+    <input type="date" id="dateToFilter" class="form-control form-control-sm" style="width: 150px;" value="{{ date_to }}">
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+        <i class="bi bi-x-circle me-1"></i>Clear Filters
+    </button>
+    <button type="button" class="btn btn-outline-info btn-sm" onclick="refreshTable()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+    </button>
+    <a href="{% url 'parish_dashboard' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<th>Parish Name</th>
+<th>Address</th>
+<th>Date Applied</th>
+<th>Date Approved</th>
+<th>Status</th>
+<th>Actions</th>
+{% endblock %}
+
+{% block table_body %}
+{% for parish in parishes %}
+<tr data-parish-id="{{ parish.id }}">
+    <td>
+        <input type="checkbox" class="form-check-input row-checkbox" value="{{ parish.id }}">
+    </td>
+    <td>
+        <div class="fw-bold">{{ parish.parish.name }}</div>
+        <small class="text-muted">CCC Parish</small>
+    </td>
+    <td>{{ parish.parish.address }}</td>
+    <td>
+        <span class="badge bg-info">{{ parish.date_applied|date:"M d, Y" }}</span>
+    </td>
+    <td>
+        {% if parish.date_approved %}
+            <span class="badge bg-success">{{ parish.date_approved|date:"M d, Y" }}</span>
+        {% else %}
+            <span class="badge bg-warning">Pending</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if parish.date_approved %}
+            <span class="badge bg-success">
+                <i class="bi bi-check-circle me-1"></i>Approved
+            </span>
+        {% else %}
+            <span class="badge bg-warning">
+                <i class="bi bi-clock me-1"></i>Pending
+            </span>
+        {% endif %}
+    </td>
+    <td>
+        <div class="btn-group" role="group">
+            <a href="{% url 'view-parish' parish.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                <i class="bi bi-eye"></i>
+            </a>
+            <a href="{% url 'edit_regparish' parish.id %}" class="btn btn-sm btn-outline-secondary" title="Edit Parish">
+                <i class="bi bi-pencil"></i>
+            </a>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" class="text-center py-4">
+        <div class="text-muted">
+            <i class="bi bi-info-circle fs-1 mb-2"></i>
+            <p class="mb-0">No approved parishes found</p>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block bulk_actions %}
+<div id="bulkActionsBar" class="d-none">
+    <div class="card border-warning">
+        <div class="card-body py-2">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <span id="selectedCount" class="fw-bold text-primary">0 selected</span>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="clearSelection()">
+                        <i class="bi bi-x-circle me-1"></i>Clear Selection
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="bulkEdit()" data-bs-toggle="modal" data-bs-target="#bulkEditModal">
+                        <i class="bi bi-pencil me-1"></i>Edit Selected
+                    </button>
+                    <button type="button" class="btn btn-warning btn-sm me-2" onclick="bulkExport()">
+                        <i class="bi bi-download me-1"></i>Export Selected
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="bulkDelete()">
+                        <i class="bi bi-trash me-1"></i>Delete Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block table_modals %}
+<!-- View Parish Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye me-2"></i>Parish Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="parishDetails">
+                <!-- Parish details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Edit Modal -->
+<div class="modal fade" id="bulkEditModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil me-2"></i>Bulk Edit Parishes
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="bulkEditForm" method="post" action="{% url 'bulk_edit_approved' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        You are about to edit <span id="editCount">0</span> selected parish(es).
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Edit Action</label>
+                        <select class="form-select" name="edit_action" id="editAction" required>
+                            <option value="">Select an action...</option>
+                            <option value="mark_complete">Mark all documents as complete</option>
+                            <option value="mark_incomplete">Mark all documents as incomplete</option>
+                            <option value="update_diocese">Update diocese</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="dioceseField" style="display: none;">
+                        <label class="form-label fw-bold">New Diocese</label>
+                        <select class="form-select" name="new_diocese" id="newDiocese">
+                            <option value="">Select diocese...</option>
+                            {% for diocese in dioceses %}
+                                <option value="{{ diocese.id }}">{{ diocese.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        This action will affect all selected parishes. Please review carefully.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="bulkEditSubmit">
+                        <i class="bi bi-check me-1"></i>Apply Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedParishes = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupSearch();
+    setupBulkSelection();
+    setupFilters();
+
+    // Setup bulk edit modal
+    const editActionSelect = document.getElementById('editAction');
+    const dioceseField = document.getElementById('dioceseField');
+
+    if (editActionSelect) {
+        editActionSelect.addEventListener('change', function() {
+            if (this.value === 'update_diocese') {
+                dioceseField.style.display = 'block';
+                document.getElementById('newDiocese').required = true;
+            } else {
+                dioceseField.style.display = 'none';
+                document.getElementById('newDiocese').required = false;
+            }
+        });
+    }
+});
+
+// Override the base layout's DataTables initialization
+function initializeDataTable() {
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+        const table = $('#data-table').DataTable({
+            responsive: true,
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            columnDefs: [
+                { orderable: false, targets: [0, 6] },
+                { responsivePriority: 1, targets: 1 },
+                { responsivePriority: 2, targets: 5 },
+                { responsivePriority: 3, targets: 6 }
+            ],
+            language: {
+                emptyTable: "No approved parishes found",
+                zeroRecords: "No parishes match your search criteria"
+            }
+        });
+        // Note: setupBulkSelection is called separately in DOM ready event
+    }
+}
+
+function setupBulkSelection(table) {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    const selectedCountSpan = document.getElementById('selectedCount');
+
+    selectAllCheckbox?.addEventListener('change', function() {
+        const isChecked = this.checked;
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+        updateBulkActionsVisibility();
+    });
+
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActionsVisibility);
+    });
+
+    function updateBulkActionsVisibility() {
+        selectedParishes = Array.from(rowCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => parseInt(cb.value));
+
+        if (selectedParishes.length > 0) {
+            bulkActionsBar.classList.remove('d-none');
+            selectedCountSpan.textContent = `${selectedParishes.length} selected`;
+        } else {
+            bulkActionsBar.classList.add('d-none');
+        }
+    }
+}
+
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#data-table tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
+
+    // Setup filter event listeners
+    const dioceseFilter = document.getElementById('dioceseFilter');
+    const dateFromFilter = document.getElementById('dateFromFilter');
+    const dateToFilter = document.getElementById('dateToFilter');
+
+    if (dioceseFilter) {
+        dioceseFilter.addEventListener('change', applyFilters);
+    }
+    if (dateFromFilter) {
+        dateFromFilter.addEventListener('change', applyFilters);
+    }
+    if (dateToFilter) {
+        dateToFilter.addEventListener('change', applyFilters);
+    }
+}
+
+function applyFilters() {
+    const dioceseId = document.getElementById('dioceseFilter')?.value || '';
+    const dateFrom = document.getElementById('dateFromFilter')?.value || '';
+    const dateTo = document.getElementById('dateToFilter')?.value || '';
+
+    // Build query string
+    const params = new URLSearchParams();
+    if (dioceseId) params.append('diocese', dioceseId);
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
+
+    // Reload page with filters
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+}
+
+function viewParish(parishId) {
+    // This would typically load parish details via AJAX
+    console.log('Viewing parish:', parishId);
+    // For now, redirect to the view page
+    window.location.href = `{% url 'view-parish' 0 %}`.replace('0', parishId);
+}
+
+function editParish(parishId) {
+    window.location.href = `{% url 'edit_regparish' 0 %}`.replace('0', parishId);
+}
+
+function bulkExport() {
+    if (selectedParishes.length === 0) {
+        alert('Please select at least one parish to export.');
+        return;
+    }
+
+    if (confirm(`Export ${selectedParishes.length} parish(es) to CSV?`)) {
+        // Create form data
+        const formData = new FormData();
+        selectedParishes.forEach(id => {
+            formData.append('selected_parishes[]', id);
+        });
+
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            formData.append('csrfmiddlewaretoken', csrfToken.value);
+        }
+
+        // Show loading indicator
+        const exportBtn = document.querySelector('button[onclick="bulkExport()"]');
+        const originalText = exportBtn.innerHTML;
+        exportBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Exporting...';
+        exportBtn.disabled = true;
+
+        // Make AJAX request
+        fetch('{% url "bulk_export_approved" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Create download link
+                return response.blob().then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `approved_parishes_${new Date().toISOString().slice(0, 19).replace(/:/g, '')}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    // Clear selection after successful export
+                    clearSelection();
+                });
+            } else {
+                return response.text().then(text => {
+                    throw new Error(text || 'Export failed');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Export error:', error);
+            alert('Export failed. Please try again.');
+        })
+        .finally(() => {
+            // Restore button
+            exportBtn.innerHTML = originalText;
+            exportBtn.disabled = false;
+        });
+    }
+}
+
+function bulkEdit() {
+    if (selectedParishes.length === 0) {
+        alert('Please select at least one parish to edit.');
+        return;
+    }
+
+    // Update the count in the modal
+    document.getElementById('editCount').textContent = selectedParishes.length;
+
+    // Add selected parishes to the form
+    const form = document.getElementById('bulkEditForm');
+
+    // Remove any existing hidden inputs for selected parishes
+    form.querySelectorAll('input[name="selected_parishes[]"]').forEach(input => input.remove());
+
+    // Add selected parishes as hidden inputs
+    selectedParishes.forEach(id => {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'selected_parishes[]';
+        hiddenInput.value = id;
+        form.appendChild(hiddenInput);
+    });
+}
+
+function bulkDelete() {
+    if (selectedParishes.length === 0) {
+        alert('Please select at least one parish to delete.');
+        return;
+    }
+
+    const confirmMessage = `Are you sure you want to delete ${selectedParishes.length} approved parish(es)?\n\nThis action cannot be undone.`;
+
+    if (confirm(confirmMessage)) {
+        // Create form data
+        const formData = new FormData();
+        selectedParishes.forEach(id => {
+            formData.append('selected_parishes[]', id);
+        });
+
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            formData.append('csrfmiddlewaretoken', csrfToken.value);
+        }
+
+        // Show loading indicator
+        const deleteBtn = document.querySelector('button[onclick="bulkDelete()"]');
+        const originalText = deleteBtn.innerHTML;
+        deleteBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Deleting...';
+        deleteBtn.disabled = true;
+
+        // Make AJAX request
+        fetch('{% url "bulk_delete_approved" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Redirect to show success message
+                window.location.reload();
+            } else {
+                return response.text().then(text => {
+                    throw new Error(text || 'Delete failed');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            alert('Delete failed. Please try again.');
+        })
+        .finally(() => {
+            // Restore button
+            deleteBtn.innerHTML = originalText;
+            deleteBtn.disabled = false;
+        });
+    }
+}
+
+function clearSelection() {
+    const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    const selectAllCheckbox = document.getElementById('select-all');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+
+    rowCheckboxes.forEach(cb => cb.checked = false);
+    if (selectAllCheckbox) selectAllCheckbox.checked = false;
+    if (bulkActionsBar) bulkActionsBar.classList.add('d-none');
+
+    selectedParishes = [];
+}
+
+function refreshTable() {
+    window.location.reload();
+}
+
+function clearFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const dioceseFilter = document.getElementById('dioceseFilter');
+    const dateFromFilter = document.getElementById('dateFromFilter');
+    const dateToFilter = document.getElementById('dateToFilter');
+
+    if (searchInput) searchInput.value = '';
+    if (dioceseFilter) dioceseFilter.value = '';
+    if (dateFromFilter) dateFromFilter.value = '';
+    if (dateToFilter) dateToFilter.value = '';
+
+    // Reset table to show all rows
+    const rows = document.querySelectorAll('#data-table tbody tr');
+    rows.forEach(row => row.style.display = '');
+
+    // Clear URL parameters
+    window.location.href = window.location.pathname;
+}
+</script>
 {% endblock %}

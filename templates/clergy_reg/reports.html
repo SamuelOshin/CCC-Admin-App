@@ -1,0 +1,212 @@
+{% extends 'dashboard/layouts/table_layout.html' %}
+{% load static %}
+
+{% block title %}Clergy Reports - {{ app_title }}{% endblock %}
+
+{% block table_title %}Clergy Reports{% endblock %}
+{% block table_subtitle %}Comprehensive reports and statistics for clergy management{% endblock %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Clergy Dashboard</a></li>
+    <li class="breadcrumb-item active">Reports</li>
+{% endblock %}
+
+{% block table_actions %}
+<div class="d-flex gap-2">
+    <button type="button" class="btn btn-primary" onclick="window.print()">
+        <i class="fas fa-print me-1"></i>Print Report
+    </button>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block table_filters %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Report Summary:</strong> Total of {{ total_clergy }} clergy members in the system.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block table_content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-users me-2"></i>Gender Distribution</h6>
+            </div>
+            <div class="card-body">
+                {% for gender_stat in gender_stats %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ gender_stat.gender|default:"Not Specified" }}</span>
+                    <span class="badge bg-primary">{{ gender_stat.count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted">No gender data available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-flag me-2"></i>Top Nationalities</h6>
+            </div>
+            <div class="card-body">
+                {% for nationality_stat in nationality_stats %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ nationality_stat.nationality|truncatechars:15 }}</span>
+                    <span class="badge bg-success">{{ nationality_stat.count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted">No nationality data available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-crown me-2"></i>Rank Distribution</h6>
+            </div>
+            <div class="card-body">
+                {% for rank_stat in rank_stats %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ rank_stat.rank|default:"Not Specified"|truncatechars:15 }}</span>
+                    <span class="badge bg-info">{{ rank_stat.count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted">No rank data available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Clergy List -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <h6 class="mb-0"><i class="fas fa-list me-2"></i>Complete Clergy Directory</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Nationality</th>
+                        <th>Rank</th>
+                        <th>Parish</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for clergy in all_clergy %}
+                    <tr>
+                        <td>{{ clergy.clergy_id }}</td>
+                        <td>
+                            <div>
+                                <div class="fw-semibold">{{ clergy.first_name }} {{ clergy.last_name }}</div>
+                                {% if clergy.middle_name %}
+                                    <small class="text-muted">{{ clergy.middle_name }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ clergy.gender|default:"N/A" }}</td>
+                        <td>{{ clergy.nationality|default:"N/A" }}</td>
+                        <td>
+                            {% if clergy.rank %}
+                                <span class="badge bg-secondary">{{ clergy.rank }}</span>
+                            {% else %}
+                                <span class="text-muted">Not Set</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ clergy.parish|default:"Not Assigned" }}</td>
+                        <td>
+                            <div>
+                                {% if clergy.telephone %}
+                                    <div><i class="fas fa-phone fa-sm me-1"></i>{{ clergy.telephone }}</div>
+                                {% endif %}
+                                {% if clergy.email_address %}
+                                    <div><i class="fas fa-envelope fa-sm me-1"></i>{{ clergy.email_address }}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="text-muted">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <p>No clergy members found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block table_help %}
+<div class="help-content">
+    <h6><i class="fas fa-question-circle me-2"></i>Reports Help</h6>
+    <ul class="list-unstyled">
+        <li><i class="fas fa-check text-success me-2"></i>Print this report using the print button</li>
+        <li><i class="fas fa-check text-success me-2"></i>Statistics are updated in real-time</li>
+        <li><i class="fas fa-check text-success me-2"></i>Complete directory includes all clergy</li>
+        <li><i class="fas fa-check text-success me-2"></i>Use filters to customize the view</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTable for the clergy list
+    if ($.fn.DataTable) {
+        $('table').DataTable({
+            pageLength: 25,
+            order: [[1, 'asc']], // Sort by name
+            responsive: true,
+            language: {
+                search: "Search clergy:",
+                lengthMenu: "Show _MENU_ clergy per page",
+                info: "Showing _START_ to _END_ of _TOTAL_ clergy",
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

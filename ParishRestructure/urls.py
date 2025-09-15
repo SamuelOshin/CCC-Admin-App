@@ -13,8 +13,8 @@ router.register(r'parish', ParishDirectoryViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('restrucutre/', views.restructure_parish, name='add_parish'),
-    path('', views.main_dashboard, name='admin-dashboard'),
+    path('restructure/', views.restructure_parish, name='add_parish'),
+    
     path('dashboard/', views.parish_dashboard, name='parish_dashboard'),
     path('location/', views.add_location, name='add_location'),
     path('view_parishes/', views.view_parishes, name='view_parishes'),
@@ -33,6 +33,9 @@ urlpatterns = [
     path('reject/<int:pk>/', views.reject_parish_registration, name='reject'),
     path('view-regparish/<int:pk>/', views.view_regparish, name='view-parish'),
     path('approved/', views.approved, name='approved'), 
+    path('bulk-export-approved/', views.bulk_export_approved, name='bulk_export_approved'),
+    path('bulk-delete-approved/', views.bulk_delete_approved, name='bulk_delete_approved'),
+    path('bulk-edit-approved/', views.bulk_edit_approved, name='bulk_edit_approved'),
     path('editreg_parish/<int:pk>', views.edit_reg_parish, name='edit_regparish')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

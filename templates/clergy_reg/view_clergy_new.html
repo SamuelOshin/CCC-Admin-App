@@ -1,0 +1,494 @@
+{% extends 'dashboard/layouts/form_layout.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block form_title %}Clergy Profile{% endblock %}
+{% block form_subtitle %}{{ page_subtitle }}{% endblock %}
+
+{% block breadcrumb_items %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'all_clergy' %}">All Clergy</a></li>
+    <li class="breadcrumb-item active">{{ clergy.first_name }} {{ clergy.last_name }}</li>
+{% endblock %}
+
+{% block back_url %}{{ back_url }}{% endblock %}
+
+{% block form_column_class %}col-lg-12{% endblock %}
+
+{% block form_icon %}fas fa-user{% endblock %}
+{% block card_title %}Clergy Profile Information{% endblock %}
+
+{% block form_content %}
+<!-- Profile Header Section -->
+<div class="profile-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-3 text-center">
+            <div class="profile-avatar mb-3">
+                {% if clergy.profile_picture %}
+                    <img src="{{ clergy.profile_picture.url }}"
+                         alt="Profile Picture"
+                         class="rounded-circle shadow"
+                         style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff;">
+                {% else %}
+                    <div class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center bg-primary text-white shadow"
+                         style="width: 150px; height: 150px; font-size: 3rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="profile-status">
+                <span class="badge bg-success fs-6 px-3 py-2">
+                    <i class="fas fa-check-circle me-1"></i>Active
+                </span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h2 class="mb-1">{{ clergy.first_name }} {{ clergy.middle_name }} {{ clergy.last_name }}</h2>
+            {% if clergy.alias %}
+                <p class="text-muted mb-2">Alias: {{ clergy.alias }}</p>
+            {% endif %}
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-id-card text-white me-2"></i>
+                        <strong>Reg #: </strong>{{ clergy.reg_number }}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-graduation-cap text-white me-2"></i>
+                        <strong>TRG #: </strong>{{ clergy.trg_number }}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-calendar text-white me-2"></i>
+                        <strong>Age: </strong>{{ age }} years
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-venus-mars text-white me-2"></i>
+                        <strong>Gender: </strong>{{ clergy.get_gender_display }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 text-end">
+            <div class="action-buttons">
+                <a href="{{ edit_url }}" class="btn btn-light btn-sm mb-2 d-block text-primary fw-semibold">
+                    <i class="fas fa-edit me-1"></i>Edit Profile
+                </a>
+                <a href="{{ pdf_url }}" class="btn btn-light btn-sm mb-2 d-block text-success fw-semibold">
+                    <i class="fas fa-download me-1"></i>Download PDF
+                </a>
+                <a href="{{ annointments_url }}" class="btn btn-light btn-sm mb-2 d-block text-info fw-semibold">
+                    <i class="fas fa-award me-1"></i>View Appointments
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Information Sections -->
+<div class="row g-4">
+    <!-- Personal Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-user me-2"></i>Personal Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in personal_info.items %}
+                        <div class="col-sm-6">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-address-book me-2"></i>Contact Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in contact_info.items %}
+                        <div class="col-12">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Religious Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-warning text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-pray me-2"></i>Religious Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in religious_info.items %}
+                        <div class="col-sm-6">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parish Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-church me-2"></i>Parish Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in parish_info.items %}
+                        <div class="col-12">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Baptism Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-water me-2"></i>Baptism Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in baptism_info.items %}
+                        <div class="col-12">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-award me-2"></i>Appointment Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in appointment_info.items %}
+                        <div class="col-12">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Education Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-graduation-cap me-2"></i>Education Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in education_info.items %}
+                        <div class="col-12">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-heartbeat me-2"></i>Health Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in health_info.items %}
+                        <div class="col-sm-6">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Other Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Other Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in other_info.items %}
+                        <div class="col-12">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family Information -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-users me-2"></i>Family Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for key, value in family_info.items %}
+                        <div class="col-12">
+                            <div class="info-field">
+                                <label class="form-label text-muted small mb-1">{{ key }}</label>
+                                <div class="field-value fw-semibold">{{ value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Appointments -->
+    {% if annointments %}
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-white">
+                <h5 class="card-subtitle mb-0">
+                    <i class="fas fa-history me-2"></i>Recent Appointments
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for annointment in annointments %}
+                                <tr>
+                                    <td>{{ annointment.get_rank_display }}</td>
+                                    <td>{{ annointment.month_of_annointment }} {{ annointment.year_of_annointment }}</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block form_primary_actions %}
+<!-- No submit button needed for view page -->
+{% endblock %}
+
+{% block form_secondary_actions %}
+<!-- No secondary actions needed for view page -->
+{% endblock %}
+
+{% block form_sidebar %}
+<!-- No sidebar needed for view page -->
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.profile-header h2 {
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.profile-header .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.profile-header .info-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.75rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-avatar img {
+    border: 4px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.avatar-placeholder {
+    border: 4px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.info-field {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease-in-out;
+}
+
+.info-field:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.field-value {
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.card {
+    transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.action-buttons .btn {
+    min-width: 140px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 1) !important;
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .profile-header .row > div {
+        margin-bottom: 1rem;
+    }
+
+    .action-buttons .btn {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .info-field {
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+
+    .profile-avatar img,
+    .avatar-placeholder {
+        width: 120px !important;
+        height: 120px !important;
+        font-size: 2.5rem !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,81 +1,133 @@
-{% include 'ParishRestructure/head.html' %}
 {% load static %}
-{% load widget_tweaks %}
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Celestial Church Of Christ</title>
+    <link rel="icon" type="image/png" href="{% static 'assets/img/777899999.png' %}">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Font Awesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/buttons.bootstrap5.min.css' %}">
+    
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/modern-dashboard.css' %}">
+    
+    <!-- Additional Styles -->
+    {% block extra_css %}{% endblock %}
+</head>
 <body id="page-top">
-    <div id="loading" style="display: none;">
-        <img src="{% static 'icons/loading.gif' %}" alt="Loading...">
-      </div>
-    <div id="wrapper" style="width: 100%;">
-        <nav
-            class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark fixed-nav">
-            <div class="container-fluid d-flex flex-column p-1 flex-shrink-0"><a
-                    class="navbar-brand d-flex justify-content-between  align-items-center sidebar-brand" href="#">
-                    <div class="sidebar-brand-icon rotate-n-15"><img class="img-fluid" width="100" height="100"
-                            src="{% static 'assets/img/777899999.png' %}" style="transform: rotate(18deg);">
-                    </div>
-
-                    <!-- <button class="xbtn btn-link d-md-none rounded-circle" id="sidebarToggleTop" type="button">
-                        <i class="fa-solid fa-xmark fa-xs"></i>
-                    </button> -->
-                </a>
-                <div class="sidebar-brand-text mx-3">CCC Admin App</div>
-
-                <div class="hr mt-2"></div>
-
-                <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
-
-                    <li class="nav-item mb-1 ">
-                        <li class="nav-item"> <a href="{% url 'parish_dashboard' %}" class="nav-link"><i class="fa-solid fa-church"></i>Parish
-                            Dashboard</a></li>
-                    </li>
-                    
-                    <div class="hr"></div>
-                    <li class="nav-item mb-1 ">
-                        <li class="nav-item"> <a href="{% url 'all-parish' %}" class="nav-link"><i class="fa-solid fa-database"></i>Parish Directory</a></li>
-                    </li>
-                    <li class="nav-item mb-1">
-                        <a class="nav-link  btn btn-toggle x align-items-center border-1 rounded "
-                            data-bs-toggle="collapse" data-bs-target="#parish" aria-expanded="true" aria-current="page"
-                            data-bss-hover-animate="pulse">
-                            <i class="fas fa-user"></i>Parish Registration</a>
-                        <div class="collapse " id="parish">
-                            <ul class="btn-toggle-nav list-unstyled  w-90 fw-normal pb-1 small">
-                                <li class="nav-item"> <a href="{% url 'parish-registration' %}" class="nav-link">Register a Parish</a></li>
-                                <li class="nav-item"><a href="{% url 'approval_queue'  %}" class="nav-link">Pending Registration</a></li>
-                                <li class="nav-item"><a href="{% url 'approved'  %}" class="nav-link">Approved Registration</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item mb-1">
-                        <a class="nav-link  btn btn-toggle x align-items-center border-1 rounded "
-                            data-bs-toggle="collapse" data-bs-target="#parishreg" aria-expanded="true" aria-current="page"
-                            data-bss-hover-animate="pulse">
-                            <i class="fas fa-layer-group"></i>Parish Restructuring</a>
-                        <div class="collapse " id="parishreg">
-                            <ul class="btn-toggle-nav list-unstyled  w-90 fw-normal pb-1 small">
-                                <li class="nav-item"> <a href="{% url 'add_parish' %}" class="nav-link">Parish Restructure</a></li>
-                                <li class="nav-item"><a href="{% url 'add_location'  %}" class="nav-link">Add a location</a></li>
-                                <li class="nav-item"><a href="{% url 'view_parishes'  %}" class="nav-link">View Parish Categorically</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
-                <hr class="sidebar-divider my-0">
-
-                <div class="d-flex d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle"
-                        type="button"></button></div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo-img">
+                <img src="{% static 'assets/img/777899999.png' %}" alt="CCC Logo" class="img-fluid">
             </div>
-        </nav>
-        <div class="content-wrapper" id="content-wrapper" style="padding-left: 0px;">
-            <div>
+            <div class="app-title">CCC Admin App</div>
+            <div class="toggle-btn">
+                <i class="bi bi-chevron-left"></i>
+            </div>
+        </div>
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/parish-dashboard/' %}active{% endif %}" href="{% url 'parish_dashboard' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Parish Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/all-parish/' %}active{% endif %}" href="{% url 'all-parish' %}">
+                    <i class="bi bi-folder2-open"></i>
+                    <span>Parish Directory</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/parish-registration/' %}active{% endif %}" href="#" data-bs-toggle="collapse" data-bs-target="#parish" aria-expanded="false">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Parish Registration</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <div class="collapse {% if 'registration' in request.path %}show{% endif %}" id="parish">
+                    <ul class="nav flex-column ms-3">
+                        <li class="nav-item">
+                            <a class="nav-link py-2 {% if request.path == '/parish-registration/' %}active{% endif %}" href="{% url 'parish-registration' %}">
+                                <i class="bi bi-plus-circle"></i>
+                                <span>Register a Parish</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-2 {% if request.path == '/approval_queue/' %}active{% endif %}" href="{% url 'approval_queue' %}">
+                                <i class="bi bi-hourglass-split"></i>
+                                <span>Pending Registration</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-2 {% if request.path == '/approved/' %}active{% endif %}" href="{% url 'approved' %}">
+                                <i class="bi bi-check2-circle"></i>
+                                <span>Approved Registration</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#parishreg" aria-expanded="false">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Parish Restructuring</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <div class="collapse {% if 'restructure' in request.path or 'location' in request.path or 'view_parishes' in request.path %}show{% endif %}" id="parishreg">
+                    <ul class="nav flex-column ms-3">
+                        <li class="nav-item">
+                            <a class="nav-link py-2 {% if request.path == '/add_parish/' %}active{% endif %}" href="{% url 'add_parish' %}">
+                                <i class="bi bi-building"></i>
+                                <span>Parish Restructure</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-2 {% if request.path == '/add_location/' %}active{% endif %}" href="{% url 'add_location' %}">
+                                <i class="bi bi-geo-alt"></i>
+                                <span>Add a location</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link py-2 {% if request.path == '/view_parishes/' %}active{% endif %}" href="{% url 'view_parishes' %}">
+                                <i class="bi bi-eye"></i>
+                                <span>View Parish Categorically</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
                 <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
                     <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3"
                             id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
                         <form class="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
                             <div class="input-group"><input class="bg-light form-control border-0 small me-sm-0"
                                     type="text" placeholder="Search for ..."><button class="btn btn-primary py-0"
-                                    type="button" style="background: #255cfe;"><i class="fas fa-search"></i></button>
+                                    type="button"><i class="fas fa-search"></i></button>
                             </div>
                         </form>
                         <ul class="navbar-nav flex-nowrap">
@@ -213,21 +265,36 @@
                         </ul>
                     </div>
                 </nav>
-                <div class="container-fluid" style="min-height:100vh;">
-                    {% block content %}
-                    {% endblock content %}
-                </div>
-
-            </div>
-            {% include 'ParishRestructure/footer.html' %}
         </div>
 
-        <a class="border rounded d-inline scroll-to-top" href="#page-top">
-            <i class="fas fa-angle-up"></i>
-        </a>
+        <div class="dashboard-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
 
+        <!-- Footer -->
+        <footer class="py-4 bg-light text-center mt-4">
+            <div class="container">
+                <strong>Office of the Pastor © CCC
+                    <script>document.write(new Date().getFullYear())</script>
+                </strong>
+            </div>
+        </footer>
     </div>
-    
+
+    <!-- Scroll to Top Button -->
+    <a class="btn btn-primary position-fixed rounded-circle d-inline" href="#page-top" style="bottom: 20px; right: 20px; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
     <script src="{% static 'assets/js/jquery-3.7.0.js' %}"></script>
 
 
@@ -244,10 +311,8 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
     <script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'assets/build/js/intlTelInputWithUtils.js' %}"></script>
     <script src="{% static 'assets/js/bs-init.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script src="{% static 'assets/js/number.js' %}"></script>
     <script src="{% static 'assets/js/theme.js' %}"></script>
     <script src = "{% static 'assets/js/countries.js' %}"></script>
     <script language="javascript">print_country("id_country");</script>
@@ -255,53 +320,9 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&libraries=places&callback=initAutocomplete"
         async defer>
     </script>
-
-<script>
-    $(document).ready(function () {
-            $('#clergyTable').DataTable({
-                scrollX: true,
-                dom: 'Bflrtip',
-                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
-            });
-        
-
-       
-        $('#allparish').DataTable({
-                scrollX: true,
-                dom: 'Bflrtip',
-                columns: [null, { "searchable": true }, null, null, null],
-                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
-            });
-        
-
-        // Handle change event for file input inside #id_profile_picture
-        $('#id_profile_picture ').change(function () {
-            const file = this.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                $('#profileImage').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(file);
-        });
-
-        $('.parishSelect').select2(); 
-
-        // Handle change event for file input with ID #id_pic 
-        $('#id_pic').change(function () {
-            const file = this.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                // Handle the file change event as desired
-                $('#userImage').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(file);
-        });
-    });
-</script>
-
-
-
-
+     <script src="{% static 'assets/js/modern-dashboard.js' %}"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
 </body>
-
 </html>

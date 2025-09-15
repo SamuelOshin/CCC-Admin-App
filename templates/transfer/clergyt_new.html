@@ -1,0 +1,444 @@
+{% extends 'dashboard/layouts/table_layout.html' %}
+{% load static %}
+
+{% block title %}Clergy Transfer Management - {{ page_title }}{% endblock %}
+
+{% block table_title %}{{ table_title }}{% endblock %}
+{% block table_subtitle %}{{ table_subtitle }}{% endblock %}
+
+{% block table_actions %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-outline-secondary" onclick="refreshTable()">
+        <i class="fas fa-sync-alt me-1"></i>Refresh
+    </button>
+    <a href="{% url 't_dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block custom_filters %}
+<div class="col-md-3 mb-3 mb-md-0">
+    <label for="floating-filter" class="form-label fw-semibold">Transfer Status</label>
+    <select class="form-select" id="floating-filter" onchange="applyFilters()">
+        <option value="">All Clergy</option>
+        <option value="floating" {% if floating_filter == 'floating' %}selected{% endif %}>Floating</option>
+        <option value="not_floating" {% if floating_filter == 'not_floating' %}selected{% endif %}>Not Floating</option>
+    </select>
+</div>
+
+<div class="col-md-3 mb-3 mb-md-0">
+    <label for="page-size" class="form-label fw-semibold">Items per page</label>
+    <select class="form-select" id="page-size" onchange="changePageSize()">
+        <option value="10" {% if page_obj.paginator.per_page == 10 %}selected{% endif %}>10</option>
+        <option value="25" {% if page_obj.paginator.per_page == 25 %}selected{% endif %}>25</option>
+        <option value="50" {% if page_obj.paginator.per_page == 50 %}selected{% endif %}>50</option>
+        <option value="100" {% if page_obj.paginator.per_page == 100 %}selected{% endif %}>100</option>
+    </select>
+</div>
+{% endblock %}
+
+{% block table_stats %}
+<div class="table-stats mb-4">
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-primary-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users text-primary fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-primary">{{ total_clergy }}</div>
+                            <div class="text-muted small">Total Clergy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-danger-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-danger fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-danger">{{ floating_clergy }}</div>
+                            <div class="text-muted small">Floating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-success-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-success fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-success">{{ not_floating_clergy }}</div>
+                            <div class="text-muted small">Active</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-info-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exchange-alt text-info fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-info">{{ recent_transfers|length }}</div>
+                            <div class="text-muted small">Recent Transfers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block table_icon %}fas fa-user-friends{% endblock %}
+{% block table_card_title %}Clergy Members{% endblock %}
+
+{% block table_headers %}
+<th scope="col">Clergy Member</th>
+<th scope="col">Contact Info</th>
+<th scope="col">Transfer Status</th>
+<th scope="col" style="width: 200px;">Actions</th>
+{% endblock %}
+
+{% block table_body %}
+{% for clergy in clergy %}
+<tr>
+    <td>
+        <div class="form-check">
+            <input class="form-check-input row-checkbox" type="checkbox" value="{{ clergy.clergy.clergy_id }}">
+        </div>
+    </td>
+    <td>
+        <div class="d-flex align-items-center">
+            <div class="position-relative me-3">
+                <img class="rounded-circle" src="{{ clergy.clergy.profile_picture.url|default:'/static/assets/img/default-avatar.png' }}"
+                     style="width: 45px; height: 45px; object-fit: cover;" alt="Profile">
+                <div class="status-indicator {% if clergy.floating %}bg-danger{% else %}bg-success{% endif %}"></div>
+            </div>
+            <div>
+                <div class="fw-semibold text-dark">{{ clergy.clergy.get_full_name }}</div>
+                <small class="text-muted">ID: {{ clergy.clergy.clergy_id }}</small>
+            </div>
+        </div>
+    </td>
+    <td>
+        <div class="small">
+            <div><i class="fas fa-phone text-muted me-1"></i>{{ clergy.clergy.telephone|default:'N/A' }}</div>
+            <div><i class="fas fa-envelope text-muted me-1"></i>{{ clergy.clergy.email_address|default:'N/A'|truncatechars:25 }}</div>
+        </div>
+    </td>
+    <td>
+        {% if clergy.floating %}
+        <span class="badge bg-danger">
+            <i class="fas fa-exclamation-triangle me-1"></i>Floating
+        </span>
+        {% else %}
+        <span class="badge bg-success">
+            <i class="fas fa-check-circle me-1"></i>Active
+        </span>
+        {% endif %}
+    </td>
+    <td>
+        <div class="btn-group" role="group">
+            <a href="{% url 'new_transfer' clergy.clergy.clergy_id %}"
+               class="btn btn-outline-primary btn-sm"
+               title="Initiate Transfer">
+                <i class="fas fa-exchange-alt"></i>
+            </a>
+            <a href="{% url 'posting' clergy.clergy.clergy_id %}"
+               class="btn btn-outline-info btn-sm"
+               title="Posting History">
+                <i class="fas fa-history"></i>
+            </a>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        title="More Actions">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">
+                        <i class="fas fa-eye me-2"></i>View Details
+                    </a></li>
+                    <li><a class="dropdown-item" href="#">
+                        <i class="fas fa-edit me-2"></i>Edit Profile
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#">
+                        <i class="fas fa-flag me-2"></i>Report Issue
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="4" class="text-center py-4">
+        <div class="text-muted">
+            <i class="fas fa-users fa-3x mb-3"></i>
+            <p>No clergy members found matching your criteria.</p>
+            {% if search_query or floating_filter %}
+            <a href="{% url 'clergy' %}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-times me-1"></i>Clear Filters
+            </a>
+            {% endif %}
+        </div>
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block additional_table_content %}
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="text-muted small">
+        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ paginator.count }} entries
+    </div>
+    <nav aria-label="Table pagination">
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if floating_filter %}&floating={{ floating_filter }}{% endif %}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if floating_filter %}&floating={{ floating_filter }}{% endif %}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if floating_filter %}&floating={{ floating_filter }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if floating_filter %}&floating={{ floating_filter }}{% endif %}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if floating_filter %}&floating={{ floating_filter }}{% endif %}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+<!-- Recent Transfers Sidebar -->
+<div class="row mt-4">
+    <div class="col-lg-8">
+        <!-- Main content area can be extended here -->
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-clock text-info me-2"></i>Recent Transfers
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if recent_transfers %}
+                <div class="timeline">
+                    {% for transfer in recent_transfers %}
+                    <div class="timeline-item mb-3">
+                        <div class="timeline-marker bg-info"></div>
+                        <div class="timeline-content">
+                            <div class="fw-semibold small">{{ transfer.clergy.get_full_name }}</div>
+                            <div class="text-muted small">
+                                {% if transfer.parishTo %}
+                                To: {{ transfer.parishTo.parish.name }}
+                                {% else %}
+                                Transfer initiated
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ transfer.date_transfered|date:"M d, Y" }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                    <p class="mb-0">No recent transfers</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<style>
+.status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.timeline {
+    position: relative;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left: 3px solid #dee2e6;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+@media (max-width: 768px) {
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        margin-right: 0;
+        margin-bottom: 2px;
+    }
+
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize search with existing value
+    const searchInput = document.getElementById('table-search');
+    if (searchInput && '{{ search_query }}') {
+        searchInput.value = '{{ search_query }}';
+    }
+
+    // Enhanced search functionality
+    function applySearch() {
+        const searchValue = document.getElementById('table-search').value;
+        const currentUrl = new URL(window.location);
+
+        if (searchValue) {
+            currentUrl.searchParams.set('search', searchValue);
+        } else {
+            currentUrl.searchParams.delete('search');
+        }
+
+        // Preserve other filters
+        const floatingFilter = document.getElementById('floating-filter').value;
+        if (floatingFilter) {
+            currentUrl.searchParams.set('floating', floatingFilter);
+        }
+
+        window.location.href = currentUrl.toString();
+    }
+
+    // Enhanced filter functionality
+    function applyFilters() {
+        const currentUrl = new URL(window.location);
+        const floatingFilter = document.getElementById('floating-filter').value;
+
+        if (floatingFilter) {
+            currentUrl.searchParams.set('floating', floatingFilter);
+        } else {
+            currentUrl.searchParams.delete('floating');
+        }
+
+        // Preserve search
+        const searchValue = document.getElementById('table-search').value;
+        if (searchValue) {
+            currentUrl.searchParams.set('search', searchValue);
+        }
+
+        window.location.href = currentUrl.toString();
+    }
+
+    // Page size functionality
+    function changePageSize() {
+        const pageSize = document.getElementById('page-size').value;
+        const currentUrl = new URL(window.location);
+
+        // Reset to page 1 when changing page size
+        currentUrl.searchParams.set('page', '1');
+
+        // Preserve other parameters
+        const searchValue = document.getElementById('table-search').value;
+        if (searchValue) {
+            currentUrl.searchParams.set('search', searchValue);
+        }
+
+        const floatingFilter = document.getElementById('floating-filter').value;
+        if (floatingFilter) {
+            currentUrl.searchParams.set('floating', floatingFilter);
+        }
+
+        window.location.href = currentUrl.toString();
+    }
+
+    // Enter key support for search
+    searchInput?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applySearch();
+        }
+    });
+
+    // Make functions globally available
+    window.applySearch = applySearch;
+    window.applyFilters = applyFilters;
+    window.changePageSize = changePageSize;
+});
+</script>

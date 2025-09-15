@@ -1,0 +1,686 @@
+{% extends 'dashboard/layouts/table_layout.html' %}
+{% load static %}
+
+{% block title %}Clergy Directory - {{ block.super }}{% endblock %}
+
+{% block table_title %}Clergy Directory{% endblock %}
+{% block table_subtitle %}Comprehensive list of all registered clergy members{% endblock %}
+
+{% block add_new_url %}{% url 'register_clergy' %}{% endblock %}
+{% block add_new_text %}Register New Clergy{% endblock %}
+
+{% block table_icon %}fas fa-users{% endblock %}
+{% block table_card_title %}Clergy Members{% endblock %}
+
+{% block custom_filters %}
+<div class="col-md-3 mb-3 mb-md-0">
+    <label for="gender-filter" class="form-label fw-semibold">Gender</label>
+    <select class="form-select" id="gender-filter" onchange="applyFilters()">
+        <option value="">All Genders</option>
+        <option value="Male" {% if request.GET.gender == 'Male' %}selected{% endif %}>Male</option>
+        <option value="Female" {% if request.GET.gender == 'Female' %}selected{% endif %}>Female</option>
+    </select>
+</div>
+
+<div class="col-md-3 mb-3 mb-md-0">
+    <label for="nationality-filter" class="form-label fw-semibold">Nationality</label>
+    <select class="form-select" id="nationality-filter" onchange="applyFilters()">
+        <option value="">All Nationalities</option>
+        {% for nat_stat in nationality_stats %}
+        <option value="{{ nat_stat.nationality }}" {% if request.GET.nationality == nat_stat.nationality %}selected{% endif %}>
+            {{ nat_stat.nationality }} ({{ nat_stat.count }})
+        </option>
+        {% endfor %}
+    </select>
+</div>
+{% endblock %}
+
+{% block table_stats %}
+<div class="table-stats mb-4">
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-primary-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users text-primary fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-primary">{{ total_count }}</div>
+                            <div class="text-muted small">Total Clergy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-success-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-check text-success fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-success">{{ active_count }}</div>
+                            <div class="text-muted small">Active Members</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-info-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-info fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-info">{{ recent_count }}</div>
+                            <div class="text-muted small">Recent (30 days)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-warning-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-venus-mars text-warning fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-warning">{{ male_count }}/{{ female_count }}</div>
+                            <div class="text-muted small">Male/Female</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block table_headers %}
+<th scope="col">
+    <i class="fas fa-user me-1"></i>Name
+</th>
+<th scope="col">
+    <i class="fas fa-id-card me-1"></i>Registration No
+</th>
+<th scope="col">
+    <i class="fas fa-envelope me-1"></i>Email
+</th>
+<th scope="col">
+    <i class="fas fa-phone me-1"></i>Mobile
+</th>
+<th scope="col">
+    <i class="fas fa-crown me-1"></i>Rank
+</th>
+<th scope="col" class="text-center">
+    <i class="fas fa-cogs me-1"></i>Actions
+</th>
+{% endblock %}
+
+{% block table_body %}
+{% for clergy in all_clergy %}
+<tr>
+    <td>
+        <div class="form-check">
+            <input class="form-check-input row-checkbox" type="checkbox" value="{{ clergy.clergy_id }}" id="check-{{ clergy.clergy_id }}">
+        </div>
+    </td>
+    <td>
+        <div class="d-flex align-items-center">
+            <div class="avatar-wrapper me-3">
+                {% if clergy.profile_picture %}
+                <img class="rounded-circle avatar-sm" src="{{ clergy.profile_picture.url }}" alt="{{ clergy }}" style="width: 40px; height: 40px; object-fit: cover;">
+                {% else %}
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div>
+                <div class="fw-semibold text-dark">{{ clergy }}</div>
+                <small class="text-muted">{{ clergy.gender|default:"--" }}</small>
+            </div>
+        </div>
+    </td>
+    <td>{{ clergy.reg_number }}</td>
+    <td>
+        <a href="mailto:{{ clergy.email_address }}" class="text-decoration-none">
+            {{ clergy.email_address }}
+        </a>
+    </td>
+    <td>
+        <a href="tel:{{ clergy.telephone }}" class="text-decoration-none">
+            {{ clergy.telephone }}
+        </a>
+    </td>
+    <td>
+        {% with latest_annointment=clergy.annointmentgazzette_set.first %}
+        {% if latest_annointment %}
+        <span class="badge bg-success">{{ latest_annointment.rank }}</span>
+        {% else %}
+        <span class="badge bg-success">{{clergy.present_annointment}}</span>
+        {% endif %}
+        {% endwith %}
+    </td>
+    <td class="text-center">
+        <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
+            <a href="{% url 'view_clergy' clergy.clergy_id %}"
+               class="btn btn-xs btn-outline-primary"
+               title="View Profile"
+               data-bs-toggle="tooltip">
+                <i class="fas fa-eye"></i>
+            </a>
+            <a href="{% url 'edit_clergy_new' clergy.clergy_id %}"
+               class="btn btn-xs btn-outline-success"
+               title="Edit Clergy"
+               data-bs-toggle="tooltip">
+                <i class="fas fa-edit"></i>
+            </a>
+            <a href="{% url 'view-and-add-annointment' clergy.clergy_id %}"
+               class="btn btn-xs btn-outline-info"
+               title="View Appointments"
+               data-bs-toggle="tooltip">
+                <i class="fas fa-crown"></i>
+            </a>
+            <a href="{% url 'generate_clergy_pdf' clergy.clergy_id %}"
+               class="btn btn-xs btn-outline-secondary"
+               title="Download PDF"
+               data-bs-toggle="tooltip"
+               target="_blank">
+                <i class="fas fa-download"></i>
+            </a>
+            <a href="{% url 'delete_clergy' clergy.clergy_id %}"
+               class="btn btn-xs btn-outline-danger"
+               title="Delete Clergy"
+               data-bs-toggle="tooltip"
+               onclick="return confirm('Are you sure you want to delete {{ clergy }}? This action cannot be undone.')">
+                <i class="fas fa-trash"></i>
+            </a>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="7" class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Clergy Members Found</h5>
+            <p class="text-muted mb-3">
+                {% if search_query %}
+                No clergy members match your search criteria: "{{ search_query }}"
+                {% else %}
+                There are no clergy members registered in the system yet.
+                {% endif %}
+            </p>
+            <a href="{% url 'register_clergy' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Register First Clergy Member
+            </a>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block bulk_actions %}
+<div class="d-flex gap-2">
+    <button type="button" class="btn btn-xs btn-outline-primary" onclick="bulkExport()">
+        <i class="fas fa-download me-1"></i>Export Selected
+    </button>
+    <button type="button" class="btn btn-xs btn-outline-info" onclick="bulkViewProfiles()">
+        <i class="fas fa-eye me-1"></i>View Profiles
+    </button>
+    <button type="button" class="btn btn-xs btn-outline-danger" onclick="bulkDelete()">
+        <i class="fas fa-trash me-1"></i>Delete Selected
+    </button>
+</div>
+{% endblock %}
+
+{% block table_modals %}
+<!-- Quick View Modal -->
+<div class="modal fade" id="quickViewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Clergy Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="quickViewContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="editFromQuickView">Edit Profile</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Confirmation Modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Bulk Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the selected clergy members?</p>
+                <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                <div id="bulkDeleteList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()">Delete Selected</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.avatar-sm {
+    border: 2px solid #e9ecef;
+    transition: border-color 0.2s ease;
+}
+
+.avatar-sm:hover {
+    border-color: #0d6efd;
+}
+
+.empty-state {
+    padding: 2rem 0;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Compact action buttons - single row */
+.action-buttons {
+    min-height: 32px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    padding: 0.15rem 0.6rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    border-radius: 0.2rem;
+    margin: 0 0.1rem;
+    min-width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.action-buttons .btn i {
+    font-size: 0.8rem;
+}
+
+/* Extra small button class */
+.btn-xs {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    border-radius: 0.2rem;
+    min-width: 22px;
+    height: 22px;
+}
+
+.btn-xs i {
+    font-size: 0.65rem;
+}
+
+/* Horizontally scrollable table */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Ensure table doesn't break layout */
+.table {
+    min-width: 100%;
+    table-layout: auto;
+    width: 100%;
+}
+
+/* Set minimum widths for columns to ensure proper scrolling */
+.table th:nth-child(1), .table td:nth-child(1) { min-width: 50px; } /* Checkbox */
+.table th:nth-child(2), .table td:nth-child(2) { min-width: 200px; } /* Name */
+.table th:nth-child(3), .table td:nth-child(3) { min-width: 120px; } /* Registration No */
+.table th:nth-child(4), .table td:nth-child(4) { min-width: 180px; } /* Email */
+.table th:nth-child(5), .table td:nth-child(5) { min-width: 120px; } /* Mobile */
+.table th:nth-child(6), .table td:nth-child(6) { min-width: 100px; } /* Rank */
+.table th:nth-child(7), .table td:nth-child(7) { min-width: 180px; } /* Actions */
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 10;
+    white-space: nowrap;
+    padding: 0.75rem 0.5rem;
+}
+
+/* Action column specific styling */
+.table td:last-child {
+    min-width: 180px;
+    max-width: 200px;
+    white-space: nowrap;
+}
+
+/* Ensure consistent row heights */
+.table tbody tr {
+    height: 60px;
+    max-height: 60px;
+}
+
+.table tbody tr td {
+    padding: 0.5rem 0.25rem;
+    vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .action-buttons {
+        gap: 0.25rem;
+        min-height: 28px;
+    }
+
+    .action-buttons .btn {
+        margin: 0 0.05rem;
+        min-width: 20px;
+        height: 20px;
+        padding: 0.1rem 0.2rem;
+    }
+
+    .btn-xs {
+        min-width: 18px;
+        height: 18px;
+        padding: 0.1rem 0.2rem;
+        font-size: 0.65rem;
+    }
+
+    .btn-xs i {
+        font-size: 0.6rem;
+    }
+
+    .table td:last-child {
+        min-width: 140px;
+        max-width: 160px;
+    }
+
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+
+    .table tbody tr {
+        height: 50px;
+        max-height: 50px;
+    }
+}
+
+@media (max-width: 576px) {
+    .action-buttons .btn {
+        min-width: 18px;
+        height: 18px;
+        padding: 0.08rem 0.15rem;
+    }
+
+    .table td:last-child {
+        min-width: 120px;
+        max-width: 140px;
+    }
+}
+
+/* Prevent button text wrapping */
+.action-buttons .btn {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Helper function to get selected IDs
+function getSelectedIds() {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    return Array.from(checkboxes).map(checkbox => checkbox.value);
+}
+
+// Initialize select all functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Set initial search value
+    const searchInput = document.getElementById('table-search');
+    if (searchInput && '{{ search_query }}') {
+        searchInput.value = '{{ search_query }}';
+    }
+
+    // Initialize select all functionality for the table
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActionsVisibility();
+        });
+    }
+
+    // Update bulk actions visibility when individual checkboxes change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('row-checkbox')) {
+            updateBulkActionsVisibility();
+        }
+    });
+});
+
+// Function to update bulk actions visibility
+function updateBulkActionsVisibility() {
+    const selectedCount = getSelectedIds().length;
+    const bulkActionsBar = document.querySelector('.bulk-actions-bar');
+    const selectedCountSpan = document.getElementById('selected-count');
+
+    if (bulkActionsBar && selectedCountSpan) {
+        if (selectedCount > 0) {
+            bulkActionsBar.style.display = 'block';
+            selectedCountSpan.textContent = selectedCount;
+        } else {
+            bulkActionsBar.style.display = 'none';
+        }
+    }
+}
+
+// Enhanced search function
+function applySearch() {
+    const searchValue = document.getElementById('table-search').value;
+    const currentUrl = new URL(window.location);
+
+    if (searchValue) {
+        currentUrl.searchParams.set('search', searchValue);
+    } else {
+        currentUrl.searchParams.delete('search');
+    }
+
+    // Clear other filters when searching
+    currentUrl.searchParams.delete('gender');
+    currentUrl.searchParams.delete('nationality');
+
+    window.location.href = currentUrl.toString();
+}
+
+// Enhanced filter function
+function applyFilters() {
+    const currentUrl = new URL(window.location);
+
+    // Get filter values
+    const genderFilter = document.getElementById('gender-filter')?.value;
+    const nationalityFilter = document.getElementById('nationality-filter')?.value;
+
+    // Apply filters
+    if (genderFilter) {
+        currentUrl.searchParams.set('gender', genderFilter);
+    } else {
+        currentUrl.searchParams.delete('gender');
+    }
+
+    if (nationalityFilter) {
+        currentUrl.searchParams.set('nationality', nationalityFilter);
+    } else {
+        currentUrl.searchParams.delete('nationality');
+    }
+
+    window.location.href = currentUrl.toString();
+}
+
+// Bulk operations
+function bulkExport() {
+    const selectedIds = getSelectedIds();
+    if (selectedIds.length > 0) {
+        const url = new URL(window.location);
+        url.searchParams.set('export', 'selected');
+        url.searchParams.set('ids', selectedIds.join(','));
+        window.open(url.toString(), '_blank');
+    } else {
+        alert('Please select clergy members to export.');
+    }
+}
+
+function bulkViewProfiles() {
+    const selectedIds = getSelectedIds();
+    if (selectedIds.length > 0) {
+        // Open first selected profile in new tab
+        window.open('{% url "view_profile" 0 %}'.replace('0', selectedIds[0]), '_blank');
+    } else {
+        alert('Please select a clergy member to view.');
+    }
+}
+
+function bulkDelete() {
+    const selectedIds = getSelectedIds();
+    if (selectedIds.length > 0) {
+        showBulkDeleteConfirmation(selectedIds);
+    } else {
+        alert('Please select clergy members to delete.');
+    }
+}
+
+function showBulkDeleteConfirmation(ids) {
+    const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+    const listContainer = document.getElementById('bulkDeleteList');
+
+    // Clear previous content
+    listContainer.innerHTML = '';
+
+    // Add selected clergy names to the list
+    const ul = document.createElement('ul');
+    ul.className = 'list-group list-group-flush';
+
+    ids.forEach(id => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = `Clergy ID: ${id}`;
+        ul.appendChild(li);
+    });
+
+    listContainer.appendChild(ul);
+    modal.show();
+}
+
+function confirmBulkDelete() {
+    const selectedIds = getSelectedIds();
+    if (selectedIds.length > 0) {
+        if (confirm(`Are you sure you want to delete ${selectedIds.length} clergy members?`)) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/clergy/bulk-delete/'; // Direct URL path
+
+            // Add CSRF token if available
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken.value;
+                form.appendChild(csrfInput);
+            }
+
+            selectedIds.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'clergy_ids';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
+
+// Quick view functionality
+function quickView(id) {
+    // This would typically load content via AJAX
+    const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+    const content = document.getElementById('quickViewContent');
+
+    // For now, just redirect to profile view
+    window.location.href = '{% url "view_profile" 0 %}'.replace('0', id);
+}
+
+function editFromQuickView() {
+    const selectedIds = getSelectedIds();
+    if (selectedIds.length > 0) {
+        window.location.href = '{% url "edit_clergy_new" 0 %}'.replace('0', selectedIds[0]);
+    }
+}
+</script>
+{% endblock %}

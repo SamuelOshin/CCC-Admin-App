@@ -1,0 +1,1401 @@
+{% extends 'dashboard/layouts/table_layout.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}View Parish Details - {{ selected_location.name|default:"Select Location" }}{% endblock %}
+
+{% block table_title %}View Parish Details{% endblock %}
+{% block table_subtitle %}Browse and manage parishes organized by location hierarchy{% endblock %}
+
+{% block table_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'parish_dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+    </a>
+    <button type="button" class="btn btn-outline-info" onclick="refreshTable()">
+        <i class="fas fa-sync-alt me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block custom_filters %}
+<!-- Enhanced Location Selection Form -->
+<div class="container-fluid px-0 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="location-selector-wrapper">
+                <!-- Header Section -->
+                <div class="location-header text-center mb-4">
+                    <div class="location-icon-container mb-3">
+                        <div class="location-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                    </div>
+                    <h2 class="location-title">Select Location</h2>
+                    <p class="location-subtitle">Choose a location hierarchy to view all parishes and sub-locations</p>
+                </div>
+
+                <!-- Form Section -->
+                <div class="location-form-card">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-4 p-md-5">
+                            <form method="post" action="{% url 'view_parishes' %}" id="locationForm" class="location-form">
+                                {% csrf_token %}
+                                
+                                <!-- Form Row -->
+                                <div class="row g-4 align-items-end">
+                                    <!-- Location Selection Column -->
+                                    <div class="col-12 col-lg-8">
+                                        <div class="form-group">
+                                            <label for="id_parent" class="form-label">
+                                                <span class="label-icon">
+                                                    <i class="fas fa-sitemap"></i>
+                                                </span>
+                                                <span class="label-text">Choose Location Level</span>
+                                                <span class="label-required">*</span>
+                                            </label>
+                                            <div class="select-wrapper">
+                                                {% render_field locations.parent class="form-select location-select" placeholder="Select a location to view parishes under it" %}
+                                                <div class="select-icon">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </div>
+                                            </div>
+                                            <div class="form-help">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Available levels: Diocese, Region, State, Area, District, Circuit
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button Column -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-primary btn-location w-100" id="submitBtn">
+                                                <span class="btn-content">
+                                                    <i class="fas fa-search btn-icon"></i>
+                                                    <span class="btn-text">View Parishes</span>
+                                                </span>
+                                                <span class="btn-loading d-none">
+                                                    <i class="fas fa-spinner fa-spin btn-icon"></i>
+                                                    <span class="btn-text">Searching...</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Actions Row -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="quick-actions">
+                                            <div class="quick-actions-header">
+                                                <span class="quick-actions-title">
+                                                    <i class="fas fa-bolt me-1"></i>Quick Access
+                                                </span>
+                                            </div>
+                                            <div class="quick-actions-buttons">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm quick-btn" onclick="clearForm()">
+                                                    <i class="fas fa-redo me-1"></i>Reset
+                                                </button>
+                                                <a href="{% url 'parish_dashboard' %}" class="btn btn-outline-info btn-sm quick-btn">
+                                                    <i class="fas fa-arrow-left me-1"></i>Dashboard
+                                                </a>
+                                                <button type="button" class="btn btn-outline-success btn-sm quick-btn" onclick="showLocationHelp()">
+                                                    <i class="fas fa-question-circle me-1"></i>Help
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Hierarchy Indicator -->
+                {% if selected_location %}
+                <div class="location-breadcrumb mt-4">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="breadcrumb-icon me-3">
+                                    <i class="fas fa-location-arrow text-primary"></i>
+                                </div>
+                                <div class="breadcrumb-content flex-grow-1">
+                                    <h6 class="mb-1">Currently Viewing</h6>
+                                    <div class="breadcrumb-path">
+                                        <span class="location-name">{{ selected_location.name }}</span>
+                                        <span class="location-level">({{ selected_location.get_level_display }})</span>
+                                    </div>
+                                </div>
+                                <div class="breadcrumb-stats">
+                                    <span class="badge bg-primary">{{ parishes|length }} Parishes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block table_stats %}
+{% if parishes %}
+<div class="table-stats mb-4">
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-primary-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-church text-primary fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-primary">{{ parishes|length }}</div>
+                            <div class="text-muted small">Total Parishes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-success-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-map-marked-alt text-success fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-success">{{ selected_location.get_level_display }}</div>
+                            <div class="text-muted small">Location Level</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-info-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-sitemap text-info fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-info">{{ selected_location.children.count }}</div>
+                            <div class="text-muted small">Sub-locations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 bg-warning-subtle">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-calendar-alt text-warning fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="fw-bold h4 mb-0 text-warning">{{ parishes|length|add:selected_location.children.count }}</div>
+                            <div class="text-muted small">Total Coverage</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+<!-- Use the base layout's table structure - DON'T duplicate the checkbox column -->
+{% block table_headers %}
+<th scope="col">
+    <i class="fas fa-church me-1"></i>Parish Name
+</th>
+<th scope="col">
+    <i class="fas fa-map-marker-alt me-1"></i>Address
+</th>
+<th scope="col">
+    <i class="fas fa-location-arrow me-1"></i>Direct Location
+</th>
+<th scope="col">
+    <i class="fas fa-sitemap me-1"></i>Region
+</th>
+<th scope="col" class="text-center">
+    <i class="fas fa-cogs me-1"></i>Actions
+</th>
+{% endblock %}
+
+{% block table_body %}
+{% if parishes %}
+    {% for parish in parishes %}
+    <tr>
+        <!-- Base layout provides the checkbox column automatically -->
+        <td>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="{{ parish.id }}" id="check-{{ parish.id }}">
+            </div>
+        </td>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="avatar avatar-sm me-3">
+                    <div class="avatar-initial bg-primary rounded-circle">
+                        <i class="fas fa-church text-white"></i>
+                    </div>
+                </div>
+                <div>
+                    <h6 class="mb-0">{{ parish.parish.name }}</h6>
+                    <small class="text-muted">ID: {{ parish.id }}</small>
+                </div>
+            </div>
+        </td>
+        <td>
+            <span class="badge bg-light text-dark">{{ parish.address }}</span>
+        </td>
+        <td>
+            <span class="badge bg-info">{{ parish.location.name }}</span>
+            <br>
+            <small class="text-muted">{{ parish.location.get_level_display }}</small>
+        </td>
+        <td>
+            <span class="badge bg-secondary">{{ selected_location.name }}</span>
+        </td>
+        <td class="text-center">
+            <div class="btn-group" role="group">
+                <a href="{% url 'edit_parish' parish.id %}"
+                   class="btn btn-outline-primary btn-sm"
+                   title="Edit Parish"
+                   data-bs-toggle="tooltip">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'view_parishh' parish.id %}"
+                   class="btn btn-outline-info btn-sm"
+                   title="View Details"
+                   data-bs-toggle="tooltip">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <a href="{% url 'delete_p' parish.id %}"
+                   class="btn btn-outline-danger btn-sm"
+                   title="Delete Parish"
+                   onclick="return confirmDelete('{{ parish.parish.name }}')"
+                   data-bs-toggle="tooltip">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="6" class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Parishes Found</h4>
+                <p class="text-muted mb-4">
+                    {% if request.method == 'POST' %}
+                    No parishes were found under the selected location "{{ selected_location.name }}".
+                    {% else %}
+                    Please select a location from the form above to view parishes.
+                    {% endif %}
+                </p>
+                <div class="mt-4">
+                    <a href="{% url 'parish_dashboard' %}" class="btn btn-primary me-2">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                    </a>
+                    {% if request.method == 'POST' %}
+                    <button type="button" class="btn btn-outline-primary" onclick="clearLocationSelection()">
+                        <i class="fas fa-redo me-1"></i>Try Another Location
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </td>
+    </tr>
+{% endif %}
+{% endblock %}
+
+<!-- Override base layout DataTables initialization for conditional rendering -->
+{% block extra_js %}
+<script>
+// Override the base layout's initializeDataTable function BEFORE it gets called
+function initializeDataTable() {
+    // Only initialize DataTables if we have parish data
+    {% if parishes %}
+        // We have data - initialize DataTables normally
+        if ($.fn.DataTable) {
+            const table = $('#data-table');
+            if (table.length && !$.fn.DataTable.isDataTable('#data-table')) {
+                table.DataTable({
+                    responsive: true,
+                    pageLength: 25,
+                    order: [[1, 'asc']], // Sort by Parish Name
+                    columnDefs: [
+                        { orderable: false, targets: [0, -1] }, // Disable sorting on checkbox and actions
+                        { searchable: false, targets: [0] }, // Don't search checkbox column
+                    ],
+                    language: {
+                        search: "Search parishes:",
+                        lengthMenu: "Show _MENU_ parishes per page",
+                        info: "Showing _START_ to _END_ of _TOTAL_ parishes",
+                        emptyTable: "No parishes found",
+                        zeroRecords: "No matching parishes found"
+                    }
+                });
+            }
+        }
+    {% else %}
+
+        // Do nothing - prevent DataTables initialization
+        return;
+    {% endif %}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup bulk selection for parishes
+    setupBulkSelection();
+    
+    // Initialize tooltips
+    initializeTooltips();
+    
+    // Setup form handling
+    setupFormHandling();
+});
+
+function initializeTooltips() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+
+function setupFormHandling() {
+    const form = document.getElementById('locationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const selectElement = document.querySelector('select[name="parent"]');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            if (!selectElement.value) {
+                e.preventDefault();
+                showNotification('Please select a location first', 'warning');
+                selectElement.focus();
+                return false;
+            }
+            
+            // Show loading state
+            const btnContent = submitBtn.querySelector('.btn-content');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            
+            if (btnContent && btnLoading) {
+                btnContent.classList.add('d-none');
+                btnLoading.classList.remove('d-none');
+            }
+            
+            submitBtn.disabled = true;
+            form.classList.add('form-loading');
+            
+            // Add loading overlay to form
+            addFormLoadingOverlay();
+        });
+        
+        // Real-time validation
+        if (selectElement) {
+            selectElement.addEventListener('change', function() {
+                validateForm();
+            });
+        }
+    }
+}
+
+function addFormLoadingOverlay() {
+    const formCard = document.querySelector('.location-form-card .card');
+    if (formCard && !formCard.querySelector('.loading-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                </div>
+                <div class="loading-text mt-3">
+                    <h6>Searching parishes...</h6>
+                    <p class="text-muted mb-0">Please wait while we load the data</p>
+                </div>
+            </div>
+        `;
+        formCard.style.position = 'relative';
+        formCard.appendChild(overlay);
+    }
+}
+
+function validateForm() {
+    const selectElement = document.querySelector('select[name="parent"]');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (selectElement && submitBtn) {
+        const isValid = selectElement.value !== '';
+        submitBtn.disabled = !isValid;
+        
+        // Visual feedback
+        const selectWrapper = selectElement.closest('.select-wrapper');
+        if (selectWrapper) {
+            if (isValid) {
+                selectWrapper.classList.add('is-valid');
+                selectWrapper.classList.remove('is-invalid');
+            } else {
+                selectWrapper.classList.remove('is-valid');
+            }
+        }
+    }
+}
+
+function clearForm() {
+    const selectElement = document.querySelector('select[name="parent"]');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (selectElement) {
+        selectElement.value = '';
+        selectElement.focus();
+        
+        // Reset visual states
+        const selectWrapper = selectElement.closest('.select-wrapper');
+        if (selectWrapper) {
+            selectWrapper.classList.remove('is-valid', 'is-invalid');
+        }
+    }
+    
+    if (submitBtn) {
+        submitBtn.disabled = true;
+    }
+    
+    // Remove loading state if present
+    const form = document.getElementById('locationForm');
+    if (form) {
+        form.classList.remove('form-loading');
+        const loadingOverlay = form.querySelector('.loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+        }
+    }
+    
+    showNotification('Form cleared successfully', 'info');
+}
+
+function showLocationHelp() {
+    const helpModal = `
+        <div class="modal fade" id="locationHelpModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-question-circle me-2"></i>Location Hierarchy Help
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Available Levels:</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-crown text-warning me-2"></i>
+                                        <strong>Arch Diocese</strong> - Top level
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-map text-info me-2"></i>
+                                        <strong>Diocese</strong> - Major regions
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-globe text-success me-2"></i>
+                                        <strong>Region</strong> - Geographic areas
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-flag text-primary me-2"></i>
+                                        <strong>State</strong> - State boundaries
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-map-marker text-secondary me-2"></i>
+                                        <strong>Area</strong> - Local areas
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-location-dot text-danger me-2"></i>
+                                        <strong>District</strong> - Administrative districts
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-circle-dot text-dark me-2"></i>
+                                        <strong>Circuit</strong> - Smallest level
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-primary">How it works:</h6>
+                                <div class="alert alert-info">
+                                    <p class="mb-2">When you select a location:</p>
+                                    <ul class="mb-0">
+                                        <li>All parishes directly under that location</li>
+                                        <li>All parishes under sub-locations</li>
+                                        <li>Complete hierarchy is displayed</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Got it!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    const existingModal = document.getElementById('locationHelpModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add new modal to body
+    document.body.insertAdjacentHTML('beforeend', helpModal);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('locationHelpModal'));
+    modal.show();
+    
+    // Remove modal from DOM when hidden
+    document.getElementById('locationHelpModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show notification-toast`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-${getNotificationIcon(type)} me-2"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'success': 'check-circle',
+        'error': 'exclamation-circle',
+        'warning': 'exclamation-triangle',
+        'info': 'info-circle'
+    };
+    return icons[type] || 'info-circle';
+}
+
+function setupBulkSelection() {
+    // Handle select all checkbox
+    const selectAllCheckbox = document.querySelector('#select-all');
+    const itemCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="check-"]');
+    
+    if (selectAllCheckbox && itemCheckboxes.length > 0) {
+        selectAllCheckbox.addEventListener('change', function() {
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActions();
+        });
+        
+        // Handle individual checkboxes
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectAllState();
+                updateBulkActions();
+            });
+        });
+    }
+}
+
+function updateSelectAllState() {
+    const selectAllCheckbox = document.querySelector('#select-all');
+    const itemCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="check-"]');
+    
+    if (selectAllCheckbox && itemCheckboxes.length > 0) {
+        const checkedCount = document.querySelectorAll('input[type="checkbox"][id^="check-"]:checked').length;
+        selectAllCheckbox.checked = checkedCount === itemCheckboxes.length;
+        selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < itemCheckboxes.length;
+    }
+}
+
+function updateBulkActions() {
+    const checkedBoxes = document.querySelectorAll('input[type="checkbox"][id^="check-"]:checked');
+    const bulkActionsBar = document.querySelector('.bulk-actions');
+    
+    if (bulkActionsBar) {
+        if (checkedBoxes.length > 0) {
+            bulkActionsBar.classList.remove('d-none');
+            const countSpan = bulkActionsBar.querySelector('.selected-count');
+            if (countSpan) {
+                countSpan.textContent = checkedBoxes.length;
+            }
+        } else {
+            bulkActionsBar.classList.add('d-none');
+        }
+    }
+}
+
+// Utility functions
+function confirmDelete(parishName) {
+    return confirm(`Are you sure you want to delete the parish "${parishName}"? This action cannot be undone.`);
+}
+
+function clearLocationSelection() {
+    const selectElement = document.querySelector('select[name="parent"]');
+    if (selectElement) {
+        selectElement.value = '';
+        selectElement.focus();
+    }
+}
+
+// Override the base layout's refreshTable function
+function refreshTable() {
+    window.location.reload();
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+/* ================================
+   ENHANCED LOCATION SELECTOR STYLES
+   ================================ */
+
+/* Location Selector Wrapper */
+.location-selector-wrapper {
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Header Section */
+.location-header {
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 202, 240, 0.1));
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.location-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.location-icon-container {
+    position: relative;
+    z-index: 2;
+}
+
+.location-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 8px 32px rgba(13, 110, 253, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.location-icon::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: rotate(45deg);
+    animation: iconGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes iconGlow {
+    0% { transform: rotate(45deg) scale(0.8); }
+    100% { transform: rotate(45deg) scale(1.2); }
+}
+
+.location-icon i {
+    font-size: 2rem;
+    color: white;
+    position: relative;
+    z-index: 2;
+}
+
+.location-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #0d6efd, #6f42c1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.location-subtitle {
+    font-size: 1.1rem;
+    color: #6c757d;
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* Form Card */
+.location-form-card {
+    position: relative;
+}
+
+.location-form-card .card {
+    border-radius: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.location-form-card .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #6f42c1, #d63384, #fd7e14, #198754, #0dcaf0);
+    background-size: 300% 100%;
+    animation: gradientFlow 3s ease infinite;
+}
+
+@keyframes gradientFlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.location-form-card .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styling */
+.location-form {
+    position: relative;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.label-icon {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #0d6efd, #6f42c1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    color: white;
+    font-size: 0.75rem;
+}
+
+.label-text {
+    flex-grow: 1;
+}
+
+.label-required {
+    color: #dc3545;
+    font-weight: 700;
+    margin-left: 0.25rem;
+}
+
+/* Select Wrapper */
+.select-wrapper {
+    position: relative;
+}
+
+.location-select {
+    background-color: #fff;
+    border: 2px solid #e9ecef;
+    border-radius: 0.75rem;
+    padding: 1rem 3rem 1rem 1.25rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: none;
+}
+
+.location-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    outline: 0;
+}
+
+.location-select:hover {
+    border-color: #0d6efd;
+}
+
+.select-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.select-wrapper:hover .select-icon {
+    color: #0d6efd;
+}
+
+/* Form Help Text */
+.form-help {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+}
+
+.form-help i {
+    color: #0d6efd;
+    margin-right: 0.25rem;
+}
+
+/* Enhanced Button */
+.btn-location {
+    background: linear-gradient(135deg, #0d6efd, #6f42c1);
+    border: none;
+    border-radius: 0.75rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-location::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-location:hover::before {
+    left: 100%;
+}
+
+.btn-location:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(13, 110, 253, 0.4);
+    background: linear-gradient(135deg, #6f42c1, #d63384);
+}
+
+.btn-location:active {
+    transform: translateY(0);
+}
+
+.btn-content,
+.btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Quick Actions */
+.quick-actions {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.quick-actions-header {
+    margin-bottom: 1rem;
+}
+
+.quick-actions-title {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-actions-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.quick-btn {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-width: 1px;
+}
+
+.quick-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Location Breadcrumb */
+.location-breadcrumb {
+    animation: slideInUp 0.5s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.breadcrumb-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.breadcrumb-content h6 {
+    color: #6c757d;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.breadcrumb-path {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.location-name {
+    font-weight: 700;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.location-level {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.breadcrumb-stats .badge {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+}
+
+/* ================================
+   EXISTING STYLES (Enhanced)
+   ================================ */
+
+/* Enhanced Parish View Styles */
+.avatar {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-initial {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #0d6efd, #6f42c1);
+}
+
+.empty-state {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.empty-state i {
+    opacity: 0.5;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h4 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Badge improvements */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5em 0.75em;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
+
+/* Table row hover effect - Fixed flickering issue */
+.table tbody tr {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.08);
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+/* Large screens */
+@media (min-width: 1400px) {
+    .location-title {
+        font-size: 3rem;
+    }
+    
+    .location-subtitle {
+        font-size: 1.25rem;
+    }
+    
+    .location-icon {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .location-icon i {
+        font-size: 1.5rem;
+    }
+}
+
+/* Medium screens */
+@media (max-width: 992px) {
+    .location-title {
+        font-size: 2rem;
+    }
+    
+    .location-subtitle {
+        font-size: 1rem;
+    }
+    
+    .location-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .quick-actions-buttons {
+        justify-content: center;
+    }
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+    .location-title {
+        font-size: 1.75rem;
+    }
+    
+    .location-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .location-icon i {
+        font-size: 1rem;
+    }
+    
+    .location-header {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .location-form-card .card-body {
+        padding: 1.5rem 1rem;
+    }
+    
+    .btn-location {
+        padding: 0.875rem 1.5rem;
+        min-height: 48px;
+    }
+    
+    .quick-actions {
+        padding: 1rem;
+    }
+    
+    .quick-actions-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .quick-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .avatar {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .avatar-initial {
+        font-size: 0.875rem;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+    
+    .breadcrumb-path {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .breadcrumb-stats {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 576px) {
+    .location-title {
+        font-size: 1.5rem;
+    }
+    
+    .location-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .location-select {
+        padding: 0.875rem 2.5rem 0.875rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-help {
+        font-size: 0.8rem;
+    }
+    
+    .btn-location {
+        font-size: 0.9rem;
+        padding: 0.75rem 1.25rem;
+    }
+}
+
+/* ================================
+   LOADING AND INTERACTION STATES
+   ================================ */
+
+.form-loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.location-select:disabled {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 1.5rem;
+    backdrop-filter: blur(5px);
+}
+
+.loading-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    margin-bottom: 1rem;
+}
+
+.loading-text h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.loading-text p {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Form Validation States */
+.select-wrapper.is-valid .location-select {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.select-wrapper.is-invalid .location-select {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Notification Toast */
+.notification-toast {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+/* Focus improvements for accessibility */
+.location-select:focus,
+.btn-location:focus,
+.quick-btn:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Print styles */
+@media print {
+    .location-header,
+    .quick-actions,
+    .btn-location {
+        display: none;
+    }
+    
+    .location-form-card {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+    }
+}
+</style>
+{% endblock %}
