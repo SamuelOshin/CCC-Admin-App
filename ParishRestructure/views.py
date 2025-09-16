@@ -193,7 +193,7 @@ def determine_location_from_hierarchy(form_data):
 
 
 @login_required  
-@user_passes_test(lambda u: not u.groups.filter(name='Clergyadmin').exists())
+@user_passes_test(lambda u: u.groups.filter(name='parishadmin').exists())
 def parish_dashboard(request):
     context = {}
     

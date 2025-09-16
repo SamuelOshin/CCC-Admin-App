@@ -25,7 +25,7 @@
 
                 <div class="hr mt-2"></div>
 
-                {% if user.is_authenticated and 'TransferAdmin' in user.groups.values_list %}
+                {% if user.is_authenticated and 'transferadmin' in user.groups.values_list %}
                 <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
 
                     <li class="nav-item mb-1 ">
@@ -91,7 +91,7 @@
                     </li>
                 </ul>
                 {% endif %}
-                {% if user.is_authenticated and 'ClergyAdmin' in user.groups.values_list %}
+                {% if user.is_authenticated and 'clergyadmin' in user.groups.values_list %}
 
                 <ul class="nav nav-pills flex-column mb-auto  white" id="accordionSidebar-2">
 

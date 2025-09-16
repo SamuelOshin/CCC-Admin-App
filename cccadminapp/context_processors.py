@@ -41,7 +41,7 @@ def dashboard_context(request):
             'name': 'Clergy Management',
             'icon': 'fas fa-users',
             'color': 'primary',
-            'permission_group': 'Clergyadmin',
+            'permission_group': 'clergyadmin',
             'items': [
                 {
                     'name': 'Dashboard',
@@ -67,7 +67,7 @@ def dashboard_context(request):
             'name': 'Transfer Management',
             'icon': 'fas fa-exchange-alt', 
             'color': 'success',
-            'permission_group': 'TransferAdmin',
+            'permission_group': 'transferadmin',
             'items': [
                 {
                     'name': 'Dashboard', 
@@ -93,7 +93,7 @@ def dashboard_context(request):
             'name': 'Parish Management',
             'icon': 'fas fa-church',
             'color': 'info',
-            'permission_group': None,  # Users NOT in Clergyadmin group
+            'permission_group': 'parishadmin',  # Users in parishadmin group
             'items': [
                 {
                     'name': 'Dashboard', 
@@ -196,8 +196,8 @@ def dashboard_context(request):
             # Centralized dashboard is available to all authenticated users
             has_permission = True
         elif permission_group is None:
-            # Parish app: accessible to users NOT in Clergyadmin group
-            has_permission = 'Clergyadmin' not in user_groups
+            # Parish app: accessible to users NOT in clergyadmin group
+            has_permission = 'clergyadmin' not in user_groups
         elif permission_group in user_groups:
             has_permission = True
             
@@ -269,9 +269,9 @@ def dashboard_context(request):
     
     # Add user permission summary
     context['user_permissions'] = {
-        'can_manage_clergy': 'Clergyadmin' in user_groups or is_superuser,
-        'can_manage_transfers': 'TransferAdmin' in user_groups or is_superuser,
-        'can_manage_parishes': 'Clergyadmin' not in user_groups or is_superuser,
+        'can_manage_clergy': 'clergyadmin' in user_groups or is_superuser,
+        'can_manage_transfers': 'transferadmin' in user_groups or is_superuser,
+        'can_manage_parishes': 'parishadmin' in user_groups or is_superuser,
         'is_superuser': is_superuser,
         'groups': user_groups,
     }

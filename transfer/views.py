@@ -16,6 +16,9 @@ import datetime
 from django.utils import timezone
 from django.db import models
 
+# Import database-agnostic utilities
+from cccadminapp.utils import get_month_format
+
 #api
 class ParishRestructureViewSet(viewsets.ModelViewSet):
     queryset = ParishRestructure.objects.all()
@@ -34,7 +37,7 @@ class ParishRestructureViewSet(viewsets.ModelViewSet):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 def is_transfer_admin(user):
-    return user.groups.filter(name='TransferAdmin').exists() or user.is_superuser
+    return user.groups.filter(name='transferadmin').exists() or user.is_superuser
 
 @login_required
 @user_passes_test(is_transfer_admin)
@@ -254,7 +257,7 @@ def transfer_dashboard(request):
     monthly_transfers = TransferData.objects.filter(
         date_transfered__gte=six_months_ago
     ).extra(
-        select={'month': "to_char(date_transfered, 'YYYY-MM')"}
+        select=get_month_format('date_transfered')
     ).values('month').annotate(
         count=models.Count('id')
     ).order_by('month')

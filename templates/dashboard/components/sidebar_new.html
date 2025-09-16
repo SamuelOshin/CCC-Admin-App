@@ -222,9 +222,9 @@
                         <small class="text-white-50" style="font-size: 0.75rem;">
                             {% if user.is_superuser %}
                                 Super Administrator
-                            {% elif 'ClergyAdmin' in user_groups %}
+                            {% elif 'clergyadmin' in user_groups %}
                                 Clergy Administrator
-                            {% elif 'TransferAdmin' in user_groups %}
+                            {% elif 'transferadmin' in user_groups %}
                                 Transfer Administrator
                             {% else %}
                                 Parish Administrator

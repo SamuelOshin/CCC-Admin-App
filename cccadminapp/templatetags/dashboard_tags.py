@@ -32,7 +32,7 @@ def is_active_url(request, url_name):
 def has_permission(user, permission_name):
     """
     Check if user has a specific permission or is in a specific group.
-    Usage: {% if user|has_permission:'Clergyadmin' %}
+    Usage: {% if user|has_permission:'clergyadmin' %}
     """
     if user.is_superuser:
         return True
@@ -146,8 +146,8 @@ def permission_badge(user):
     if groups:
         group_name = groups.first().name
         color_map = {
-            'Clergyadmin': 'primary',
-            'TransferAdmin': 'success',
+            'clergyadmin': 'primary',
+            'transferadmin': 'success',
             'ParishAdmin': 'info'
         }
         color = color_map.get(group_name, 'secondary')

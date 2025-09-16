@@ -45,9 +45,9 @@ path('accounts/', include('users.urls'))               # /accounts/*
 ```
 
 ### 2. **User Permission System**
-- `TransferAdmin`: Access to transfer functionality
-- `Clergyadmin`: Access to clergy registration
-- Parish access: Users NOT in `Clergyadmin` group
+- `transferadmin`: Access to transfer functionality
+- `clergyadmin`: Access to clergy registration
+- Parish access: Users NOT in `clergyadmin` group
 - Superuser: Access to all modules
 
 ---

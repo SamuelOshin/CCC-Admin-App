@@ -18,6 +18,9 @@ from clergy_registration.models import ClergyDetails, AnnointmentGazzette
 from ParishRestructure.models import ParishDirectory, ParishRegistration
 from transfer.models import TransferData, PostingHistory, ClergyTrfbio
 
+# Import utilities
+from .utils import get_month_format
+
 logger = logging.getLogger(__name__)
 
 def landing_page(request):
@@ -44,9 +47,9 @@ def centralized_dashboard(request):
         is_superuser = request.user.is_superuser
 
         # Initialize permission flags
-        can_manage_clergy = 'Clergyadmin' in user_groups or is_superuser
-        can_manage_transfers = 'TransferAdmin' in user_groups or is_superuser
-        can_manage_parishes = 'Clergyadmin' not in user_groups or is_superuser
+        can_manage_clergy = 'clergyadmin' in user_groups or is_superuser
+        can_manage_transfers = 'transferadmin' in user_groups or is_superuser
+        can_manage_parishes = 'parishadmin' in user_groups or is_superuser
 
         context.update({
             'can_manage_clergy': can_manage_clergy,
@@ -55,13 +58,17 @@ def centralized_dashboard(request):
             'is_superuser': is_superuser,
         })
 
+        # Initialize common date variables used across all sections
+        thirty_days_ago = timezone.now().date() - timedelta(days=30)
+        six_months_ago = timezone.now().date() - timedelta(days=180)
+        current_year = timezone.now().year
+
         # ===== CLERGY STATISTICS =====
         if can_manage_clergy:
             # Basic clergy counts
             total_clergy = ClergyDetails.objects.count()
 
             # Recent registrations (last 30 days)
-            thirty_days_ago = timezone.now().date() - timedelta(days=30)
             recent_clergy_registrations = ClergyDetails.objects.filter(
                 # Using clergy_id as proxy for recent registrations since no created_at field
                 clergy_id__in=ClergyDetails.objects.order_by('-clergy_id')[:20].values_list('clergy_id', flat=True)
@@ -121,14 +128,13 @@ def centralized_dashboard(request):
             # Recent transfers (last 30 days)
             recent_transfers = TransferData.objects.filter(
                 date_transfered__gte=thirty_days_ago
-            ).select_related('clergy', 'parishTo').order_by('-date_transfered')[:5]
+            ).select_related('clergy', 'parishFrm', 'parishTo').order_by('-date_transfered')[:5]
 
             # Monthly transfer trends (last 6 months)
-            six_months_ago = timezone.now().date() - timedelta(days=180)
             monthly_transfers = TransferData.objects.filter(
                 date_transfered__gte=six_months_ago
             ).extra(
-                select={'month': "to_char(date_transfered, 'YYYY-MM')"}
+                select=get_month_format('date_transfered')
             ).values('month').annotate(
                 count=Count('id')
             ).order_by('month')
@@ -163,7 +169,7 @@ def centralized_dashboard(request):
             monthly_registrations = ParishRegistration.objects.filter(
                 date_applied__gte=six_months_ago
             ).extra(
-                select={'month': "to_char(date_applied, 'YYYY-MM')"}
+                select=get_month_format('date_applied')
             ).values('month').annotate(
                 count=Count('id')
             ).order_by('month')
@@ -220,7 +226,6 @@ def centralized_dashboard(request):
             ).exclude(place_of_annoitment='').order_by('-count')[:5]
 
             # Yearly annointment trends (last 5 years)
-            current_year = timezone.now().year
             yearly_annointments = []
             for year in range(current_year - 4, current_year + 1):
                 count = AnnointmentGazzette.objects.filter(year_of_annointment=year).count()
@@ -306,9 +311,9 @@ def analytics_dashboard(request):
         is_superuser = request.user.is_superuser
 
         # Initialize permission flags
-        can_manage_clergy = 'Clergyadmin' in user_groups or is_superuser
-        can_manage_transfers = 'TransferAdmin' in user_groups or is_superuser
-        can_manage_parishes = 'Clergyadmin' not in user_groups or is_superuser
+        can_manage_clergy = 'clergyadmin' in user_groups or is_superuser
+        can_manage_transfers = 'transferadmin' in user_groups or is_superuser
+        can_manage_parishes = 'parishadmin' in user_groups or is_superuser
 
         context.update({
             'can_manage_clergy': can_manage_clergy,
@@ -603,9 +608,9 @@ def export_analytics_data(request):
     user_groups = list(request.user.groups.values_list('name', flat=True))
     is_superuser = request.user.is_superuser
 
-    can_manage_clergy = 'Clergyadmin' in user_groups or is_superuser
-    can_manage_transfers = 'TransferAdmin' in user_groups or is_superuser
-    can_manage_parishes = 'Clergyadmin' not in user_groups or is_superuser
+    can_manage_clergy = 'clergyadmin' in user_groups or is_superuser
+    can_manage_transfers = 'transferadmin' in user_groups or is_superuser
+    can_manage_parishes = 'parishadmin' in user_groups or is_superuser
 
     try:
         if export_format == 'csv':
@@ -692,9 +697,9 @@ def export_data(request):
         is_superuser = request.user.is_superuser
 
         # Initialize permission flags
-        can_manage_clergy = 'Clergyadmin' in user_groups or is_superuser
-        can_manage_transfers = 'TransferAdmin' in user_groups or is_superuser
-        can_manage_parishes = 'Clergyadmin' not in user_groups or is_superuser
+        can_manage_clergy = 'clergyadmin' in user_groups or is_superuser
+        can_manage_transfers = 'transferadmin' in user_groups or is_superuser
+        can_manage_parishes = 'parishadmin' in user_groups or is_superuser
 
         context.update({
             'can_manage_clergy': can_manage_clergy,
@@ -1226,11 +1231,11 @@ def has_permission_for_data_type(data_type, user_groups, is_superuser):
         return True
 
     permission_map = {
-        'clergy_details': 'Clergyadmin' in user_groups,
-        'annointments': 'Clergyadmin' in user_groups,
+        'clergy_details': 'clergyadmin' in user_groups,
+        'annointments': 'clergyadmin' in user_groups,
         'parish_directory': True,  # All users can access parish directory
         'parish_registrations': True,  # All users can access parish registrations
-        'transfer_records': 'TransferAdmin' in user_groups,
+        'transfer_records': 'transferadmin' in user_groups,
         'users': is_superuser,  # Only superusers can export user data
     }
     return permission_map.get(data_type, False)

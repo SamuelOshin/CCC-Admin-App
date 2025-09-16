@@ -2,9 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
 
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     pic = models.ImageField(upload_to='userpics', null=True, blank=True, default='profile_pics/default.png')
+    password_changed = models.BooleanField(default=False, help_text="Indicates if user has changed their initial password")
 
     def __str__(self):
         return f'{self.user.username} Profile'
