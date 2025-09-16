@@ -254,7 +254,7 @@ def transfer_dashboard(request):
     monthly_transfers = TransferData.objects.filter(
         date_transfered__gte=six_months_ago
     ).extra(
-        select={'month': "strftime('%%Y-%%m', date_transfered)"}
+        select={'month': "to_char(date_transfered, 'YYYY-MM')"}
     ).values('month').annotate(
         count=models.Count('id')
     ).order_by('month')
