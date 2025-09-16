@@ -17,7 +17,7 @@ from .models import ClergyDetails
 
 
 def is_clergy_admin(user):
-    return user.groups.filter(name='Clergyadmin').exists() or user.is_superuser
+    return user.groups.filter(name='clergyadmin').exists() or user.is_superuser
 
 @user_passes_test(is_clergy_admin)
 @login_required
@@ -334,7 +334,7 @@ def edit_clergy(request, id):
         clergy = get_object_or_404(ClergyDetails, clergy_id=id)
         
         # Check if user has permission to edit this clergy
-        if not request.user.is_superuser and not request.user.groups.filter(name='Clergyadmin').exists():
+        if not request.user.is_superuser and not request.user.groups.filter(name='clergyadmin').exists():
             messages.error(request, 'You do not have permission to edit clergy details.')
             return redirect('dashboard')
         

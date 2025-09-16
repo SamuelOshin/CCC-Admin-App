@@ -245,8 +245,8 @@
                                     {% for transfer in recent_transfers %}
                                     <tr>
                                         <td>{{ transfer.clergy.first_name }} {{ transfer.clergy.last_name }}</td>
-                                        <td>{{ transfer.parishFrom.name|default:"--" }}</td>
-                                        <td>{{ transfer.parishTo.name|default:"--" }}</td>
+                                        <td>{{ transfer.parishFrm.parish.name|default:"--" }}</td>
+                                        <td>{{ transfer.parishTo.parish.name|default:"--" }}</td>
                                         <td>
                                             <span class="badge bg-{% if transfer.trf_status == 'Approved' %}success{% elif transfer.trf_status == 'Pending' %}warning{% else %}secondary{% endif %}">
                                                 {{ transfer.trf_status }}

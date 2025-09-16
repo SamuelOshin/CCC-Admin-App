@@ -2,9 +2,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from .forms import UserUpdateForm, ProfileUpdateForm
+from .forms import UserUpdateForm, ProfileUpdateForm, FirstTimePasswordChangeForm
 from django.forms.utils import ErrorList
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
 
 
 #Login a user
@@ -19,6 +20,11 @@ def login_user(request):
                 login(request, user)
                 messages.success(request, 'Login Successful.')
                 
+                # Check if user needs to change password (first time login)
+                if hasattr(user, 'userprofile') and not user.userprofile.password_changed:
+                    messages.info(request, 'Please change your default password for security.')
+                    return redirect('first_time_password_change')
+                
                 # Check for the next parameter in the request
                 next_url = request.GET.get('next')
                 # if not next_url:
@@ -31,11 +37,11 @@ def login_user(request):
                 # If no next parameter and no last visited URL, use the existing redirection logic
                 if user.is_superuser:
                     return redirect('centralized_dashboard')  # Redirect superuser to main dashboard
-                elif user.groups.filter(name='Clergyadmin').exists():
+                elif user.groups.filter(name='clergyadmin').exists():
                     return redirect('centralized_dashboard')  # Redirect to main dashboard
-                elif user.groups.filter(name='Parish Restructure Admin').exists():
+                elif user.groups.filter(name='parishadmin').exists():
                     return redirect('centralized_dashboard')  # Redirect to main dashboard
-                elif user.groups.filter(name='TransferAdmin').exists():
+                elif user.groups.filter(name='transferadmin').exists():
                     return redirect('centralized_dashboard')  # Redirect to main dashboard
                 else:
                     return redirect('centralized_dashboard')  # Default to main dashboard
@@ -107,3 +113,44 @@ def edit_profile(request):
     }
 
     return render(request, 'profile.html', context)
+
+
+@login_required
+def first_time_password_change(request):
+    """
+    View for first-time password change by new users.
+    Forces users to change their default password before accessing the system.
+    """
+    # Check if user has already changed their password
+    if hasattr(request.user, 'userprofile') and request.user.userprofile.password_changed:
+        messages.info(request, 'You have already changed your password.')
+        return redirect('centralized_dashboard')
+
+    if request.method == 'POST':
+        form = FirstTimePasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            # Save the new password
+            form.save()
+            # Update session auth hash to prevent logout
+            update_session_auth_hash(request, form.user)
+            # Mark password as changed
+            if hasattr(request.user, 'userprofile'):
+                request.user.userprofile.password_changed = True
+                request.user.userprofile.save()
+            # Show success message
+            messages.success(request, 'Password changed successfully! Welcome to the system.')
+            # Redirect to dashboard
+            return redirect('centralized_dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = FirstTimePasswordChangeForm(request.user)
+
+    context = {
+        'form': form,
+        'page_title': 'Change Your Password',
+        'page_subtitle': 'For security reasons, please change your default password before continuing.',
+        'is_first_time': True
+    }
+
+    return render(request, 'users/first_time_password_change.html', context)
