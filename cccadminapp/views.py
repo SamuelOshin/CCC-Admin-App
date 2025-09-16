@@ -128,7 +128,7 @@ def centralized_dashboard(request):
             monthly_transfers = TransferData.objects.filter(
                 date_transfered__gte=six_months_ago
             ).extra(
-                select={'month': "strftime('%%Y-%%m', date_transfered)"}
+                select={'month': "to_char(date_transfered, 'YYYY-MM')"}
             ).values('month').annotate(
                 count=Count('id')
             ).order_by('month')
@@ -163,7 +163,7 @@ def centralized_dashboard(request):
             monthly_registrations = ParishRegistration.objects.filter(
                 date_applied__gte=six_months_ago
             ).extra(
-                select={'month': "strftime('%%Y-%%m', date_applied)"}
+                select={'month': "to_char(date_applied, 'YYYY-MM')"}
             ).values('month').annotate(
                 count=Count('id')
             ).order_by('month')
