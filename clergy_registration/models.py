@@ -10,11 +10,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 class ClergyDetails(models.Model):
     clergy_id = models.AutoField(primary_key=True)
     profile_picture = models.ImageField(upload_to='profile_pics', null=True, blank=True)
-    reg_number = models.IntegerField()
-    trg_number = models.IntegerField()
-    first_name = models.CharField(max_length=50)
-    middle_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    reg_number = models.IntegerField(null=True, blank=False)
+    trg_number = models.IntegerField(null=True, blank=False)
+    first_name = models.CharField(max_length=50, null=True, blank=False)
+    middle_name = models.CharField(max_length=50, null=True, blank=False)
+    last_name = models.CharField(max_length=50, null=True, blank=False)
     alias = models.CharField(max_length=50, null=True, blank=True)
     gender = models.CharField(max_length=10, choices=[
         ('', 'Select one'),
@@ -30,8 +30,8 @@ class ClergyDetails(models.Model):
         ('Divorced', 'Divorced'),
         ('Widow', 'Widow'),
     ], default='' )  # Assuming possible values
-    dob = models.DateField()
-    spoken_languages = MultiSelectField(choices=[
+    dob = models.DateField(null=True, blank=False)
+    spoken_languages = MultiSelectField(null=True, blank=False, choices=[
         ('English', 'English'),
         ('French', 'French'),
         ('Yoruba', 'Yoruba'),
@@ -43,9 +43,9 @@ class ClergyDetails(models.Model):
         ('Pidgin', 'Pidgin'),
         ('Arabic', 'Arabic'),
     ], max_length=100)
-    place_of_birth = models.CharField(max_length=100)
+    place_of_birth = models.CharField(max_length=100, null=True, blank=False)
     
-    nationality = models.CharField(max_length=50, choices=[
+    nationality = models.CharField(max_length=50, null=True, blank=False, choices=[
         ('Nigeria', 'Nigeria'),
         ('Ghana', 'Ghana'),
         ('Benin Republic', 'Benin Republic'),
@@ -150,8 +150,8 @@ class ClergyDetails(models.Model):
                 ('Venezuela', 'Venezuela'),
                 ('Peru', 'Peru'),
             ], error_messages={'required': 'Please select a country.'})
-    state_of_origin = models.CharField(max_length=50, error_messages={'required': 'Please enter the state of origin.'})
-    lga_if_nigerian = models.CharField(max_length=50, error_messages={'required': 'Please enter the LGA if Nigerian.'})
+    state_of_origin = models.CharField(max_length=50, null=True, blank=False, error_messages={'required': 'Please enter the state of origin.'})
+    lga_if_nigerian = models.CharField(max_length=50, null=True, blank=False, error_messages={'required': 'Please enter the LGA if Nigerian.'})
     blood_group = models.CharField(max_length=5, choices=[
         ('', 'Select one'),
         ('A+', 'A+'),
@@ -163,7 +163,7 @@ class ClergyDetails(models.Model):
         ('O+', 'O+'),
         ('O-', 'O-'),
     ], default='', blank=True, error_messages={'required': 'Please select a blood group.'})
-    genotype = models.CharField(max_length=5, choices=[
+    genotype = models.CharField(max_length=5, null=True, blank=False, choices=[
         ('', 'Select one'),
         ('AA', 'AA'),
         ('AS', 'AS'),
@@ -172,34 +172,34 @@ class ClergyDetails(models.Model):
         ('AC', 'AC'),
         ('CC', 'CC'),
     ], default='', error_messages={'required': 'Please select a genotype.'})
-    any_ailment = models.CharField(max_length=3, choices=[
+    any_ailment = models.CharField(max_length=3, null=True, blank=False, choices=[
         ('', 'Select one'),
         ('Yes', 'Yes'),
         ('No', 'No'),
     ], default='',  error_messages={'required': 'Please select an option.'})
-    any_disabilities = models.CharField(max_length=3, choices=[
+    any_disabilities = models.CharField(max_length=3, null=True, blank=False, choices=[
         ('', 'Select one'),
         ('Yes', 'Yes'),
         ('No', 'No'),
     ], default='', error_messages={'required': 'Please select an option.'})
     ailment = models.CharField(max_length=50, null=True, blank=True, error_messages={'required': 'Please enter the ailment.'})
     disability = models.CharField(max_length=50, null=True, blank=True, error_messages={'required': 'Please enter the disability.'})
-    permanent_address = models.CharField(max_length=255, error_messages={'required': 'Please enter the permanent address.'})
-    resident_address = models.CharField(max_length=255, error_messages={'required': 'Please enter the resident address.'})
-    parish = models.CharField(max_length=100, error_messages={'required': 'Please enter the parish.'})
-    parish_address = models.CharField(max_length=255, error_messages={'required': 'Please enter the parish address.'})
-    telephone = PhoneNumberField(region='NG', error_messages={'required': 'Please enter the telephone number.'})
-    email_address = models.EmailField(max_length=255, error_messages={'required': 'Please enter the email address.'})
+    permanent_address = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the permanent address.'})
+    resident_address = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the resident address.'})
+    parish = models.CharField(max_length=100, null=True, blank=False, error_messages={'required': 'Please enter the parish.'})
+    parish_address = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the parish address.'})
+    telephone = PhoneNumberField(region='NG', null=True, blank=False, error_messages={'required': 'Please enter the telephone number.'})
+    email_address = models.EmailField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the email address.'})
     former_religion = models.CharField(max_length=50, null=True, blank=True, error_messages={'required': 'Please enter the former religion.'})
     denomination = models.CharField(max_length=50, null=True, blank=True, error_messages={'required': 'Please enter the denomination.'})
     status_former_religion = models.CharField(max_length=255, null=True, blank=True, error_messages={'required': 'Please enter the status of former religion.'})
-    entry_date_in_ccc = models.DateField(error_messages={'required': 'Please enter the entry date in CCC.'})
-    first_parish = models.CharField(max_length=255, error_messages={'required': 'Please enter the first parish.'})
-    shepherd_who_baptized_you = models.CharField(max_length=255, error_messages={'required': 'Please enter the shepherd who baptized you.'})
-    shepherd_who_sanctified_you = models.CharField(max_length=255, error_messages={'required': 'Please enter the shepherd who sanctified you.'})
-    date_when_baptized = models.DateField(error_messages={'required': 'Please enter the date when baptized.'})
-    parish_where_baptized = models.CharField(max_length=255, error_messages={'required': 'Please enter the parish where baptized.'})
-    first_annointment = models.CharField(max_length=50, choices=[
+    entry_date_in_ccc = models.DateField(null=True, blank=False, error_messages={'required': 'Please enter the entry date in CCC.'})
+    first_parish = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the first parish.'})
+    shepherd_who_baptized_you = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the shepherd who baptized you.'})
+    shepherd_who_sanctified_you = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the shepherd who sanctified you.'})
+    date_when_baptized = models.DateField(null=True, blank=False, error_messages={'required': 'Please enter the date when baptized.'})
+    parish_where_baptized = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the parish where baptized.'})
+    first_annointment = models.CharField(max_length=50, null=True, blank=False, choices=[
             ('MALE RANK', (
             ('', '--select--'),
             ('Asst. Elder Bro', 'Asst. Elder Bro'),
@@ -251,8 +251,8 @@ class ClergyDetails(models.Model):
             ('Sup. Snr. Prophetess(Wolima)', 'Sup. Snr. Prophetess(Wolima)'),
         )),
     ], error_messages={'required': 'Please select the first annointment.'})
-    date_of_first_annointment = models.DateField(error_messages={'required': 'Please enter the date of first annointment.'})
-    present_annointment = models.CharField(max_length=50, choices = [
+    date_of_first_annointment = models.DateField(null=True, blank=False, error_messages={'required': 'Please enter the date of first annointment.'})
+    present_annointment = models.CharField(max_length=50, null=True, blank=False, choices = [
             ('MALE RANK', (
             ('', '--select--'),
             ('Asst. Elder Bro', 'Asst. Elder Bro'),
@@ -305,7 +305,7 @@ class ClergyDetails(models.Model):
         )),
     ], error_messages={'required': 'Please select the present annointment.'})
     date_of_present_annointment = models.DateField(null=True, blank=True, error_messages={'required': 'Please enter the date of present annointment.'})
-    edu_level = MultiSelectField(choices=[
+    edu_level = MultiSelectField(null=True, blank=False, choices=[
         ('NONE','None'),  # Used for non-educated members
         ('Primary', 'Primary'),
         ('Secondary', 'Secondary'),
@@ -314,7 +314,7 @@ class ClergyDetails(models.Model):
         ('University', 'University'),
         ('Modern', 'Modern'),
     ], max_length=250, error_messages={'required': 'Please select the education level.'})
-    edu_qualification = MultiSelectField(choices=[
+    edu_qualification = MultiSelectField(null=True, blank=False, choices=[
         ('NONE', 'None'),  # Used for non-educated members
         ('Primary Leaving Certificate', 'Primary Leaving Certificate'),
         ('First School Leaving Certificate', 'First School Leaving Certificate'),
@@ -345,9 +345,9 @@ class ClergyDetails(models.Model):
         ('Doctor of Laws', 'Doctor of Laws'),
     ], max_length=1000, error_messages={'required': 'Please select the education qualification.'})
         
-    apprenticeship = models.CharField(max_length=255, error_messages={'required': 'Please enter the apprenticeship.'})
-    hobbies = models.CharField(max_length=255, error_messages={'required': 'Please enter the hobbies.'})
-    area_of_calling = MultiSelectField(choices=[
+    apprenticeship = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the apprenticeship.'})
+    hobbies = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the hobbies.'})
+    area_of_calling = MultiSelectField(null=True, blank=False, choices=[
         
         ('Evangelism', 'Evangelism'),
         ('Shepherdship', 'Shepherdship'),
@@ -363,17 +363,17 @@ class ClergyDetails(models.Model):
         ('Others', 'Others'),
 
     ], max_length=250, error_messages={'required': 'Please select the area of calling.'})
-    working_experience_option = models.CharField(max_length=3, choices=[
+    working_experience_option = models.CharField(max_length=3, null=True, blank=False, choices=[
         ('Yes', 'Yes'),
         ('No', 'No'),
     ], error_messages={'required': 'Please select an option.'})  # Assuming 'Yes', 'No'
     work_experience_ifyes = models.CharField(max_length=255, null=True, blank=True, error_messages={'required': 'Please enter the work experience if yes.'})
-    spouse = models.CharField(max_length=100, error_messages={'required': 'Please enter the spouse.'})
-    father = models.CharField(max_length=100, error_messages={'required': 'Please enter the father.'})
-    mother = models.CharField(max_length=100, error_messages={'required': 'Please enter the mother.'})
-    next_of_kin = models.CharField(max_length=50, error_messages={'required': 'Please enter the next of kin.'})
-    relation_in_ccc = models.CharField(max_length=255, error_messages={'required': 'Please enter the relation in CCC.'})
-    children_info = models.CharField(max_length=255, error_messages={'required': 'Please enter the children info.'})
+    spouse = models.CharField(max_length=100, null=True, blank=False, error_messages={'required': 'Please enter the spouse.'})
+    father = models.CharField(max_length=100, null=True, blank=False, error_messages={'required': 'Please enter the father.'})
+    mother = models.CharField(max_length=100, null=True, blank=False, error_messages={'required': 'Please enter the mother.'})
+    next_of_kin = models.CharField(max_length=50, null=True, blank=False, error_messages={'required': 'Please enter the next of kin.'})
+    relation_in_ccc = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the relation in CCC.'})
+    children_info = models.CharField(max_length=255, null=True, blank=False, error_messages={'required': 'Please enter the children info.'})
 
     class Meta:
         db_table = 'clergydetails'
@@ -390,7 +390,7 @@ class ClergyDetails(models.Model):
 
 class AnnointmentGazzette(models.Model):
     clergy = models.ForeignKey(ClergyDetails, on_delete=models.PROTECT, null=True)
-    rank = models.CharField(max_length=50, choices=[
+    rank = models.CharField(max_length=50, null=True, blank=False, choices=[
             ('MALE RANK', (
             ('', '--select--'),
             ('Asst. Elder Bro', 'Asst. Elder Bro'),
@@ -442,8 +442,8 @@ class AnnointmentGazzette(models.Model):
             ('Sup. Snr. Prophetess(Wolima)', 'Sup. Snr. Prophetess(Wolima)'),
         )),
     ], error_messages={'required': 'Please select the first annointment.'})
-    year_of_annointment = models.IntegerField()
-    month_of_annointment  = models.CharField(max_length=20, choices=[
+    year_of_annointment = models.IntegerField(null=True, blank=False)
+    month_of_annointment  = models.CharField(max_length=20, null=True, blank=False, choices=[
         ('January','January'),
         ('February','February'),
         ('March','March'),
@@ -457,7 +457,7 @@ class AnnointmentGazzette(models.Model):
         ('November','November'),
         ('December','December'),
     ], error_messages={'required': 'Please enter the month of your annointing.'})
-    place_of_annoitment = models.CharField(max_length=50, choices=[
+    place_of_annoitment = models.CharField(max_length=50, null=True, blank=False, choices=[
         (None,'--- Please Select ---'),
         ("CCC Int'l Hqtrs",  "CCC International Headquarters"),
         ("CCC National Hqtrs", "CCC National Headquarters"),
@@ -473,7 +473,7 @@ class AnnointmentGazzette(models.Model):
         ("Egypt", "Egypt"),
         ("Isreal", "Isreal"),
     ])
-    annoiter = models.CharField(max_length=40, choices=[
+    annoiter = models.CharField(max_length=40, null=True, blank=False, choices=[
         (None,"--- Please Enter Annoiter Name ---"),
         ("Rev. Founder S.J.B Oshoffa", "Rev. Founder S.J.B Oshoffa"),
         ("Rev A.A Bada",  "Rev. A.A Bada"),

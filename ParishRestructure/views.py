@@ -66,8 +66,8 @@ def restructure_parish(request):
                     
                     # Determine the appropriate location based on form hierarchy
                     location = None
-                    if form.cleaned_data.get('circuit'):
-                        location = form.cleaned_data['circuit']
+                    if form.cleaned_data.get('zone'):
+                        location = form.cleaned_data['zone']
                     elif form.cleaned_data.get('district'):
                         location = form.cleaned_data['district']
                     elif form.cleaned_data.get('area'):
@@ -163,7 +163,7 @@ def determine_location_from_hierarchy(form_data):
     Determine the most specific location from the form hierarchy.
 
     This function takes form cleaned_data and returns the most specific
-    location object based on the hierarchy: circuit > district > area > state > region > diocese
+    location object based on the hierarchy: zone > district > area > state > region > diocese
 
     Args:
         form_data (dict): Cleaned form data containing location fields
@@ -173,8 +173,8 @@ def determine_location_from_hierarchy(form_data):
     """
     try:
         # Check hierarchy from most specific to least specific
-        if form_data.get('circuit'):
-            return form_data['circuit']
+        if form_data.get('zone'):
+            return form_data['zone']
         elif form_data.get('district'):
             return form_data['district']
         elif form_data.get('area'):
@@ -191,9 +191,11 @@ def determine_location_from_hierarchy(form_data):
         logger.error(f"Error determining location from hierarchy: {str(e)}")
         return None
 
+def is_parish_admin(user):
+    return user.groups.filter(name='parishadmin').exists() or user.is_superuser
 
 @login_required  
-@user_passes_test(lambda u: u.groups.filter(name='parishadmin').exists())
+@user_passes_test(is_parish_admin)
 def parish_dashboard(request):
     context = {}
     
@@ -861,7 +863,7 @@ def determine_location_from_hierarchy(cleaned_data):
     Returns:
         Location instance or None
     """
-    location_hierarchy = ['circuit', 'district', 'area', 'state', 'region', 'diocese']
+    location_hierarchy = ['zone', 'district', 'area', 'state', 'region', 'diocese']
 
     for location_type in location_hierarchy:
         if location_type in cleaned_data and cleaned_data[location_type]:

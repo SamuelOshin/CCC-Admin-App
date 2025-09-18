@@ -7,10 +7,11 @@ class Location(models.Model):
         ('archdiocese', 'Arch Diocese'),
         ('region', 'Region'),
         ('state', 'State'),
+        ('division', 'Division'),
         ('area', 'Area'),
         ('district', 'District'),
         ('specialdistrict', 'Special District'),
-        ('circuit', 'Circuit'),
+        ('zone', 'Zone'),
         ('parish', 'Parish'),
     ]
     

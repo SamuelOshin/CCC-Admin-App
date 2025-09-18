@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var stateSelect = $('#id_state');
   var areaSelect = $('#id_area');
   var districtSelect = $('#id_district');
-  var circuitSelect = $('#id_circuit');
+  var zoneSelect = $('#id_zone');
 
   // Store active requests to prevent race conditions
   var activeRequests = {
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
   stateSelect.select2();
   areaSelect.select2();
   districtSelect.select2();
-  circuitSelect.select2();
+  zoneSelect.select2();
 
   // Utility function to safely clear select without triggering change events
   function clearSelectSafely(selectElement, placeholderText) {
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
     clearSelectSafely(stateSelect, 'Select State');
     clearSelectSafely(areaSelect, 'Select Area');
     clearSelectSafely(districtSelect, 'Select District');
-    clearSelectSafely(circuitSelect, 'Select Circuit');
+    clearSelectSafely(zoneSelect, 'Select zone');
 
     // Only make API call if dioceseId is not empty
     if (dioceseId && dioceseId.trim() !== '') {
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
     clearSelectSafely(stateSelect, 'Select State');
     clearSelectSafely(areaSelect, 'Select Area');
     clearSelectSafely(districtSelect, 'Select District');
-    clearSelectSafely(circuitSelect, 'Select Circuit');
+    clearSelectSafely(zoneSelect, 'Select zone');
 
     // Only make API call if regionId is not empty
     if (regionId && regionId.trim() !== '') {
@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Clear previous selections without triggering change events
     clearSelectSafely(areaSelect, 'Select Area');
     clearSelectSafely(districtSelect, 'Select District');
-    clearSelectSafely(circuitSelect, 'Select Circuit');
+    clearSelectSafely(zoneSelect, 'Select zone');
 
     // Only make API call if stateId is not empty
     if (stateId && stateId.trim() !== '') {
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Clear previous selections without triggering change events
     clearSelectSafely(districtSelect, 'Select District');
-    clearSelectSafely(circuitSelect, 'Select Circuit');
+    clearSelectSafely(zoneSelect, 'Select zone');
 
     // Only make API call if areaId is not empty
     if (areaId && areaId.trim() !== '') {
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
     cancelActiveRequest('district');
 
     // Clear previous selections without triggering change events
-    clearSelectSafely(circuitSelect, 'Select Circuit');
+    clearSelectSafely(zoneSelect, 'Select zone');
 
     // Only make API call if districtId is not empty
     if (districtId && districtId.trim() !== '') {
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var controller = new AbortController();
       activeRequests.district = controller;
 
-      // Fetch circuits for the selected district
+      // Fetch zones for the selected district
       fetch(`/get_regions_and_areas/?district_id=${districtId}`, {
         signal: controller.signal
       })
@@ -343,11 +343,11 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
           console.log('Received data:', data); // Debugging: Log received data
 
-          // Populate circuits select
-          if (data.circuits && data.circuits.length > 0) {
-            data.circuits.forEach(circuit => {
-              var option = new Option(circuit.name, circuit.id, false, false);
-              circuitSelect.append(option);
+          // Populate zones select
+          if (data.zones && data.zones.length > 0) {
+            data.zones.forEach(zone => {
+              var option = new Option(zone.name, zone.id, false, false);
+              zoneSelect.append(option);
             });
           }
           // Clear active request
