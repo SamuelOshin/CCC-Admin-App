@@ -178,16 +178,16 @@
                             </div>
                         </div>
 
-                        <!-- Circuit Selection -->
+                        <!-- zone Selection -->
                         <div class="col-12">
                             <div class="form-floating position-relative">
-                                {{ form.circuit|add_class:"form-select"|attr:"id:id_circuit" }}
-                                <label for="id_circuit">
-                                    <i class="bi bi-circle me-1"></i>{{ form.circuit.label }}
+                                {{ form.zone|add_class:"form-select"|attr:"id:id_zone" }}
+                                <label for="id_zone">
+                                    <i class="bi bi-circle me-1"></i>{{ form.zone.label }}
                                 </label>
-                                {% if form.circuit.errors %}
+                                {% if form.zone.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {% for error in form.circuit.errors %}
+                                        {% for error in form.zone.errors %}
                                             {{ error }}
                                         {% endfor %}
                                     </div>
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize regular select fields without Select2 for better form-floating integration
-    const regularSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_circuit'];
+    const regularSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_zone'];
     regularSelects.forEach(selector => {
         const selectElement = document.querySelector(selector);
         if (selectElement && selectElement.options.length <= 1) {
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#id_address').val('');
         
         // Clear all dependent fields
-        const dependentSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_circuit'];
+        const dependentSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_zone'];
         dependentSelects.forEach(selector => {
             const selectElement = document.querySelector(selector);
             if (selectElement) {
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const stateSelect = document.getElementById('id_state');
     const areaSelect = document.getElementById('id_area');
     const districtSelect = document.getElementById('id_district');
-    const circuitSelect = document.getElementById('id_circuit');
+    const zoneSelect = document.getElementById('id_zone');
 
     if (dioceseSelect) {
         dioceseSelect.addEventListener('change', function() {
@@ -336,13 +336,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (districtSelect) {
         districtSelect.addEventListener('change', function() {
-            updateCircuits(this.value);
+            updatezones(this.value);
         });
     }
 
     function updateRegions(dioceseId) {
         if (!dioceseId) {
-            resetDependentSelects([regionSelect, stateSelect, areaSelect, districtSelect, circuitSelect]);
+            resetDependentSelects([regionSelect, stateSelect, areaSelect, districtSelect, zoneSelect]);
             return;
         }
         
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
                 // Clear dependent fields
-                resetDependentSelects([stateSelect, areaSelect, districtSelect, circuitSelect]);
+                resetDependentSelects([stateSelect, areaSelect, districtSelect, zoneSelect]);
             })
             .catch(error => {
                 console.error('Error updating regions:', error);
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateStates(regionId) {
         if (!regionId) {
-            resetDependentSelects([stateSelect, areaSelect, districtSelect, circuitSelect]);
+            resetDependentSelects([stateSelect, areaSelect, districtSelect, zoneSelect]);
             return;
         }
         
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 // Clear dependent fields
-                resetDependentSelects([areaSelect, districtSelect, circuitSelect]);
+                resetDependentSelects([areaSelect, districtSelect, zoneSelect]);
             })
             .catch(error => {
                 console.error('Error updating states:', error);
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateAreas(stateId) {
         if (!stateId) {
-            resetDependentSelects([areaSelect, districtSelect, circuitSelect]);
+            resetDependentSelects([areaSelect, districtSelect, zoneSelect]);
             return;
         }
         
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 // Clear dependent fields
-                resetDependentSelects([districtSelect, circuitSelect]);
+                resetDependentSelects([districtSelect, zoneSelect]);
             })
             .catch(error => {
                 console.error('Error updating areas:', error);
@@ -418,20 +418,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateDistricts(areaId) {
         if (!areaId) {
-            resetDependentSelects([districtSelect, circuitSelect]);
+            resetDependentSelects([districtSelect, zoneSelect]);
             return;
         }
         // Implementation for districts if needed
         console.log('Update districts for area:', areaId);
     }
 
-    function updateCircuits(districtId) {
+    function updatezones(districtId) {
         if (!districtId) {
-            resetDependentSelects([circuitSelect]);
+            resetDependentSelects([zoneSelect]);
             return;
         }
-        // Implementation for circuits if needed
-        console.log('Update circuits for district:', districtId);
+        // Implementation for zones if needed
+        console.log('Update zones for district:', districtId);
     }
 
     function resetDependentSelects(selects) {

@@ -24,7 +24,7 @@ class ParishForm(forms.ModelForm):
     state = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select State", required=False)
     area = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Area", required=False)
     district = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select District", required=False)
-    circuit = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Circuit", required=False)
+    zone = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select zone", required=False)
 
     class Meta:
         model = ParishRestructure
@@ -44,7 +44,7 @@ class ParishForm(forms.ModelForm):
         self.fields['district'].queryset = Location.objects.filter(
             Q(name='Special District') | Q(level='district')
         )
-        self.fields['circuit'].queryset = Location.objects.none()
+        self.fields['zone'].queryset = Location.objects.none()
 
         if 'diocese' in self.data:
             try:
@@ -89,8 +89,8 @@ class ParishForm(forms.ModelForm):
         if 'district' in self.data:
             try:
                 district_id = int(self.data.get('district'))
-                circuits = Location.objects.filter(parent_id=district_id, level='circuit')
-                self.fields['circuit'].queryset = circuits
+                zones = Location.objects.filter(parent_id=district_id, level='zone')
+                self.fields['zone'].queryset = zones
             except (ValueError, TypeError):
                 pass
 
@@ -101,20 +101,20 @@ class ParishForm(forms.ModelForm):
         state = cleaned_data.get('state')
         area = cleaned_data.get('area')
         district = cleaned_data.get('district')
-        circuit = cleaned_data.get('circuit')
+        zone = cleaned_data.get('zone')
 
-        if not region and not area and not district and not circuit and not state and diocese:
+        if not region and not area and not district and not zone and not state and diocese:
             cleaned_data['location'] = diocese
-        elif not area and not district and not circuit and not state and region:
+        elif not area and not district and not zone and not state and region:
             cleaned_data['location'] = region
-        elif not area and not district and not circuit and state:
+        elif not area and not district and not zone and state:
             cleaned_data['location'] = state
-        elif not district and not circuit and area:
+        elif not district and not zone and area:
             cleaned_data['location'] = area
-        elif not circuit and district:
+        elif not zone and district:
             cleaned_data['location'] = district
-        elif circuit:
-            cleaned_data['location'] = circuit
+        elif zone:
+            cleaned_data['location'] = zone
 
         return cleaned_data
 

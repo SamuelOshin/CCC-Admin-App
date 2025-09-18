@@ -162,16 +162,16 @@
                             </div>
                         </div>
 
-                        <!-- Circuit Selection -->
+                        <!-- zone Selection -->
                         <div class="col-md-6 col-lg-4">
                             <div class="mb-3">
-                                <label for="{{ form.circuit.id_for_label }}" class="form-label fw-semibold">
-                                    <i class="bi bi-circle text-primary me-1"></i>{{ form.circuit.label }}
+                                <label for="{{ form.zone.id_for_label }}" class="form-label fw-semibold">
+                                    <i class="bi bi-circle text-primary me-1"></i>{{ form.zone.label }}
                                 </label>
-                                {{ form.circuit|add_class:"form-select location-select" }}
-                                {% if form.circuit.errors %}
+                                {{ form.zone|add_class:"form-select location-select" }}
+                                {% if form.zone.errors %}
                                     <div class="text-danger small mt-1">
-                                        {{ form.circuit.errors }}
+                                        {{ form.zone.errors }}
                                     </div>
                                 {% endif %}
                             </div>
@@ -225,7 +225,7 @@ const FORM_FIELD_IDS = {
     state: '{{ form.state.id_for_label }}',
     area: '{{ form.area.id_for_label }}',
     district: '{{ form.district.id_for_label }}',
-    circuit: '{{ form.circuit.id_for_label }}'
+    zone: '{{ form.zone.id_for_label }}'
 };
 
 $(document).ready(function() {
@@ -251,7 +251,7 @@ function initializeLocationHierarchy() {
         if (dioceseId) {
             loadRegions(dioceseId);
         } else {
-            resetLocationFields(['region', 'state', 'area', 'district', 'circuit']);
+            resetLocationFields(['region', 'state', 'area', 'district', 'zone']);
         }
     });
 
@@ -261,7 +261,7 @@ function initializeLocationHierarchy() {
         if (regionId) {
             loadStates(regionId);
         } else {
-            resetLocationFields(['state', 'area', 'district', 'circuit']);
+            resetLocationFields(['state', 'area', 'district', 'zone']);
         }
     });
 
@@ -271,7 +271,7 @@ function initializeLocationHierarchy() {
         if (stateId) {
             loadAreas(stateId);
         } else {
-            resetLocationFields(['area', 'district', 'circuit']);
+            resetLocationFields(['area', 'district', 'zone']);
         }
     });
 
@@ -281,7 +281,7 @@ function initializeLocationHierarchy() {
         if (areaId) {
             loadDistricts(areaId);
         } else {
-            resetLocationFields(['district', 'circuit']);
+            resetLocationFields(['district', 'zone']);
         }
     });
 
@@ -289,9 +289,9 @@ function initializeLocationHierarchy() {
     $('#' + FORM_FIELD_IDS.district).on('change', function() {
         const districtId = $(this).val();
         if (districtId) {
-            loadCircuits(districtId);
+            loadzones(districtId);
         } else {
-            resetLocationFields(['circuit']);
+            resetLocationFields(['zone']);
         }
     });
 }
@@ -332,10 +332,10 @@ function loadDistricts(areaId) {
     updateSelect(FORM_FIELD_IDS.district, [], 'Select District');
 }
 
-function loadCircuits(districtId) {
-    // For now, circuits are not implemented in the existing API
+function loadzones(districtId) {
+    // For now, zones are not implemented in the existing API
     // We'll need to add this functionality later
-    updateSelect(FORM_FIELD_IDS.circuit, [], 'Select Circuit');
+    updateSelect(FORM_FIELD_IDS.zone, [], 'Select zone');
 }
 
 function updateSelect(selectId, data, placeholder) {
@@ -357,7 +357,7 @@ function resetLocationFields(fieldNames) {
 }
 
 function getNextSelectId(currentId) {
-    const hierarchy = ['diocese', 'region', 'state', 'area', 'district', 'circuit'];
+    const hierarchy = ['diocese', 'region', 'state', 'area', 'district', 'zone'];
     const currentIndex = hierarchy.findIndex(level => currentId.includes(level));
 
     if (currentIndex !== -1 && currentIndex < hierarchy.length - 1) {
@@ -368,7 +368,7 @@ function getNextSelectId(currentId) {
 
 function resetForm() {
     $('#parishForm')[0].reset();
-    resetLocationFields(['region', 'state', 'area', 'district', 'circuit']);
+    resetLocationFields(['region', 'state', 'area', 'district', 'zone']);
 }
 
 function showError(message) {
