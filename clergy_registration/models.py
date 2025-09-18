@@ -152,7 +152,7 @@ class ClergyDetails(models.Model):
             ], error_messages={'required': 'Please select a country.'})
     state_of_origin = models.CharField(max_length=50, null=True, blank=False, error_messages={'required': 'Please enter the state of origin.'})
     lga_if_nigerian = models.CharField(max_length=50, null=True, blank=False, error_messages={'required': 'Please enter the LGA if Nigerian.'})
-    blood_group = models.CharField(max_length=5, choices=[
+    blood_group = models.CharField(max_length=5, null=True, blank=False, choices=[
         ('', 'Select one'),
         ('A+', 'A+'),
         ('A-', 'A-'),
@@ -162,7 +162,7 @@ class ClergyDetails(models.Model):
         ('AB-', 'AB-'),
         ('O+', 'O+'),
         ('O-', 'O-'),
-    ], default='', blank=True, error_messages={'required': 'Please select a blood group.'})
+    ], default='', error_messages={'required': 'Please select a blood group.'})
     genotype = models.CharField(max_length=5, null=True, blank=False, choices=[
         ('', 'Select one'),
         ('AA', 'AA'),
