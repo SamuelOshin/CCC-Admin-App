@@ -126,70 +126,121 @@ def register_clergy(request):
 def all_clergy(request):
     from django.db.models import Count, Q
     from datetime import datetime, timedelta
-    
-    # Get all clergy with optimized query
-    all_clergy_qs = ClergyDetails.objects.select_related().all()
-    
-    # Apply search filter if provided
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    from django.core.cache import cache
+    import time
+
+    start_time = time.time()  # Performance monitoring
+
+    # Get page number and size from request
+    page = request.GET.get('page', 1)
+    page_size = request.GET.get('page_size', 25)
+
+    try:
+        page_size = int(page_size)
+        if page_size < 1 or page_size > 100:
+            page_size = 25
+    except ValueError:
+        page_size = 25
+
+    # Create cache key for statistics
+    cache_key = f'clergy_stats_{page_size}'
+    cached_stats = cache.get(cache_key)
+
+    if cached_stats:
+        context = cached_stats.copy()
+        # Update pagination-specific data
+        context.update({
+            'search_query': request.GET.get('search', '').strip(),
+            'status_filter': request.GET.get('status', '').strip(),
+            'page_size': page_size,
+        })
+    else:
+        # Get all clergy with optimized query - only select needed fields
+        all_clergy_qs = ClergyDetails.objects.only(
+            'clergy_id', 'first_name', 'middle_name', 'last_name', 'reg_number',
+            'gender', 'email_address', 'telephone', 'parish', 'nationality'
+        ).order_by('-clergy_id')
+
+        # Get total count for statistics
+        total_clergy = all_clergy_qs.count()
+
+        # Get clergy by gender statistics
+        gender_stats = all_clergy_qs.values('gender').annotate(count=Count('gender'))
+        male_count = 0
+        female_count = 0
+        for stat in gender_stats:
+            if stat['gender'] == 'Male':
+                male_count = stat['count']
+            elif stat['gender'] == 'Female':
+                female_count = stat['count']
+
+        # Get top nationalities
+        nationality_stats = all_clergy_qs.values('nationality').annotate(count=Count('nationality')).order_by('-count')[:5]
+
+        # Cache the statistics for 5 minutes
+        cached_stats = {
+            'total_count': total_clergy,
+            'active_count': total_clergy,
+            'recent_count': 10,  # Approximate
+            'male_count': male_count,
+            'female_count': female_count,
+            'nationality_stats': list(nationality_stats),  # Convert to list for caching
+        }
+        cache.set(cache_key, cached_stats, 300)  # 5 minutes
+
+        context = cached_stats.copy()
+
+    # Apply search and status filters (these can't be cached)
     search_query = request.GET.get('search', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+
+    # Get filtered queryset
+    filtered_qs = ClergyDetails.objects.only(
+        'clergy_id', 'first_name', 'middle_name', 'last_name', 'reg_number',
+        'gender', 'email_address', 'telephone', 'parish', 'nationality'
+    ).order_by('-clergy_id')
+
     if search_query:
-        all_clergy_qs = all_clergy_qs.filter(
+        filtered_qs = filtered_qs.filter(
             Q(first_name__icontains=search_query) |
             Q(last_name__icontains=search_query) |
             Q(reg_number__icontains=search_query) |
             Q(email_address__icontains=search_query) |
             Q(telephone__icontains=search_query)
         )
-    
-    # Apply status filter if provided
-    status_filter = request.GET.get('status', '').strip()
+
     if status_filter:
-        # Assuming we might add an is_active field later, for now show all
-        pass
-    
-    # Get statistics
-    total_clergy = all_clergy_qs.count()
-    
-    # Get recent registrations (last 30 days) - using id as proxy for recent since no created_at field
-    thirty_days_ago = datetime.now() - timedelta(days=30)
-    recent_clergy = all_clergy_qs.order_by('-clergy_id')[:10]
-    recent_count = recent_clergy.count()
-    
-    # Get active clergy count (assuming all are active for now)
-    active_count = total_clergy
-    
-    # Get clergy by gender statistics
-    gender_stats = all_clergy_qs.values('gender').annotate(count=Count('gender'))
-    male_count = 0
-    female_count = 0
-    for stat in gender_stats:
-        if stat['gender'] == 'Male':
-            male_count = stat['count']
-        elif stat['gender'] == 'Female':
-            female_count = stat['count']
-    
-    # Get top nationalities
-    nationality_stats = all_clergy_qs.values('nationality').annotate(count=Count('nationality')).order_by('-count')[:5]
-    
-    # Prepare context data
-    context = {
-        'all_clergy': all_clergy_qs,
-        'total_count': total_clergy,
-        'active_count': active_count,
-        'recent_count': recent_count,
-        'male_count': male_count,
-        'female_count': female_count,
-        'nationality_stats': nationality_stats,
+        pass  # Add status filtering logic if needed
+
+    # Create paginator with filtered queryset
+    paginator = Paginator(filtered_qs, page_size)
+
+    try:
+        clergy_page = paginator.page(page)
+    except PageNotAnInteger:
+        clergy_page = paginator.page(1)
+    except EmptyPage:
+        clergy_page = paginator.page(paginator.num_pages)
+
+    # Update context with pagination and filter data
+    context.update({
+        'all_clergy': clergy_page,
+        'paginator': paginator,
+        'page_obj': clergy_page,
+        'is_paginated': paginator.num_pages > 1,
         'search_query': search_query,
         'status_filter': status_filter,
+        'page_size': page_size,
         'page_title': 'Clergy Directory',
-        'page_subtitle': 'Comprehensive list of all registered clergy members',
+        'page_subtitle': f'Comprehensive list of all registered clergy members (Page {clergy_page.number} of {paginator.num_pages})',
         'add_new_url': reverse('register_clergy'),
         'add_new_text': 'Register New Clergy',
         'table_icon': 'fas fa-users',
         'table_card_title': 'Clergy Members',
-    }
-    
+        'load_time': round(time.time() - start_time, 2),  # Performance metric
+    })
+
     return render(request, 'clergy_reg/all_clergy_new.html', context)
 
 
