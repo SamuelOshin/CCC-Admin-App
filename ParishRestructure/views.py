@@ -1160,25 +1160,100 @@ def all_parish(request):
     Display all parishes in the directory with enhanced context for the dashboard.
 
     Provides comprehensive parish data with statistics and management options.
+    Includes optimized pagination for large datasets with caching.
     """
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    from django.core.cache import cache
+    import time
+
+    start_time = time.time()
+
     try:
-        # Get all parishes with optimized query
-        parishes = ParishDirectory.objects.all().order_by('name')
+        # Get page number and size from request
+        page = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 25)
 
-        # Calculate statistics
-        total_parishes = parishes.count()
-        registered_parishes = parishes.filter(register_status=True).count()
-        unregistered_parishes = total_parishes - registered_parishes
+        try:
+            page_size = int(page_size)
+            if page_size < 1 or page_size > 100:
+                page_size = 25
+        except ValueError:
+            page_size = 25
 
-        # Context data for enhanced template
-        context = {
-            'parishes': parishes,
-            'total_parishes': total_parishes,
-            'registered_parishes': registered_parishes,
-            'unregistered_parishes': unregistered_parishes,
-            'registration_percentage': round((registered_parishes / total_parishes * 100), 1) if total_parishes > 0 else 0,
+        # Create cache key for statistics
+        cache_key = f'parish_stats_{page_size}'
+        cached_stats = cache.get(cache_key)
+
+        if cached_stats:
+            context = cached_stats.copy()
+            # Update pagination-specific data
+            context.update({
+                'search_query': request.GET.get('search', '').strip(),
+                'status_filter': request.GET.get('status', '').strip(),
+                'page_size': page_size,
+            })
+        else:
+            # Get total statistics (cached)
+            total_parishes = ParishDirectory.objects.count()
+            registered_parishes = ParishDirectory.objects.filter(register_status=True).count()
+            unregistered_parishes = total_parishes - registered_parishes
+
+            # Cache the statistics for 10 minutes
+            cached_stats = {
+                'total_parishes': total_parishes,
+                'registered_parishes': registered_parishes,
+                'unregistered_parishes': unregistered_parishes,
+                'registration_percentage': round((registered_parishes / total_parishes * 100), 1) if total_parishes > 0 else 0,
+            }
+            cache.set(cache_key, cached_stats, 600)  # 10 minutes
+
+            context = cached_stats.copy()
+
+        # Apply search and status filters
+        search_query = request.GET.get('search', '').strip()
+        status_filter = request.GET.get('status', '').strip()
+
+        # Get filtered queryset with optimized fields
+        parishes_qs = ParishDirectory.objects.select_related('location').only(
+            'id', 'name', 'address', 'phone', 'email', 'register_status',
+            'location__name', 'location__level'
+        ).order_by('name')
+
+        if search_query:
+            from django.db.models import Q
+            parishes_qs = parishes_qs.filter(
+                Q(name__icontains=search_query) |
+                Q(address__icontains=search_query) |
+                Q(phone__icontains=search_query) |
+                Q(email__icontains=search_query) |
+                Q(location__name__icontains=search_query)
+            )
+
+        if status_filter in ['registered', 'unregistered']:
+            is_registered = status_filter == 'registered'
+            parishes_qs = parishes_qs.filter(register_status=is_registered)
+
+        # Create paginator
+        paginator = Paginator(parishes_qs, page_size)
+
+        try:
+            parishes_page = paginator.page(page)
+        except PageNotAnInteger:
+            parishes_page = paginator.page(1)
+        except EmptyPage:
+            parishes_page = paginator.page(paginator.num_pages)
+
+        # Update context with pagination data
+        context.update({
+            'parishes': parishes_page,
+            'paginator': paginator,
+            'page_obj': parishes_page,
+            'is_paginated': paginator.num_pages > 1,
+            'search_query': search_query,
+            'status_filter': status_filter,
+            'page_size': page_size,
             'page_title': 'Parish Directory',
-            'page_subtitle': 'Complete overview of all parishes in the system',
+            'page_subtitle': f'Complete overview of all parishes in the system (Page {parishes_page.number} of {paginator.num_pages})',
             'breadcrumb_items': [
                 {'title': 'Dashboard', 'url': 'parish_dashboard'},
                 {'title': 'All Parishes', 'url': None, 'active': True}
@@ -1186,24 +1261,25 @@ def all_parish(request):
             'quick_stats': [
                 {
                     'title': 'Total Parishes',
-                    'value': total_parishes,
+                    'value': context['total_parishes'],
                     'icon': 'bi-building',
                     'color': 'primary'
                 },
                 {
                     'title': 'Registered',
-                    'value': registered_parishes,
+                    'value': context['registered_parishes'],
                     'icon': 'bi-check-circle-fill',
                     'color': 'success'
                 },
                 {
                     'title': 'Pending Registration',
-                    'value': unregistered_parishes,
+                    'value': context['unregistered_parishes'],
                     'icon': 'bi-clock',
                     'color': 'warning'
                 }
-            ]
-        }
+            ],
+            'load_time': round(time.time() - start_time, 2),
+        })
 
         return render(request, 'ParishRestructure/view_allparish.html', context)
 

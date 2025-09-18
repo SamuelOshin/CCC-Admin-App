@@ -1,0 +1,166 @@
+{% load static %}
+{% comment %}
+Pagination component for large datasets
+Supports page size selection and maintains query parameters
+{% endcomment %}
+
+{% if is_paginated %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Page Size Selector -->
+                <div class="row align-items-center mb-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <label for="pageSizeSelect" class="me-2 mb-0">Items per page:</label>
+                            <select id="pageSizeSelect" class="form-select form-select-sm" style="width: auto;">
+                                <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
+                                <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
+                                <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+                                <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} entries
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Pagination Controls -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-0">
+                        <!-- Previous Button -->
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}page={{ page_obj.previous_page_number }}&page_size={{ page_size }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </span>
+                            </li>
+                        {% endif %}
+
+                        <!-- Page Numbers -->
+                        {% for page_num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == page_num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% elif page_num > page_obj.number|add:-3 and page_num < page_obj.number|add:3 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}page={{ page_num }}&page_size={{ page_size }}">{{ page_num }}</a>
+                                </li>
+                            {% elif page_num == page_obj.paginator.page_range|first and page_obj.number > 4 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}page=1&page_size={{ page_size }}">1</a>
+                                </li>
+                                {% if page_obj.number > 5 %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% elif page_num == page_obj.paginator.page_range|last and page_obj.number < page_obj.paginator.num_pages|add:-3 %}
+                                {% if page_obj.number < page_obj.paginator.num_pages|add:-4 %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}page={{ page_obj.paginator.num_pages }}&page_size={{ page_size }}">{{ page_obj.paginator.num_pages }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Next Button -->
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}page={{ page_obj.next_page_number }}&page_size={{ page_size }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+
+                <!-- Jump to Page -->
+                {% if paginator.num_pages > 10 %}
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <form class="d-inline-flex align-items-center" method="get">
+                            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                            {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+                            <input type="hidden" name="page_size" value="{{ page_size }}">
+                            <label for="jumpPage" class="me-2 mb-0">Jump to page:</label>
+                            <input type="number" id="jumpPage" name="page" class="form-control form-control-sm me-2"
+                                   min="1" max="{{ paginator.num_pages }}" value="{{ page_obj.number }}"
+                                   style="width: 80px;">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Go</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle page size change
+document.getElementById('pageSizeSelect').addEventListener('change', function() {
+    const pageSize = this.value;
+    const url = new URL(window.location);
+
+    // Update page_size parameter
+    url.searchParams.set('page_size', pageSize);
+
+    // Reset to page 1 when changing page size
+    url.searchParams.set('page', '1');
+
+    // Navigate to new URL
+    window.location.href = url.toString();
+});
+
+// Auto-submit jump to page form on enter
+document.getElementById('jumpPage').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        this.form.submit();
+    }
+});
+</script>
+
+<style>
+.pagination .page-link {
+    color: #5e35b1;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #5e35b1;
+    border-color: #5e35b1;
+}
+
+.pagination .page-link:hover {
+    color: #4a2c7a;
+    background-color: #f8f9fa;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+</style>
+{% endif %}
