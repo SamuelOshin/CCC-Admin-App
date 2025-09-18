@@ -379,11 +379,16 @@ class ClergyDetails(models.Model):
         db_table = 'clergydetails'
 
     def __str__(self):
-        return self.first_name + " " + self.last_name
+        first_name = self.first_name or ""
+        last_name = self.last_name or ""
+        return f"{first_name} {last_name}".strip()
 
     def get_full_name(self):
         """Return the full name of the clergy member."""
-        full_name = f"{self.first_name} {self.middle_name} {self.last_name}".strip()
+        first_name = self.first_name or ""
+        middle_name = self.middle_name or ""
+        last_name = self.last_name or ""
+        full_name = f"{first_name} {middle_name} {last_name}".strip()
         return full_name
     
 
