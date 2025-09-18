@@ -16,13 +16,13 @@ class ClergyDetails(models.Model):
     middle_name = models.CharField(max_length=50, null=True, blank=False)
     last_name = models.CharField(max_length=50, null=True, blank=False)
     alias = models.CharField(max_length=50, null=True, blank=True)
-    gender = models.CharField(max_length=10, choices=[
+    gender = models.CharField(max_length=10, null=True, blank=False, choices=[
         ('', 'Select one'),
         ('Male', 'Male'),
         ('Female', 'Female'),
         ('undefined', 'None'),
     ], default='') # Assuming 'male', 'female', 'other'
-    marital_status = models.CharField(max_length=20,choices=[
+    marital_status = models.CharField(max_length=20, null=True, blank=False, choices=[
          ('', 'Select one'),
          ('Single', 'Single'),
         ('Married', 'Married'),
