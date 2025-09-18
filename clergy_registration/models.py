@@ -10,7 +10,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 class ClergyDetails(models.Model):
     clergy_id = models.AutoField(primary_key=True)
     profile_picture = models.ImageField(upload_to='profile_pics', null=True, blank=True)
-    reg_number = models.IntegerField(null=True, blank=False)
+    reg_number = models.CharField(max_length=20, null=True, blank=False)
     trg_number = models.IntegerField(null=True, blank=False)
     first_name = models.CharField(max_length=50, null=True, blank=False)
     middle_name = models.CharField(max_length=50, null=True, blank=False)
