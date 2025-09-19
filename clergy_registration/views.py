@@ -17,7 +17,9 @@ from .models import ClergyDetails
 
 
 def is_clergy_admin(user):
-    return user.groups.filter(name='clergyadmin').exists() or user.is_superuser
+    result = user.groups.filter(name='clergyadmin').exists() or user.is_superuser
+    print(f"DEBUG: is_clergy_admin for user {user.username if user.is_authenticated else 'Anonymous'}: {result}")
+    return result
 
 @user_passes_test(is_clergy_admin)
 @login_required
@@ -252,7 +254,10 @@ def view_clergy(request, id):
     # Calculate age from date of birth
     from datetime import date
     today = date.today()
-    age = today.year - clergy.dob.year - ((today.month, today.day) < (clergy.dob.month, clergy.dob.day))
+    if clergy.dob:
+        age = today.year - clergy.dob.year - ((today.month, today.day) < (clergy.dob.month, clergy.dob.day))
+    else:
+        age = None
     
     # Get related annointments
     annointments = AnnointmentGazzette.objects.filter(clergy=clergy).order_by('-year_of_annointment', '-month_of_annointment')
@@ -272,8 +277,8 @@ def view_clergy(request, id):
             'Full Name': f"{clergy.first_name} {clergy.middle_name} {clergy.last_name}",
             'Alias': clergy.alias or 'N/A',
             'Gender': clergy.get_gender_display(),
-            'Date of Birth': clergy.dob.strftime('%B %d, %Y'),
-            'Age': f"{age} years old",
+            'Date of Birth': clergy.dob.strftime('%B %d, %Y') if clergy.dob else 'N/A',
+            'Age': f"{age} years old" if age is not None else 'N/A',
             'Marital Status': clergy.get_marital_status_display(),
             'Nationality': clergy.get_nationality_display(),
             'State of Origin': clergy.state_of_origin,
@@ -308,7 +313,7 @@ def view_clergy(request, id):
         'religious_info': {
             'Registration Number': clergy.reg_number,
             'Training Number': clergy.trg_number,
-            'Entry Date in CCC': clergy.entry_date_in_ccc.strftime('%B %d, %Y'),
+            'Entry Date in CCC': clergy.entry_date_in_ccc.strftime('%B %d, %Y') if clergy.entry_date_in_ccc else 'N/A',
             'First Parish': clergy.first_parish,
             'Former Religion': clergy.former_religion or 'N/A',
             'Denomination': clergy.denomination or 'N/A',
@@ -317,7 +322,7 @@ def view_clergy(request, id):
         
         # Baptism Information Section
         'baptism_info': {
-            'Date When Baptized': clergy.date_when_baptized.strftime('%B %d, %Y'),
+            'Date When Baptized': clergy.date_when_baptized.strftime('%B %d, %Y') if clergy.date_when_baptized else 'N/A',
             'Parish Where Baptized': clergy.parish_where_baptized,
             'Shepherd Who Baptized': clergy.shepherd_who_baptized_you,
             'Shepherd Who Sanctified': clergy.shepherd_who_sanctified_you,
@@ -326,7 +331,7 @@ def view_clergy(request, id):
         # Appointment Information Section
         'appointment_info': {
             'First Appointment': clergy.get_first_annointment_display(),
-            'Date of First Appointment': clergy.date_of_first_annointment.strftime('%B %d, %Y'),
+            'Date of First Appointment': clergy.date_of_first_annointment.strftime('%B %d, %Y') if clergy.date_of_first_annointment else 'N/A',
             'Present Appointment': clergy.get_present_annointment_display() or 'N/A',
             'Date of Present Appointment': clergy.date_of_present_annointment.strftime('%B %d, %Y') if clergy.date_of_present_annointment else 'N/A',
         },
@@ -383,7 +388,7 @@ def edit_clergy(request, id):
     try:
         # Retrieve the ClergyDetails object
         clergy = get_object_or_404(ClergyDetails, clergy_id=id)
-        
+
         # Check if user has permission to edit this clergy
         if not request.user.is_superuser and not request.user.groups.filter(name='clergyadmin').exists():
             messages.error(request, 'You do not have permission to edit clergy details.')
@@ -392,19 +397,19 @@ def edit_clergy(request, id):
         # Create form instance
         if request.method == 'POST':
             form = ClergyRegistrationForm(request.POST, request.FILES, instance=clergy)
-            
+
             if form.is_valid():
                 try:
                     # Save the form data
                     clergy_data = form.save(commit=False)
                     clergy_data.save()
-                    
+
                     # Log the successful update
                     messages.success(request, f'Clergy details for {clergy.get_full_name()} have been updated successfully.')
-                    
+
                     # Redirect to view page or all clergy list
                     return redirect('view_clergy', id=clergy.clergy_id)
-                    
+
                 except Exception as e:
                     # Handle database save errors
                     messages.error(request, f'Error saving clergy details: {str(e)}')
