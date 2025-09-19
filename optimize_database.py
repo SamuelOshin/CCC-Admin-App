@@ -85,19 +85,19 @@ def create_indexes(dry_run=False):
     with connection.cursor() as cursor:
         for index in indexes:
             try:
-                # Check if index already exists
+                # Check if index already exists (SQLite approach)
                 cursor.execute("""
-                    SELECT 1 FROM pg_indexes
-                    WHERE tablename = %s AND indexname = %s
-                """, [index['table'], index['name']])
+                    SELECT name FROM sqlite_master
+                    WHERE type='index' AND name=?
+                """, [index['name']])
 
                 if cursor.fetchone():
                     print(f"✅ Index {index['name']} already exists - skipping")
                     continue
 
-                # Create index
+                # Create index (SQLite syntax)
                 columns_str = ', '.join(index['columns'])
-                sql = f"CREATE INDEX CONCURRENTLY {index['name']} ON {index['table']} ({columns_str});"
+                sql = f"CREATE INDEX {index['name']} ON {index['table']} ({columns_str});"
 
                 if dry_run:
                     print(f"📋 DRY RUN: Would create index {index['name']}")
@@ -133,11 +133,11 @@ def analyze_query_performance():
         },
         {
             'name': 'Clergy Search Query',
-            'sql': "SELECT * FROM clergy_registration_clergydetails WHERE first_name ILIKE '%john%' LIMIT 10;"
+            'sql': "SELECT * FROM clergy_registration_clergydetails WHERE first_name LIKE '%john%' LIMIT 10;"
         },
         {
             'name': 'Parish Search Query',
-            'sql': "SELECT * FROM ParishRestructure_parishdirectory WHERE name ILIKE '%st%' LIMIT 10;"
+            'sql': "SELECT * FROM ParishRestructure_parishdirectory WHERE name LIKE '%st%' LIMIT 10;"
         }
     ]
 
@@ -147,13 +147,24 @@ def analyze_query_performance():
                 print(f"\n🔍 Analyzing: {query['name']}")
                 print(f"   SQL: {query['sql'][:60]}...")
 
-                # Execute with EXPLAIN ANALYZE
-                explain_sql = f"EXPLAIN ANALYZE {query['sql']}"
+                # Execute with EXPLAIN QUERY PLAN (SQLite syntax)
+                explain_sql = f"EXPLAIN QUERY PLAN {query['sql']}"
                 cursor.execute(explain_sql)
 
                 results = cursor.fetchall()
+                print("   Query Plan:")
                 for row in results:
-                    print(f"   {row[0]}")
+                    print(f"   {row[0]} | {row[1]} | {row[2]} | {row[3] if len(row) > 3 else ''}")
+
+                # Also execute the actual query to measure performance
+                import time
+                start_time = time.time()
+                cursor.execute(query['sql'])
+                results = cursor.fetchall()
+                execution_time = time.time() - start_time
+
+                print(f"   Execution time: {execution_time:.4f} seconds")
+                print(f"   Results: {len(results)} rows")
 
             except Exception as e:
                 print(f"❌ Error analyzing query: {str(e)}")
