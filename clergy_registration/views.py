@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ClergyRegistrationForm, AnnointmentForm
 from .models import ClergyDetails, AnnointmentGazzette
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.views.generic import CreateView
 from django.urls import reverse
 from django.contrib.auth.decorators import user_passes_test
@@ -131,8 +131,13 @@ def all_clergy(request):
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
     from django.core.cache import cache
     import time
+    import json
 
     start_time = time.time()  # Performance monitoring
+
+    # Check if this is a DataTables AJAX request
+    if request.GET.get('draw'):
+        return all_clergy_datatables(request)
 
     # Get page number and size from request
     page = request.GET.get('page', 1)
@@ -244,6 +249,121 @@ def all_clergy(request):
     })
 
     return render(request, 'clergy_reg/all_clergy_new.html', context)
+
+
+def all_clergy_datatables(request):
+    """
+    Handle DataTables server-side processing for clergy data.
+    """
+    from django.db.models import Q
+    import json
+
+    # DataTables parameters
+    draw = int(request.GET.get('draw', 1))
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 10))
+    search_value = request.GET.get('search[value]', '').strip()
+
+    # Column ordering
+    order_column_index = int(request.GET.get('order[0][column]', 0))
+    order_direction = request.GET.get('order[0][dir]', 'desc')
+
+    # Map column index to field name
+    column_mapping = {
+        0: 'clergy_id',  # Checkbox column (not sortable)
+        1: 'first_name',  # Name
+        2: 'reg_number',  # Registration No
+        3: 'email_address',  # Email
+        4: 'telephone',  # Mobile
+        5: 'clergy_id',  # Rank (using clergy_id for now)
+    }
+
+    order_field = column_mapping.get(order_column_index, 'clergy_id')
+
+    # Base queryset
+    queryset = ClergyDetails.objects.only(
+        'clergy_id', 'first_name', 'middle_name', 'last_name', 'reg_number',
+        'gender', 'email_address', 'telephone', 'parish', 'nationality',
+        'profile_picture', 'present_annointment'
+    )
+
+    # Apply search filter
+    if search_value:
+        queryset = queryset.filter(
+            Q(first_name__icontains=search_value) |
+            Q(last_name__icontains=search_value) |
+            Q(reg_number__icontains=search_value) |
+            Q(email_address__icontains=search_value) |
+            Q(telephone__icontains=search_value)
+        )
+
+    # Get total records count (before filtering)
+    total_records = ClergyDetails.objects.count()
+
+    # Get filtered records count
+    records_filtered = queryset.count()
+
+    # Apply ordering
+    if order_direction == 'desc':
+        queryset = queryset.order_by(f'-{order_field}')
+    else:
+        queryset = queryset.order_by(order_field)
+
+    # Apply pagination
+    queryset = queryset[start:start + length]
+
+    # Prepare data for DataTables (array format for server-side processing)
+    data = []
+    for clergy in queryset:
+        # Get latest appointment for rank
+        latest_appointment = clergy.annointmentgazzette_set.first()
+        rank = latest_appointment.rank if latest_appointment else getattr(clergy, 'present_annointment', 'N/A')
+
+        # Create row data in array format for DataTables
+        row = [
+            f'<div class="form-check"><input class="form-check-input row-checkbox" type="checkbox" value="{clergy.clergy_id}" id="check-{clergy.clergy_id}"></div>',  # checkbox
+            f'''
+                <div class="d-flex align-items-center">
+                    <div class="avatar-wrapper me-3">
+                        {'<img class="rounded-circle avatar-sm" src="' + clergy.profile_picture.url + f'" alt="{clergy}" style="width: 40px; height: 40px; object-fit: cover;">' if clergy.profile_picture else '<div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;"><i class="fas fa-user"></i></div>'}
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">{clergy}</div>
+                        <small class="text-muted">{clergy.gender or "--"}</small>
+                    </div>
+                </div>
+            ''',  # name
+            clergy.reg_number or '',  # reg_number
+            f'<a href="mailto:{clergy.email_address}" class="text-decoration-none">{clergy.email_address}</a>' if clergy.email_address else '',  # email
+            f'<a href="tel:{clergy.telephone}" class="text-decoration-none">{clergy.telephone}</a>' if clergy.telephone else '',  # mobile
+            f'<span class="badge bg-success">{rank}</span>',  # rank
+            f'''
+                <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
+                    <a href="/clergy/view_clergy/{clergy.clergy_id}/" class="btn btn-xs btn-outline-primary" title="View Profile" data-bs-toggle="tooltip">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/clergy/edit_clergy/{clergy.clergy_id}/" class="btn btn-xs btn-outline-success" title="Edit Clergy" data-bs-toggle="tooltip">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="/clergy/view-and-add-annointment/{clergy.clergy_id}/" class="btn btn-xs btn-outline-info" title="View Appointments" data-bs-toggle="tooltip">
+                        <i class="fas fa-crown"></i>
+                    </a>
+                    <a href="/clergy/generate_clergy_pdf/{clergy.clergy_id}/" class="btn btn-xs btn-outline-secondary" title="Download PDF" data-bs-toggle="tooltip" target="_blank">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            '''  # actions
+        ]
+        data.append(row)
+
+    response = {
+        'draw': draw,
+        'recordsTotal': total_records,
+        'recordsFiltered': records_filtered,
+        'data': data
+    }
+
+    return JsonResponse(response)
 
 
 @login_required
@@ -579,10 +699,16 @@ def view_and_add_annointment(request, id):
 
 def generate_clergy_pdf(request, id):
     clergy = get_object_or_404(ClergyDetails, clergy_id=id)
-    profile_picture_url = request.build_absolute_uri(clergy.profile_picture.url)
+
+    # Check if profile picture exists before getting URL
+    if clergy.profile_picture and clergy.profile_picture.name:
+        profile_picture_url = request.build_absolute_uri(clergy.profile_picture.url)
+    else:
+        profile_picture_url = None
+
     html_content = render_to_string('clergy_reg/clergy_report.html', {'clergy': clergy, 'profile_picture': profile_picture_url})
     pdf_file = HTML(string=html_content, base_url=request.build_absolute_uri('/')).write_pdf()
-    
+
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="{clergy.first_name}_{clergy.last_name}_profile.pdf"'
     return response

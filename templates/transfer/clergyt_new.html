@@ -123,30 +123,35 @@
 <tr>
     <td>
         <div class="form-check">
-            <input class="form-check-input row-checkbox" type="checkbox" value="{{ clergy.clergy.clergy_id }}">
+            <input class="form-check-input row-checkbox" type="checkbox" value="{{ clergy.clergy_id }}">
         </div>
     </td>
     <td>
         <div class="d-flex align-items-center">
             <div class="position-relative me-3">
-                <img class="rounded-circle" src="{{ clergy.clergy.profile_picture.url|default:'/static/assets/img/default-avatar.png' }}"
+                {% if clergy.profile_picture %}
+                <img class="rounded-circle" src="{{ clergy.profile_picture.url|default:'/static/assets/img/default-avatar.png' }}"
                      style="width: 45px; height: 45px; object-fit: cover;" alt="Profile">
-                <div class="status-indicator {% if clergy.floating %}bg-danger{% else %}bg-success{% endif %}"></div>
+                {% else %}
+                <img class="rounded-circle" src="/static/assets/img/default-avatar.png"
+                     style="width: 45px; height: 45px; object-fit: cover;" alt="Profile">
+                {% endif %}     
+                <div class="status-indicator {% if clergy.clergytrfbio and clergy.clergytrfbio.floating %}bg-danger{% else %}bg-success{% endif %}"></div>
             </div>
             <div>
-                <div class="fw-semibold text-dark">{{ clergy.clergy.get_full_name }}</div>
-                <small class="text-muted">ID: {{ clergy.clergy.clergy_id }}</small>
+                <div class="fw-semibold text-dark">{{ clergy.get_full_name }}</div>
+                <small class="text-muted">ID: {{ clergy.reg_number|default:'N/A' }}</small>
             </div>
         </div>
     </td>
     <td>
         <div class="small">
-            <div><i class="fas fa-phone text-muted me-1"></i>{{ clergy.clergy.telephone|default:'N/A' }}</div>
-            <div><i class="fas fa-envelope text-muted me-1"></i>{{ clergy.clergy.email_address|default:'N/A'|truncatechars:25 }}</div>
+            <div><i class="fas fa-phone text-muted me-1"></i>{{ clergy.telephone|default:'N/A' }}</div>
+            <div><i class="fas fa-envelope text-muted me-1"></i>{{ clergy.email_address|default:'N/A'|truncatechars:25 }}</div>
         </div>
     </td>
     <td>
-        {% if clergy.floating %}
+        {% if clergy.clergytrfbio and clergy.clergytrfbio.floating %}
         <span class="badge bg-danger">
             <i class="fas fa-exclamation-triangle me-1"></i>Floating
         </span>
@@ -158,12 +163,12 @@
     </td>
     <td>
         <div class="btn-group" role="group">
-            <a href="{% url 'new_transfer' clergy.clergy.clergy_id %}"
+            <a href="{% url 'new_transfer' clergy.clergy_id %}"
                class="btn btn-outline-primary btn-sm"
                title="Initiate Transfer">
                 <i class="fas fa-exchange-alt"></i>
             </a>
-            <a href="{% url 'posting' clergy.clergy.clergy_id %}"
+            <a href="{% url 'posting' clergy.clergy_id %}"
                class="btn btn-outline-info btn-sm"
                title="Posting History">
                 <i class="fas fa-history"></i>

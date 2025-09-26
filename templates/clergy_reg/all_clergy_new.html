@@ -12,6 +12,8 @@
 {% block table_icon %}fas fa-users{% endblock %}
 {% block table_card_title %}Clergy Members{% endblock %}
 
+{% block table_attributes %}data-server-side="true"{% endblock %}
+
 {% block custom_filters %}
 <div class="col-md-3 mb-3 mb-md-0">
     <label for="gender-filter" class="form-label fw-semibold">Gender</label>
@@ -124,110 +126,6 @@
 <th scope="col" class="text-center">
     <i class="fas fa-cogs me-1"></i>Actions
 </th>
-{% endblock %}
-
-{% block table_body %}
-{% for clergy in all_clergy %}
-<tr>
-    <td>
-        <div class="form-check">
-            <input class="form-check-input row-checkbox" type="checkbox" value="{{ clergy.clergy_id }}" id="check-{{ clergy.clergy_id }}">
-        </div>
-    </td>
-    <td>
-        <div class="d-flex align-items-center">
-            <div class="avatar-wrapper me-3">
-                {% if clergy.profile_picture %}
-                <img class="rounded-circle avatar-sm" src="{{ clergy.profile_picture.url }}" alt="{{ clergy }}" style="width: 40px; height: 40px; object-fit: cover;">
-                {% else %}
-                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;">
-                    <i class="fas fa-user"></i>
-                </div>
-                {% endif %}
-            </div>
-            <div>
-                <div class="fw-semibold text-dark">{{ clergy }}</div>
-                <small class="text-muted">{{ clergy.gender|default:"--" }}</small>
-            </div>
-        </div>
-    </td>
-    <td>{{ clergy.reg_number }}</td>
-    <td>
-        <a href="mailto:{{ clergy.email_address }}" class="text-decoration-none">
-            {{ clergy.email_address }}
-        </a>
-    </td>
-    <td>
-        <a href="tel:{{ clergy.telephone }}" class="text-decoration-none">
-            {{ clergy.telephone }}
-        </a>
-    </td>
-    <td>
-        {% with latest_annointment=clergy.annointmentgazzette_set.first %}
-        {% if latest_annointment %}
-        <span class="badge bg-success">{{ latest_annointment.rank }}</span>
-        {% else %}
-        <span class="badge bg-success">{{clergy.present_annointment}}</span>
-        {% endif %}
-        {% endwith %}
-    </td>
-    <td class="text-center">
-        <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
-            <a href="{% url 'view_clergy' clergy.clergy_id %}"
-               class="btn btn-xs btn-outline-primary"
-               title="View Profile"
-               data-bs-toggle="tooltip">
-                <i class="fas fa-eye"></i>
-            </a>
-            <a href="{% url 'edit_clergy_new' clergy.clergy_id %}"
-               class="btn btn-xs btn-outline-success"
-               title="Edit Clergy"
-               data-bs-toggle="tooltip">
-                <i class="fas fa-edit"></i>
-            </a>
-            <a href="{% url 'view-and-add-annointment' clergy.clergy_id %}"
-               class="btn btn-xs btn-outline-info"
-               title="View Appointments"
-               data-bs-toggle="tooltip">
-                <i class="fas fa-crown"></i>
-            </a>
-            <a href="{% url 'generate_clergy_pdf' clergy.clergy_id %}"
-               class="btn btn-xs btn-outline-secondary"
-               title="Download PDF"
-               data-bs-toggle="tooltip"
-               target="_blank">
-                <i class="fas fa-download"></i>
-            </a>
-            <a href="{% url 'delete_clergy' clergy.clergy_id %}"
-               class="btn btn-xs btn-outline-danger"
-               title="Delete Clergy"
-               data-bs-toggle="tooltip"
-               onclick="return confirm('Are you sure you want to delete {{ clergy }}? This action cannot be undone.')">
-                <i class="fas fa-trash"></i>
-            </a>
-        </div>
-    </td>
-</tr>
-{% empty %}
-<tr>
-    <td colspan="7" class="text-center py-5">
-        <div class="empty-state">
-            <i class="fas fa-users fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No Clergy Members Found</h5>
-            <p class="text-muted mb-3">
-                {% if search_query %}
-                No clergy members match your search criteria: "{{ search_query }}"
-                {% else %}
-                There are no clergy members registered in the system yet.
-                {% endif %}
-            </p>
-            <a href="{% url 'register_clergy' %}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Register First Clergy Member
-            </a>
-        </div>
-    </td>
-</tr>
-{% endfor %}
 {% endblock %}
 
 {% block bulk_actions %}

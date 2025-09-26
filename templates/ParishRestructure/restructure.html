@@ -144,6 +144,23 @@
                             </div>
                         </div>
 
+                        <!-- Division Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.division|add_class:"form-select"|attr:"id:id_division" }}
+                                <label for="id_division">
+                                    <i class="bi bi-diagram-3 me-1"></i>{{ form.division.label }}
+                                </label>
+                                {% if form.division.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.division.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         <!-- Area Selection -->
                         <div class="col-12">
                             <div class="form-floating position-relative">
@@ -243,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize regular select fields without Select2 for better form-floating integration
-    const regularSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_zone'];
+    const regularSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_division', '#id_zone'];
     regularSelects.forEach(selector => {
         const selectElement = document.querySelector(selector);
         if (selectElement && selectElement.options.length <= 1) {
@@ -270,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#id_address').val('');
         
         // Clear all dependent fields
-        const dependentSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_zone'];
+        const dependentSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_division', '#id_zone'];
         dependentSelects.forEach(selector => {
             const selectElement = document.querySelector(selector);
             if (selectElement) {
@@ -308,6 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const stateSelect = document.getElementById('id_state');
     const areaSelect = document.getElementById('id_area');
     const districtSelect = document.getElementById('id_district');
+    const divisionSelect = document.getElementById('id_division');
     const zoneSelect = document.getElementById('id_zone');
 
     if (dioceseSelect) {
@@ -421,8 +439,25 @@ document.addEventListener('DOMContentLoaded', function() {
             resetDependentSelects([districtSelect, zoneSelect]);
             return;
         }
-        // Implementation for districts if needed
-        console.log('Update districts for area:', areaId);
+        
+        fetch(`{% url 'get_regions_and_areas' %}?area_id=${areaId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (districtSelect) {
+                    districtSelect.innerHTML = '<option value="" disabled selected>Select District</option>';
+                    if (data.districts && data.districts.length > 0) {
+                        data.districts.forEach(district => {
+                            districtSelect.innerHTML += `<option value="${district.id}">${district.name}</option>`;
+                        });
+                    }
+                }
+                // Clear dependent fields
+                resetDependentSelects([zoneSelect]);
+            })
+            .catch(error => {
+                console.error('Error updating districts:', error);
+                showAlert('Unable to load districts. Please try again.', 'warning');
+            });
     }
 
     function updatezones(districtId) {
@@ -430,8 +465,23 @@ document.addEventListener('DOMContentLoaded', function() {
             resetDependentSelects([zoneSelect]);
             return;
         }
-        // Implementation for zones if needed
-        console.log('Update zones for district:', districtId);
+        
+        fetch(`{% url 'get_regions_and_areas' %}?district_id=${districtId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (zoneSelect) {
+                    zoneSelect.innerHTML = '<option value="" disabled selected>Select Zone</option>';
+                    if (data.zones && data.zones.length > 0) {
+                        data.zones.forEach(zone => {
+                            zoneSelect.innerHTML += `<option value="${zone.id}">${zone.name}</option>`;
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating zones:', error);
+                showAlert('Unable to load zones. Please try again.', 'warning');
+            });
     }
 
     function resetDependentSelects(selects) {
@@ -454,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
             addressField.placeholder = 'Loading address...';
         }
 
-        fetch(`/api/parish/${parishId}/`)
+        fetch(`/parish/api/parish/${parishId}/`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

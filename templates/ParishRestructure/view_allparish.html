@@ -61,7 +61,6 @@
     <a href="{% url 'parish-registration' %}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-2"></i>Add New Parish
     </a>
-    {% if parishes %}
     <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-download me-2"></i>Export
@@ -72,12 +71,10 @@
             <li><a class="dropdown-item" href="#" id="exportCSV">CSV</a></li>
         </ul>
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block table_headers %}
-<th width="8%">S/N</th>
 <th width="25%">Parish Name</th>
 <th width="30%">Address</th>
 <th width="15%">Status</th>
@@ -85,98 +82,7 @@
 {% endblock %}
 
 {% block table_body %}
-{% for parish in parishes %}
-<tr>
-    <td><input type="checkbox" value="{{ parish.id }}" class="form-check-input"></td>
-    <td>{{ forloop.counter }}</td>
-    <td>
-        <div class="d-flex align-items-center">
-            <div class="parish-info">
-                <div class="fw-semibold text-primary">
-                    {% if parish.name %}
-                        {{ parish.name }}
-                    {% else %}
-                        <span class="text-muted">Unnamed Parish</span>
-                    {% endif %}
-                </div>
-                <small class="text-muted">
-                    {% if parish.address %}
-                        {{ parish.address|truncatechars:50 }}
-                    {% else %}
-                        <span class="text-muted">No address provided</span>
-                    {% endif %}
-                </small>
-            </div>
-        </div>
-    </td>
-    <td>
-        {% if parish.address %}
-            {{ parish.address }}
-        {% else %}
-            <span class="text-muted">No address available</span>
-        {% endif %}
-    </td>
-    <td>
-        {% if parish.register_status is not None %}
-            {% if parish.register_status %}
-            <span class="badge bg-success-subtle text-success border border-success-subtle">
-                <i class="bi bi-check-circle-fill me-1"></i>Registered
-            </span>
-            {% else %}
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
-                    <i class="bi bi-x-circle-fill me-1"></i>Not Registered
-                </span>
-                <a href="{% url 'reg-old-parish' parish.id %}" class="btn btn-sm btn-outline-primary"
-                   title="Register Parish" data-bs-toggle="tooltip">
-                    <i class="bi bi-plus-circle-dotted"></i>
-                </a>
-            </div>
-            {% endif %}
-        {% else %}
-            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                <i class="bi bi-question-circle me-1"></i>Status Unknown
-            </span>
-        {% endif %}
-    </td>
-    <td>
-        <div class="btn-group" role="group">
-            {% if parish.id %}
-            <a href="{% url 'view_parish' parish.id %}" class="btn btn-sm btn-outline-info"
-               title="View Details" data-bs-toggle="tooltip">
-                <i class="bi bi-eye"></i>
-            </a>
-            <a href="{% url 'edit-parish' parish.id %}" class="btn btn-sm btn-outline-primary"
-               title="Edit Parish" data-bs-toggle="tooltip">
-                <i class="bi bi-pencil"></i>
-            </a>
-            <a href="{% url 'delete_parish' parish.id %}" class="btn btn-sm btn-outline-danger"
-               title="Delete Parish" data-bs-toggle="tooltip"
-               onclick="return confirm('Are you sure you want to delete {% if parish.name %}{{ parish.name }}{% else %}this parish{% endif %}?')">
-                <i class="bi bi-trash"></i>
-            </a>
-            {% else %}
-            <span class="text-muted small">Actions unavailable</span>
-            {% endif %}
-        </div>
-    </td>
-</tr>
-{% empty %}
-<tr>
-    <td colspan="6" class="text-center py-5">
-        <div class="empty-state">
-            <div class="empty-state-icon mb-3">
-                <i class="bi bi-building display-4 text-muted"></i>
-            </div>
-            <h5 class="text-muted">No Parishes Available</h5>
-            <p class="text-muted mb-4">There are no parishes in the directory yet. Start by registering a new parish.</p>
-            <a href="{% url 'parish-registration' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Register New Parish
-            </a>
-        </div>
-    </td>
-</tr>
-{% endfor %}
+<!-- Data will be loaded via DataTables server-side processing -->
 {% endblock %}
 
 {% block additional_content %}
@@ -378,6 +284,7 @@
 .dt-pagination .page-item.active .page-link {
     background-color: #0d6efd;
     border-color: #0d6efd;
+    color:#f3f3f3;
 }
 
 /* Loading States */
@@ -454,13 +361,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Override the base DataTables initialization for custom configuration
     function initializeDataTable() {
-        {% if parishes %}
         // Check if DataTable is already initialized and destroy it first
         if ($.fn.DataTable.isDataTable('#data-table')) {
             $('#data-table').DataTable().destroy();
         }
 
         const table = $('#data-table').DataTable({
+            serverSide: true,
+            ajax: {
+                url: '{% url "all-parish" %}',
+                type: 'GET'
+            },
             responsive: true,
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -471,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel',
                     className: 'btn btn-sm btn-outline-success d-none',
                     exportOptions: {
-                        columns: [1, 2, 3, 4] // Exclude checkbox and include S/N, Name, Address, Status
+                        columns: [1, 2, 3] // Exclude checkbox, include Name, Address, Status
                     },
                     title: 'Parish Directory Export'
                 },
@@ -480,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
                     className: 'btn btn-sm btn-outline-danger d-none',
                     exportOptions: {
-                        columns: [1, 2, 3, 4]
+                        columns: [1, 2, 3]
                     },
                     title: 'Parish Directory Export',
                     orientation: 'landscape'
@@ -490,17 +401,43 @@ document.addEventListener('DOMContentLoaded', function() {
                     text: '<i class="bi bi-filetype-csv me-1"></i>CSV',
                     className: 'btn btn-sm btn-outline-info d-none',
                     exportOptions: {
-                        columns: [1, 2, 3, 4]
+                        columns: [1, 2, 3]
                     },
                     title: 'Parish Directory Export'
                 }
             ],
+            columns: [
+                {
+                    data: 'checkbox',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center'
+                },
+                {
+                    data: 'name',
+                    title: 'Parish Name',
+                    className: 'parish-info'
+                },
+                {
+                    data: 'address',
+                    title: 'Address'
+                },
+                {
+                    data: 'status',
+                    title: 'Status',
+                    className: 'text-center'
+                },
+                {
+                    data: 'actions',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center'
+                }
+            ],
             columnDefs: [
-                { orderable: false, targets: [0, 4] }, // Disable sorting on checkbox and actions columns
                 { className: "align-middle", targets: "_all" },
-                { responsivePriority: 1, targets: 1 }, // S/N always visible
-                { responsivePriority: 2, targets: 2 }, // Parish Name high priority
-                { responsivePriority: 3, targets: 4 }  // Actions high priority
+                { responsivePriority: 1, targets: 1 }, // Parish Name high priority
+                { responsivePriority: 2, targets: 4 }  // Actions high priority
             ],
             language: {
                 emptyTable: "No parishes found in the directory",
@@ -516,22 +453,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     previous: '<i class="bi bi-chevron-left"></i>',
                     next: '<i class="bi bi-chevron-right"></i>',
                     last: '<i class="bi bi-chevron-double-right"></i>'
-                }
+                },
+                processing: '<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
             },
+            processing: true,
             initComplete: function() {
                 // Initialize tooltips after DataTable is ready
                 $('[data-bs-toggle="tooltip"]').tooltip();
 
                 // Add export button event listeners
                 setupExportButtons(this.api());
+            },
+            drawCallback: function() {
+                // Scroll to top of table after pagination or search
+                const tableContainer = document.querySelector('.table-container');
+                if (tableContainer) {
+                    tableContainer.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
             }
         });
 
         setupBulkSelection(table);
         return table;
-        {% else %}
-        console.log('No parishes data - skipping DataTables initialization');
-        {% endif %}
     }
 
     function setupExportButtons(table) {

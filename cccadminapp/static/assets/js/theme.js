@@ -89,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var stateSelect = $('#id_state');
   var areaSelect = $('#id_area');
   var districtSelect = $('#id_district');
+  var divisionSelect = $('#id_division');
   var zoneSelect = $('#id_zone');
 
   // Store active requests to prevent race conditions
@@ -97,7 +98,8 @@ document.addEventListener('DOMContentLoaded', function () {
     region: null,
     state: null,
     area: null,
-    district: null
+    district: null,
+    division: null
   };
 
   // Initialize Select2 for each select element
@@ -106,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
   stateSelect.select2();
   areaSelect.select2();
   districtSelect.select2();
+  divisionSelect.select2();
   zoneSelect.select2();
 
   // Utility function to safely clear select without triggering change events
@@ -138,15 +141,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Cancel any active requests
     cancelActiveRequest('diocese');
     cancelActiveRequest('region');
-    cancelActiveRequest('state');
     cancelActiveRequest('area');
     cancelActiveRequest('district');
+    cancelActiveRequest('division');
 
     // Clear previous selections without triggering change events
+    // Note: stateSelect is NOT cleared here as it's only dependent on country, not diocese
     clearSelectSafely(regionSelect, 'Select Region');
-    clearSelectSafely(stateSelect, 'Select State');
     clearSelectSafely(areaSelect, 'Select Area');
     clearSelectSafely(districtSelect, 'Select District');
+    clearSelectSafely(divisionSelect, 'Select Division');
     clearSelectSafely(zoneSelect, 'Select zone');
 
     // Only make API call if dioceseId is not empty
@@ -156,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
       activeRequests.diocese = controller;
 
       // Fetch regions for the selected diocese
-      fetch(`/get_regions_and_areas/?diocese_id=${dioceseId}`, {
+      fetch(`/parish/get_regions_and_areas/?diocese_id=${dioceseId}`, {
         signal: controller.signal
       })
         .then(response => response.json())
@@ -187,14 +191,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Cancel any active requests for dependent fields
     cancelActiveRequest('region');
-    cancelActiveRequest('state');
     cancelActiveRequest('area');
     cancelActiveRequest('district');
+    cancelActiveRequest('division');
 
     // Clear previous selections without triggering change events
-    clearSelectSafely(stateSelect, 'Select State');
+    // Note: stateSelect is NOT cleared here as it's only dependent on country, not region
     clearSelectSafely(areaSelect, 'Select Area');
     clearSelectSafely(districtSelect, 'Select District');
+    clearSelectSafely(divisionSelect, 'Select Division');
     clearSelectSafely(zoneSelect, 'Select zone');
 
     // Only make API call if regionId is not empty
@@ -203,19 +208,19 @@ document.addEventListener('DOMContentLoaded', function () {
       var controller = new AbortController();
       activeRequests.region = controller;
 
-      // Fetch states for the selected region
-      fetch(`/get_regions_and_areas/?region_id=${regionId}`, {
+      // Fetch areas for the selected region
+      fetch(`/parish/get_regions_and_areas/?region_id=${regionId}`, {
         signal: controller.signal
       })
         .then(response => response.json())
         .then(data => {
           console.log('Received data:', data); // Debugging: Log received data
 
-          // Populate states select
-          if (data.states && data.states.length > 0) {
-            data.states.forEach(state => {
-              var option = new Option(state.name, state.id, false, false);
-              stateSelect.append(option);
+          // Populate areas select
+          if (data.areas && data.areas.length > 0) {
+            data.areas.forEach(area => {
+              var option = new Option(area.name, area.id, false, false);
+              areaSelect.append(option);
             });
           }
           // Clear active request
@@ -237,8 +242,10 @@ document.addEventListener('DOMContentLoaded', function () {
     cancelActiveRequest('state');
     cancelActiveRequest('area');
     cancelActiveRequest('district');
+    cancelActiveRequest('division');
 
     // Clear previous selections without triggering change events
+    clearSelectSafely(divisionSelect, 'Select Division');
     clearSelectSafely(areaSelect, 'Select Area');
     clearSelectSafely(districtSelect, 'Select District');
     clearSelectSafely(zoneSelect, 'Select zone');
@@ -249,19 +256,19 @@ document.addEventListener('DOMContentLoaded', function () {
       var controller = new AbortController();
       activeRequests.state = controller;
 
-      // Fetch areas for the selected state
-      fetch(`/get_regions_and_areas/?state_id=${stateId}`, {
+      // Fetch divisions for the selected state
+      fetch(`/parish/get_regions_and_areas/?state_id=${stateId}`, {
         signal: controller.signal
       })
         .then(response => response.json())
         .then(data => {
           console.log('Received data:', data); // Debugging: Log received data
 
-          // Populate areas select
-          if (data.areas && data.areas.length > 0) {
-            data.areas.forEach(area => {
-              var option = new Option(area.name, area.id, false, false);
-              areaSelect.append(option);
+          // Populate divisions select
+          if (data.divisions && data.divisions.length > 0) {
+            data.divisions.forEach(division => {
+              var option = new Option(division.name, division.id, false, false);
+              divisionSelect.append(option);
             });
           }
           // Clear active request
@@ -294,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
       activeRequests.area = controller;
 
       // Fetch districts for the selected area
-      fetch(`/get_regions_and_areas/?area_id=${areaId}`, {
+      fetch(`/parish/get_regions_and_areas/?area_id=${areaId}`, {
         signal: controller.signal
       })
         .then(response => response.json())
@@ -336,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
       activeRequests.district = controller;
 
       // Fetch zones for the selected district
-      fetch(`/get_regions_and_areas/?district_id=${districtId}`, {
+      fetch(`/parish/get_regions_and_areas/?district_id=${districtId}`, {
         signal: controller.signal
       })
         .then(response => response.json())
@@ -358,6 +365,52 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error:', error);
           }
           activeRequests.district = null;
+        });
+    }
+  });
+
+  divisionSelect.on('change', function () {
+    var divisionId = $(this).val();
+
+    // Cancel any active requests for dependent fields
+    cancelActiveRequest('division');
+    cancelActiveRequest('area');
+    cancelActiveRequest('district');
+
+    // Clear previous selections without triggering change events
+    clearSelectSafely(areaSelect, 'Select Area');
+    clearSelectSafely(districtSelect, 'Select District');
+    clearSelectSafely(zoneSelect, 'Select zone');
+
+    // Only make API call if divisionId is not empty
+    if (divisionId && divisionId.trim() !== '') {
+      // Create abort controller for this request
+      var controller = new AbortController();
+      activeRequests.division = controller;
+
+      // Fetch areas for the selected division
+      fetch(`/parish/get_regions_and_areas/?division_id=${divisionId}`, {
+        signal: controller.signal
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Received data:', data); // Debugging: Log received data
+
+          // Populate areas select
+          if (data.areas && data.areas.length > 0) {
+            data.areas.forEach(area => {
+              var option = new Option(area.name, area.id, false, false);
+              areaSelect.append(option);
+            });
+          }
+          // Clear active request
+          activeRequests.division = null;
+        })
+        .catch(error => {
+          if (error.name !== 'AbortError') {
+            console.error('Error:', error);
+          }
+          activeRequests.division = null;
         });
     }
   });
@@ -534,7 +587,7 @@ $('#id_parish').on('select2:select', function (e) {
 });
 
 function fetchParishAddress(parishId) {
-  fetch(`/api/parish/${parishId}/`)
+  fetch(`/parish/api/parish/${parishId}/`)
     .then(response => response.json())
     .then(data => {
       document.getElementById("id_address").value = data.address;
@@ -543,26 +596,14 @@ function fetchParishAddress(parishId) {
 }
 
 function fetchParishAddresss(parishFrmId) {
-  // Check if we're on the update transfer page
-  const isUpdatePage = window.location.pathname.includes('/update/');
-  const apiUrl = isUpdatePage ? `api/parish/${parishFrmId}/` : `transfer/api/parish/${parishFrmId}/`;
-
-  fetch(apiUrl, {
-    method: 'GET' // specifying the request method
-  })
+  fetch(`/transfer/api/parish/${parishFrmId}/`)
     .then(response => response.json())
     .then(data => {
       document.getElementById("id_address").value = data.address;
     })
     .catch(error => console.error('Error:', error));
 }function fetchParishAddresssTo(parishFrmId) {
-  // Check if we're on the update transfer page
-  const isUpdatePage = window.location.pathname.includes('/update/');
-  const apiUrl = isUpdatePage ? `api/parish/${parishFrmId}/` : `transfer/api/parish/${parishFrmId}/`;
-
-  fetch(apiUrl, {
-    method: 'GET' // specifying the request method
-  })
+  fetch(`/transfer/api/parish/${parishFrmId}/`)
     .then(response => response.json())
     .then(data => {
       document.getElementById("id_address_to").value = data.address;
@@ -572,26 +613,14 @@ function fetchParishAddresss(parishFrmId) {
 
 
 function fetchParishLocation(parishFrmId) {
-  // Check if we're on the update transfer page
-  const isUpdatePage = window.location.pathname.includes('/update/');
-  const apiUrl = isUpdatePage ? `api/parish/${parishFrmId}/` : `transfer/api/parish/${parishFrmId}/`;
-
-  fetch(apiUrl, {
-    method: 'GET' // specifying the request method
-  })
+  fetch(`/transfer/api/parish/${parishFrmId}/`)
     .then(response => response.json())
     .then(data => {
       document.getElementById("id_location").value = data.location;
     })
     .catch(error => console.error('Error:', error));
 }function fetchParishLocationI(parishToId) {
-  // Check if we're on the update transfer page
-  const isUpdatePage = window.location.pathname.includes('/update/');
-  const apiUrl = isUpdatePage ? `api/parish/${parishToId}/` : `transfer/api/parish/${parishToId}/`;
-
-  fetch(apiUrl, {
-    method: 'GET' // specifying the request method
-  })
+  fetch(`/transfer/api/parish/${parishToId}/`)
     .then(response => response.json())
     .then(data => {
       document.getElementById("id_location_to").value = data.location;
@@ -599,26 +628,14 @@ function fetchParishLocation(parishFrmId) {
     .catch(error => console.error('Error:', error));
 }
 function fetchParish(parishFrmId) {
-  // Check if we're on the update transfer page
-  const isUpdatePage = window.location.pathname.includes('/update/');
-  const apiUrl = isUpdatePage ? `api/parish/${parishFrmId}/` : `transfer/api/parish/${parishFrmId}/`;
-
-  fetch(apiUrl, {
-    method: 'GET' // specifying the request method
-  })
+  fetch(`/transfer/api/parish/${parishFrmId}/`)
     .then(response => response.json())
     .then(data => {
       document.getElementById("id_parishFrm").value = data.id;
     })
     .catch(error => console.error('Error:', error));
 }function fetchParishI(parishToId) {
-  // Check if we're on the update transfer page
-  const isUpdatePage = window.location.pathname.includes('/update/');
-  const apiUrl = isUpdatePage ? `api/parish/${parishToId}/` : `transfer/api/parish/${parishToId}/`;
-
-  fetch(apiUrl, {
-    method: 'GET' // specifying the request method
-  })
+  fetch(`/transfer/api/parish/${parishToId}/`)
     .then(response => response.json())
     .then(data => {
       document.getElementById("id_parishTo").value = data.id;
@@ -639,16 +656,23 @@ document.addEventListener("DOMContentLoaded", function() {
 document.addEventListener('DOMContentLoaded', function() {
   const loadingScreen = document.getElementById('loading');
 
-  // Show loading screen on page load
+  // Show loading screen on page load - COMPLETELY SKIP for form submissions
   window.addEventListener('beforeunload', function(event) {
-    // Don't show loading screen for form submissions - they handle their own loading states
+    // Check if this is a form submission by looking for form-related elements
     const activeElement = document.activeElement;
-    if (activeElement && (activeElement.tagName === 'BUTTON' || activeElement.tagName === 'INPUT') &&
-        (activeElement.type === 'submit' || activeElement.form)) {
+
+    // Skip loading screen for any form submission - let JavaScript handle loading states
+    if (activeElement && (
+        activeElement.tagName === 'BUTTON' ||
+        activeElement.tagName === 'INPUT' ||
+        activeElement.type === 'submit' ||
+        activeElement.closest('form') ||
+        document.querySelector('form.submitting')
+    )) {
       return; // Don't show loading screen for form submissions
     }
 
-    // Show loading screen for regular navigation
+    // Show loading screen for regular navigation only
     if (loadingScreen) {
       loadingScreen.style.display = 'flex';
     }
@@ -687,8 +711,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return; // Skip loading screen for sidebar submenu toggles
       }
 
-      // Don't show loading screen if this is part of a form submission
-      if (this.closest('form')) {
+      // Don't show loading screen if this is part of a form submission or form-related
+      if (this.closest('form') || this.getAttribute('type') === 'submit') {
         return; // Skip loading screen for form-related links
       }
 
@@ -712,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Handle form submissions - don't interfere with their loading states
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', function() {
-      // Let the form handle its own loading state
+      // Let the form handle its own loading state via JavaScript (confirmSubmit function)
       // The global loading screen will be hidden when the response loads
     });
   });

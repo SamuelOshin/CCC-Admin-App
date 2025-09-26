@@ -9,6 +9,7 @@ router.register(r'parish', ParishRestructureViewSet)
 
 
 urlpatterns = [
+    path('api/', include(router.urls)),
     path('clergy/<int>/transfer/api/', include(router.urls)),
     path('transfer/<int:transfer_id>/update/api/', include(router.urls)),
     path('trfTable/', views.new_trf_table, name='trfTable'),

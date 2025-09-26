@@ -22,6 +22,7 @@ class ParishForm(forms.ModelForm):
     diocese = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Diocese")
     region = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Region", required=False)
     state = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select State", required=False)
+    division = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Division", required=False)
     area = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Area", required=False)
     district = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select District", required=False)
     zone = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select zone", required=False)
@@ -39,6 +40,7 @@ class ParishForm(forms.ModelForm):
         ).order_by('name')
         self.fields['region'].queryset = Location.objects.none()
         self.fields['state'].queryset = Location.objects.none()
+        self.fields['division'].queryset = Location.objects.none()
         self.fields['area'].queryset = Location.objects.none()
          # Modify region field queryset to include special option
         self.fields['district'].queryset = Location.objects.filter(
@@ -65,15 +67,15 @@ class ParishForm(forms.ModelForm):
         if 'state' in self.data:
             try:
                 state_id = int(self.data.get('state'))
-                areas = Location.objects.filter(parent_id=state_id, level='area')
-                self.fields['area'].queryset = areas
+                divisions = Location.objects.filter(parent_id=state_id, level='division')
+                self.fields['division'].queryset = divisions
             except (ValueError, TypeError):
                 pass
 
-        if 'region' in self.data:
+        if 'division' in self.data:
             try:
-                region_id = int(self.data.get('region'))
-                areas = Location.objects.filter(parent_id=region_id, level='area')
+                division_id = int(self.data.get('division'))
+                areas = Location.objects.filter(parent_id=division_id, level='area')
                 self.fields['area'].queryset = areas
             except (ValueError, TypeError):
                 pass
@@ -101,18 +103,23 @@ class ParishForm(forms.ModelForm):
         state = cleaned_data.get('state')
         area = cleaned_data.get('area')
         district = cleaned_data.get('district')
+        division = cleaned_data.get('division')
         zone = cleaned_data.get('zone')
 
-        if not region and not area and not district and not zone and not state and diocese:
+        if not region and not state and not division and not area and not district and not zone and diocese:
             cleaned_data['location'] = diocese
-        elif not area and not district and not zone and not state and region:
+        elif not state and not division and not area and not district and not zone and region:
             cleaned_data['location'] = region
-        elif not area and not district and not zone and state:
+        elif not division and not area and not district and not zone and state:
             cleaned_data['location'] = state
+        elif not area and not district and not zone and division:
+            cleaned_data['location'] = division
         elif not district and not zone and area:
             cleaned_data['location'] = area
         elif not zone and district:
             cleaned_data['location'] = district
+        elif zone:
+            cleaned_data['location'] = zone
         elif zone:
             cleaned_data['location'] = zone
 
@@ -183,6 +190,12 @@ class ParishRegForm1(forms.ModelForm):
          super().__init__(*args, **kwargs) 
 
          self.fields['diocese'].queryset = Location.objects.filter(level='diocese')  
+         self.fields['parish'].queryset = ParishDirectory.objects.order_by('name')
+         
+         # Make parish field readonly when editing existing registration
+         if self.instance and self.instance.pk:
+             self.fields['parish'].widget.attrs['readonly'] = True
+             self.fields['parish'].required = False  
 
 
         

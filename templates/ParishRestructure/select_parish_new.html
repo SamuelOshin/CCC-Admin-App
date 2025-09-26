@@ -20,17 +20,12 @@
 
 {% block custom_filters %}
 <!-- Enhanced Location Selection Form -->
-<div class="container-fluid px-0 mb-5">
+<div class="container-fluid px-0 mb-5 mt-3">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <div class="location-selector-wrapper">
                 <!-- Header Section -->
                 <div class="location-header text-center mb-4">
-                    <div class="location-icon-container mb-3">
-                        <div class="location-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                    </div>
                     <h2 class="location-title">Select Location</h2>
                     <p class="location-subtitle">Choose a location hierarchy to view all parishes and sub-locations</p>
                 </div>
@@ -68,7 +63,7 @@
                                     </div>
                                     
                                     <!-- Submit Button Column -->
-                                    <div class="col-12 col-lg-4">
+                                    <div class="col-12 col-lg-4 align-self-center">
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary btn-location w-100" id="submitBtn">
                                                 <span class="btn-content">
@@ -143,8 +138,7 @@
 {% endblock %}
 
 {% block table_stats %}
-{% if parishes %}
-<div class="table-stats mb-4">
+<div class="table-stats mb-4{% if not parishes %} d-none{% endif %}">
     <div class="row">
         <div class="col-md-3 mb-3">
             <div class="card border-0 bg-primary-subtle">
@@ -154,7 +148,7 @@
                             <i class="fas fa-church text-primary fa-2x"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold h4 mb-0 text-primary">{{ parishes|length }}</div>
+                            <div class="fw-bold h4 mb-0 text-primary">{{ parishes|length|default:0 }}</div>
                             <div class="text-muted small">Total Parishes</div>
                         </div>
                     </div>
@@ -170,7 +164,13 @@
                             <i class="fas fa-map-marked-alt text-success fa-2x"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold h4 mb-0 text-success">{{ selected_location.get_level_display }}</div>
+                            <div class="fw-bold h4 mb-0 text-success">
+                                {% if selected_location %}
+                                    {{ selected_location.get_level_display }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </div>
                             <div class="text-muted small">Location Level</div>
                         </div>
                     </div>
@@ -186,7 +186,13 @@
                             <i class="fas fa-sitemap text-info fa-2x"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold h4 mb-0 text-info">{{ selected_location.children.count }}</div>
+                            <div class="fw-bold h4 mb-0 text-info">
+                                {% if selected_location %}
+                                    {{ selected_location.children.count }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </div>
                             <div class="text-muted small">Sub-locations</div>
                         </div>
                     </div>
@@ -202,7 +208,13 @@
                             <i class="fas fa-calendar-alt text-warning fa-2x"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold h4 mb-0 text-warning">{{ parishes|length|add:selected_location.children.count }}</div>
+                            <div class="fw-bold h4 mb-0 text-warning">
+                                {% if selected_location %}
+                                    {{ parishes|length|add:selected_location.children.count }}
+                                {% else %}
+                                    {{ parishes|length }}
+                                {% endif %}
+                            </div>
                             <div class="text-muted small">Total Coverage</div>
                         </div>
                     </div>
@@ -211,7 +223,6 @@
         </div>
     </div>
 </div>
-{% endif %}
 {% endblock %}
 
 <!-- Use the base layout's table structure - DON'T duplicate the checkbox column -->
@@ -324,37 +335,79 @@
 <!-- Override base layout DataTables initialization for conditional rendering -->
 {% block extra_js %}
 <script>
+// Store the selected location ID for DataTables AJAX
+let selectedLocationId = null;
+
 // Override the base layout's initializeDataTable function BEFORE it gets called
 function initializeDataTable() {
-    // Only initialize DataTables if we have parish data
-    {% if parishes %}
-        // We have data - initialize DataTables normally
+    // Only initialize DataTables if we have a selected location
+    if (typeof selectedLocationId !== 'undefined' && selectedLocationId) {
+        // We have a selected location - initialize DataTables with server-side processing
         if ($.fn.DataTable) {
-            const table = $('#data-table');
-            if (table.length && !$.fn.DataTable.isDataTable('#data-table')) {
-                table.DataTable({
+            const tableElement = document.getElementById('data-table');
+            if (tableElement && !$.fn.DataTable.isDataTable('#data-table')) {
+                const table = $('#data-table').DataTable({
+                    serverSide: true,
+                    ajax: {
+                        url: '{% url "view_parishes" %}',
+                        type: 'GET',
+                        data: function(d) {
+                            // Add the selected location ID to the request
+                            d.location_id = selectedLocationId;
+                            console.log('DataTables AJAX request:', d);
+                            return d;
+                        },
+                        error: function(xhr, error, thrown) {
+                            console.error('DataTables AJAX error:', xhr, error, thrown);
+                        }
+                    },
                     responsive: true,
                     pageLength: 25,
-                    order: [[1, 'asc']], // Sort by Parish Name
+                    order: [[1, 'asc']], // Sort by Parish Name (column 1, since 0 is checkbox)
                     columnDefs: [
-                        { orderable: false, targets: [0, -1] }, // Disable sorting on checkbox and actions
+                        { orderable: false, targets: [0, 5] }, // Disable sorting on checkbox and actions
                         { searchable: false, targets: [0] }, // Don't search checkbox column
+                    ],
+                    columns: [
+                        { data: 0, orderable: false }, // Checkbox column
+                        { data: 1, orderable: true },  // Parish Name
+                        { data: 2, orderable: true },  // Address
+                        { data: 3, orderable: true },  // Direct Location
+                        { data: 4, orderable: true },  // Region
+                        { data: 5, orderable: false }  // Actions
                     ],
                     language: {
                         search: "Search parishes:",
                         lengthMenu: "Show _MENU_ parishes per page",
                         info: "Showing _START_ to _END_ of _TOTAL_ parishes",
                         emptyTable: "No parishes found",
-                        zeroRecords: "No matching parishes found"
+                        zeroRecords: "No matching parishes found",
+                        processing: '<i class="fas fa-spinner fa-spin"></i> Loading...'
+                    },
+                    initComplete: function() {
+                        // Update pagination info display
+                        updatePaginationInfo();
+                    },
+                    drawCallback: function() {
+                        // Update pagination info after each draw
+                        updatePaginationInfo();
+                        // Scroll to top of table after pagination change
+                        const tableElement = document.getElementById('data-table');
+                        if (tableElement) {
+                            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
                     }
                 });
+                
+                // Setup bulk selection
+                setupBulkSelection(table);
             }
         }
-    {% else %}
-
-        // Do nothing - prevent DataTables initialization
+    } else {
+        // No selected location - don't initialize DataTables
+        console.log('No selected location - skipping DataTables initialization');
         return;
-    {% endif %}
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -379,32 +432,36 @@ function setupFormHandling() {
     const form = document.getElementById('locationForm');
     const submitBtn = document.getElementById('submitBtn');
     const selectElement = document.querySelector('select[name="parent"]');
-    
+
     if (form && submitBtn) {
         form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+
             if (!selectElement.value) {
-                e.preventDefault();
                 showNotification('Please select a location first', 'warning');
                 selectElement.focus();
                 return false;
             }
-            
+
             // Show loading state
             const btnContent = submitBtn.querySelector('.btn-content');
             const btnLoading = submitBtn.querySelector('.btn-loading');
-            
+
             if (btnContent && btnLoading) {
                 btnContent.classList.add('d-none');
                 btnLoading.classList.remove('d-none');
             }
-            
+
             submitBtn.disabled = true;
             form.classList.add('form-loading');
-            
+
             // Add loading overlay to form
             addFormLoadingOverlay();
+
+            // Make AJAX request
+            loadParishesAjax(selectElement.value);
         });
-        
+
         // Real-time validation
         if (selectElement) {
             selectElement.addEventListener('change', function() {
@@ -414,24 +471,348 @@ function setupFormHandling() {
     }
 }
 
-function addFormLoadingOverlay() {
-    const formCard = document.querySelector('.location-form-card .card');
-    if (formCard && !formCard.querySelector('.loading-overlay')) {
-        const overlay = document.createElement('div');
-        overlay.className = 'loading-overlay';
-        overlay.innerHTML = `
-            <div class="loading-content">
-                <div class="loading-spinner">
-                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+function loadParishesAjax(locationId) {
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Show loading state
+    showTableLoading();
+
+    // Make AJAX request
+    fetch('{% url "view_parishes" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: new URLSearchParams({
+            'parent': locationId,
+            'csrfmiddlewaretoken': csrfToken
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Update the selected location ID for DataTables
+            selectedLocationId = locationId;
+            
+            // Update page elements with location info
+            updatePageWithLocationData(data);
+            
+            // Initialize or reload DataTables with server-side processing
+            initializeOrReloadDataTable();
+            
+            showNotification(`Found ${data.stats.total_parishes} parish(es) under ${data.selected_location.name}`, 'success');
+        } else {
+            throw new Error(data.error || 'Unknown error occurred');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading parishes:', error);
+        showNotification('Failed to load parishes. Please try again.', 'error');
+    })
+    .finally(() => {
+        // Always reset loading state
+        resetFormAfterAjax();
+        hideTableLoading();
+    });
+}
+
+function updatePageWithParishes(data) {
+    // Update page title
+    const titleElement = document.querySelector('title');
+    if (titleElement && data.selected_location) {
+        titleElement.textContent = `View Parish Details - ${data.selected_location.name}`;
+    }
+
+    // Update table title
+    const tableTitle = document.querySelector('.card-title');
+    if (tableTitle) {
+        tableTitle.textContent = 'View Parish Details';
+    }
+
+    // Update table subtitle
+    const tableSubtitle = document.querySelector('.card-subtitle');
+    if (tableSubtitle) {
+        tableSubtitle.textContent = 'Browse and manage parishes organized by location hierarchy';
+    }
+
+    // Update stats if they exist
+    if (data.stats) {
+        updateStatsDisplay(data.stats);
+    }
+
+    // Update URL without page reload
+    const newUrl = `${window.location.pathname}?location=${data.selected_location ? data.selected_location.id : ''}`;
+    window.history.pushState({ locationId: data.selected_location ? data.selected_location.id : null }, '', newUrl);
+
+    // DataTables will be initialized separately and will load data server-side
+    // No need to manually update table content
+}
+
+function showTableLoading() {
+    const tableContainer = document.querySelector('.table-container');
+    if (tableContainer) {
+        // Add loading overlay
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'table-loading-overlay';
+        loadingOverlay.className = 'position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-75';
+        loadingOverlay.style.zIndex = '1000';
+        loadingOverlay.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
-                <div class="loading-text mt-3">
-                    <h6>Searching parishes...</h6>
-                    <p class="text-muted mb-0">Please wait while we load the data</p>
+                <div class="mt-2">
+                    <strong>Loading parishes...</strong>
                 </div>
             </div>
         `;
-        formCard.style.position = 'relative';
-        formCard.appendChild(overlay);
+        
+        tableContainer.style.position = 'relative';
+        tableContainer.appendChild(loadingOverlay);
+    }
+}
+
+function hideTableLoading() {
+    const loadingOverlay = document.getElementById('table-loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.remove();
+    }
+}
+
+function addFormLoadingOverlay() {
+    const form = document.getElementById('locationForm');
+    if (form) {
+        // Add loading overlay to form
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'form-loading-overlay';
+        loadingOverlay.className = 'position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-white bg-opacity-75';
+        loadingOverlay.style.zIndex = '1000';
+        loadingOverlay.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="mt-2">
+                    <strong>Searching parishes...</strong>
+                </div>
+            </div>
+        `;
+        
+        form.style.position = 'relative';
+        form.appendChild(loadingOverlay);
+    }
+}
+
+function removeFormLoadingOverlay() {
+    const loadingOverlay = document.getElementById('form-loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.remove();
+    }
+}
+
+function updateStatsDisplay(stats) {
+    if (!stats) return;
+    
+    // Update Total Parishes card
+    const totalParishesElement = document.querySelector('.table-stats .col-md-3:nth-child(1) .fw-bold');
+    if (totalParishesElement) {
+        totalParishesElement.textContent = stats.total_parishes || 0;
+    }
+    
+    // Update Location Level card
+    const locationLevelElement = document.querySelector('.table-stats .col-md-3:nth-child(2) .fw-bold');
+    if (locationLevelElement) {
+        locationLevelElement.textContent = stats.location_level || 'N/A';
+    }
+    
+    // Update Sub-locations card
+    const subLocationsElement = document.querySelector('.table-stats .col-md-3:nth-child(3) .fw-bold');
+    if (subLocationsElement) {
+        subLocationsElement.textContent = stats.sub_locations || 0;
+    }
+    
+    // Show the stats section
+    const statsSection = document.querySelector('.table-stats');
+    if (statsSection) {
+        statsSection.classList.remove('d-none');
+    }
+}
+
+function updatePageWithLocationData(data) {
+    // Update stats cards
+    updateStatsDisplay(data.stats);
+    
+    // Update location info display
+    const locationElements = document.querySelectorAll('[data-location-info]');
+    locationElements.forEach(element => {
+        const infoType = element.getAttribute('data-location-info');
+        if (infoType === 'name' && data.selected_location) {
+            element.textContent = data.selected_location.name;
+        } else if (infoType === 'level' && data.selected_location) {
+            element.textContent = data.selected_location.level;
+        }
+    });
+    
+    // Show the table section
+    const tableSection = document.querySelector('.table-container');
+    if (tableSection) {
+        tableSection.style.display = 'block';
+    }
+    
+    // Update page title/subtitle
+    const titleElement = document.querySelector('[data-page-title]');
+    if (titleElement) {
+        titleElement.textContent = `View Parish Details - ${data.selected_location ? data.selected_location.name : 'Selected Location'}`;
+    }
+}
+
+function initializeOrReloadDataTable() {
+    const tableElement = document.getElementById('data-table');
+    if (!tableElement) return;
+    
+    // Ensure we have a selected location before proceeding
+    if (!selectedLocationId) {
+        console.log('No selected location ID available for DataTables');
+        return;
+    }
+    
+    if ($.fn.DataTable.isDataTable('#data-table')) {
+        // DataTable already exists, just reload it
+        $('#data-table').DataTable().ajax.reload();
+    } else {
+        // Initialize new DataTable
+        initializeDataTable();
+    }
+}
+
+function updateTableContent(data) {
+    const tableBody = document.querySelector('#data-table tbody');
+    if (!tableBody) return;
+
+    if (data.parishes && data.parishes.length > 0) {
+        // Generate table rows for parishes
+        let tableHtml = '';
+
+        data.parishes.forEach(parish => {
+            tableHtml += `
+                <tr>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="${parish.id}" id="check-${parish.id}">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar avatar-sm me-3">
+                                <div class="avatar-initial bg-primary rounded-circle">
+                                    <i class="fas fa-church text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">${parish.parish ? parish.parish.name : 'N/A'}</h6>
+                                <small class="text-muted">ID: ${parish.id}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark">${parish.address || 'N/A'}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">${parish.location ? parish.location.name : 'N/A'}</span>
+                        <br>
+                        <small class="text-muted">${parish.location ? parish.location.level : 'N/A'}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">${data.selected_location ? data.selected_location.name : 'N/A'}</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href="/parish/edit/${parish.id}/"
+                               class="btn btn-outline-primary btn-sm"
+                               title="Edit Parish">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="/parish/view/${parish.id}/"
+                               class="btn btn-outline-info btn-sm"
+                               title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="/parish/delete/${parish.id}/"
+                               class="btn btn-outline-danger btn-sm"
+                               title="Delete Parish"
+                               onclick="return confirmDelete('${parish.parish ? parish.parish.name : 'this parish'}')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableBody.innerHTML = tableHtml;
+
+        // Show the table if it was hidden
+        const tableContainer = document.querySelector('#data-table').closest('.table-responsive');
+        if (tableContainer) {
+            tableContainer.style.display = 'block';
+        }
+
+    } else {
+        // No parishes found
+        const emptyMessage = data.selected_location ?
+            `No parishes were found under the selected location "${data.selected_location.name}".` :
+            'Please select a location from the form above to view parishes.';
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Parishes Found</h4>
+                        <p class="text-muted mb-4">${emptyMessage}</p>
+                        <div class="mt-4">
+                            <a href="{% url 'parish_dashboard' %}" class="btn btn-primary me-2">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                            </a>
+                            ${data.selected_location ? '<button type="button" class="btn btn-outline-primary" onclick="clearLocationSelection()"><i class="fas fa-redo me-1"></i>Try Another Location</button>' : ''}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function resetFormAfterAjax() {
+    const form = document.getElementById('locationForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (submitBtn) {
+        // Reset button state
+        const btnContent = submitBtn.querySelector('.btn-content');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+
+        if (btnContent && btnLoading) {
+            btnContent.classList.remove('d-none');
+            btnLoading.classList.add('d-none');
+        }
+
+        submitBtn.disabled = false;
+    }
+
+    if (form) {
+        form.classList.remove('form-loading');
+
+        // Remove loading overlay
+        removeFormLoadingOverlay();
     }
 }
 
@@ -705,9 +1086,9 @@ function refreshTable() {
 
 /* Header Section */
 .location-header {
-    padding: 2rem 1rem;
+    padding: 0.75rem 1rem;
     background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 202, 240, 0.1));
-    border-radius: 1rem;
+    border-radius: 0rem;
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
@@ -729,48 +1110,13 @@ function refreshTable() {
     100% { transform: translateX(100%); }
 }
 
-.location-icon-container {
-    position: relative;
-    z-index: 2;
-}
 
-.location-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #0d6efd, #0dcaf0);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    box-shadow: 0 8px 32px rgba(13, 110, 253, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.location-icon::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transform: rotate(45deg);
-    animation: iconGlow 2s ease-in-out infinite alternate;
-}
 
 @keyframes iconGlow {
     0% { transform: rotate(45deg) scale(0.8); }
     100% { transform: rotate(45deg) scale(1.2); }
 }
 
-.location-icon i {
-    font-size: 2rem;
-    color: white;
-    position: relative;
-    z-index: 2;
-}
 
 .location-title {
     font-size: 1.5rem;
@@ -925,10 +1271,10 @@ function refreshTable() {
 
 /* Enhanced Button */
 .btn-location {
-    background: linear-gradient(135deg, #0d6efd, #6f42c1);
+    
     border: none;
     border-radius: 0.75rem;
-    padding: 1rem 2rem;
+    /* padding: 1rem 2rem; */
     font-size: 1rem;
     font-weight: 600;
     color: white;
@@ -957,14 +1303,11 @@ function refreshTable() {
 }
 
 .btn-location:hover {
-    transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(13, 110, 253, 0.4);
-    background: linear-gradient(135deg, #6f42c1, #d63384);
+   
 }
 
-.btn-location:active {
-    transform: translateY(0);
-}
+
 
 .btn-content,
 .btn-loading {
@@ -1152,14 +1495,6 @@ function refreshTable() {
         font-size: 1.25rem;
     }
     
-    .location-icon {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .location-icon i {
-        font-size: 1.5rem;
-    }
 }
 
 /* Medium screens */
@@ -1187,14 +1522,6 @@ function refreshTable() {
         font-size: 1.75rem;
     }
     
-    .location-icon {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .location-icon i {
-        font-size: 1rem;
-    }
     
     .location-header {
         padding: 1rem;
