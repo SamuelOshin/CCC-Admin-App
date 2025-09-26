@@ -107,67 +107,15 @@
 {% endblock %}
 
 {% block table_headers %}
-<th>Parish Name</th>
-<th>Address</th>
-<th>Date Applied</th>
-<th>Date Approved</th>
-<th>Status</th>
-<th>Actions</th>
+<th width="25%">Parish Name</th>
+<th width="20%">Diocese</th>
+<th width="15%">Date Approved</th>
+<th width="15%">Certificate Date</th>
+<th width="15%">Actions</th>
 {% endblock %}
 
 {% block table_body %}
-{% for parish in parishes %}
-<tr data-parish-id="{{ parish.id }}">
-    <td>
-        <input type="checkbox" class="form-check-input row-checkbox" value="{{ parish.id }}">
-    </td>
-    <td>
-        <div class="fw-bold">{{ parish.parish.name }}</div>
-        <small class="text-muted">CCC Parish</small>
-    </td>
-    <td>{{ parish.parish.address }}</td>
-    <td>
-        <span class="badge bg-info">{{ parish.date_applied|date:"M d, Y" }}</span>
-    </td>
-    <td>
-        {% if parish.date_approved %}
-            <span class="badge bg-success">{{ parish.date_approved|date:"M d, Y" }}</span>
-        {% else %}
-            <span class="badge bg-warning">Pending</span>
-        {% endif %}
-    </td>
-    <td>
-        {% if parish.date_approved %}
-            <span class="badge bg-success">
-                <i class="bi bi-check-circle me-1"></i>Approved
-            </span>
-        {% else %}
-            <span class="badge bg-warning">
-                <i class="bi bi-clock me-1"></i>Pending
-            </span>
-        {% endif %}
-    </td>
-    <td>
-        <div class="btn-group" role="group">
-            <a href="{% url 'view-parish' parish.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
-                <i class="bi bi-eye"></i>
-            </a>
-            <a href="{% url 'edit_regparish' parish.id %}" class="btn btn-sm btn-outline-secondary" title="Edit Parish">
-                <i class="bi bi-pencil"></i>
-            </a>
-        </div>
-    </td>
-</tr>
-{% empty %}
-<tr>
-    <td colspan="6" class="text-center py-4">
-        <div class="text-muted">
-            <i class="bi bi-info-circle fs-1 mb-2"></i>
-            <p class="mb-0">No approved parishes found</p>
-        </div>
-    </td>
-</tr>
-{% endfor %}
+<!-- Data will be loaded via DataTables server-side processing -->
 {% endblock %}
 
 {% block bulk_actions %}
@@ -301,21 +249,117 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeDataTable() {
     if (typeof $ !== 'undefined' && $.fn.DataTable) {
         const table = $('#data-table').DataTable({
+            serverSide: true,
+            ajax: {
+                url: '{% url "approved" %}',
+                type: 'GET'
+            },
             responsive: true,
             pageLength: 25,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            dom: '<"dt-header"<"dt-length"l><"dt-search"f><"dt-buttons"B>>rt<"dt-footer"<"dt-info"i><"dt-pagination"p>>',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel',
+                    className: 'btn btn-sm btn-outline-success d-none',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4] // Include Parish Name, Diocese, Date Approved, Certificate Date (exclude checkbox and actions)
+                    },
+                    title: 'Approved Parishes Export'
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
+                    className: 'btn btn-sm btn-outline-danger d-none',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4] // Include Parish Name, Diocese, Date Approved, Certificate Date (exclude checkbox and actions)
+                    },
+                    title: 'Approved Parishes Export',
+                    orientation: 'landscape'
+                },
+                {
+                    extend: 'csv',
+                    text: '<i class="bi bi-filetype-csv me-1"></i>CSV',
+                    className: 'btn btn-sm btn-outline-info d-none',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4] // Include Parish Name, Diocese, Date Approved, Certificate Date (exclude checkbox and actions)
+                    },
+                    title: 'Approved Parishes Export'
+                }
+            ],
+            columns: [
+                {
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center',
+                    width: '50px',
+                    render: function(data, type, row) {
+                        return '<div class="form-check">' +
+                               '<input class="form-check-input row-checkbox" type="checkbox" value="' + row.DT_RowId.split('_')[1] + '">' +
+                               '</div>';
+                    }
+                },
+                {
+                    data: 'parish_name',
+                    className: 'parish-info'
+                },
+                {
+                    data: 'diocese'
+                },
+                {
+                    data: 'date_approved'
+                },
+                {
+                    data: 'certificate_date',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center'
+                },
+                {
+                    data: 'actions',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center'
+                }
+            ],
             columnDefs: [
-                { orderable: false, targets: [0, 6] },
-                { responsivePriority: 1, targets: 1 },
-                { responsivePriority: 2, targets: 5 },
-                { responsivePriority: 3, targets: 6 }
+                { className: "align-middle", targets: "_all" },
+                { responsivePriority: 1, targets: 1 }, // Parish Name high priority
+                { responsivePriority: 2, targets: 5 }  // Actions high priority
             ],
             language: {
                 emptyTable: "No approved parishes found",
-                zeroRecords: "No parishes match your search criteria"
+                zeroRecords: "No parishes match your search criteria",
+                info: "Showing _START_ to _END_ of _TOTAL_ parishes",
+                infoEmpty: "No parishes available",
+                infoFiltered: "(filtered from _MAX_ total parishes)",
+                lengthMenu: "Show _MENU_ parishes per page",
+                search: "",
+                searchPlaceholder: "Search approved parishes...",
+                paginate: {
+                    first: '<i class="bi bi-chevron-double-left"></i>',
+                    previous: '<i class="bi bi-chevron-left"></i>',
+                    next: '<i class="bi bi-chevron-right"></i>',
+                    last: '<i class="bi bi-chevron-double-right"></i>'
+                },
+                processing: '<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+            },
+            processing: true,
+            initComplete: function() {
+                // Initialize tooltips after DataTable is ready
+                $('[data-bs-toggle="tooltip"]').tooltip();
+            },
+            drawCallback: function() {
+                // Re-initialize tooltips after each draw
+                $('[data-bs-toggle="tooltip"]').tooltip();
+                // Scroll to top on pagination
+                $('html, body').animate({ scrollTop: 0 }, 'fast');
             }
         });
-        // Note: setupBulkSelection is called separately in DOM ready event
+
+        setupBulkSelection(table);
     }
 }
 

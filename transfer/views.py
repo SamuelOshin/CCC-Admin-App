@@ -165,28 +165,31 @@ def view_transfer(request, transfer_id):
     return render(request, 'transfer/view_transfer.html', context)
 @login_required
 def clergy_details(request):
-    # Get base queryset
-    clergy_queryset = ClergyTrfbio.objects.select_related('clergy').all()
+    # Get base queryset - show ALL clergy from ClergyDetails
+    clergy_queryset = ClergyDetails.objects.select_related('clergytrfbio').all()
 
     # Search functionality
     search_query = request.GET.get('search', '')
     if search_query:
         clergy_queryset = clergy_queryset.filter(
-            Q(clergy__first_name__icontains=search_query) |
-            Q(clergy__last_name__icontains=search_query) |
-            Q(clergy__telephone__icontains=search_query) |
-            Q(clergy__email_address__icontains=search_query)
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(telephone__icontains=search_query) |
+            Q(email_address__icontains=search_query)
         )
 
     # Filter by floating status
     floating_filter = request.GET.get('floating', '')
     if floating_filter == 'floating':
-        clergy_queryset = clergy_queryset.filter(floating=True)
+        clergy_queryset = clergy_queryset.filter(clergytrfbio__floating=True)
     elif floating_filter == 'not_floating':
-        clergy_queryset = clergy_queryset.filter(floating=False)
+        clergy_queryset = clergy_queryset.filter(clergytrfbio__floating=False)
 
-    # Get statistics
-    total_clergy = ClergyTrfbio.objects.count()
+    # Apply ordering to prevent pagination warnings
+    clergy_queryset = clergy_queryset.order_by('last_name', 'first_name')
+
+    # Get statistics - now based on ClergyDetails since we show all clergy
+    total_clergy = ClergyDetails.objects.count()
     floating_clergy = ClergyTrfbio.objects.filter(floating=True).count()
     not_floating_clergy = ClergyTrfbio.objects.filter(floating=False).count()
 

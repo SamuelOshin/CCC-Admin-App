@@ -114,7 +114,11 @@
             <h2>Profile</h2>
         </div>
         <div class="profile-pic">
-            <img src="{{ profile_picture }}" alt="Profile Picture">
+            {% if profile_picture %}
+                <img src="{{ profile_picture }}" alt="Profile Picture">
+            {% else %}
+                <img src="{% static 'assets/img/default-avatar.png' %}" alt="No Profile Picture Available" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
+            {% endif %}
         </div>
         <div class="section">
             <h3>Identities</h3>

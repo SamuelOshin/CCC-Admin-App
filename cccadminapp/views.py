@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -1454,4 +1454,86 @@ def get_object_row(obj, data_type, selected_fields):
             ', '.join([perm.codename for perm in obj.user_permissions.all()]),
         ]
     return []
-    return []
+
+def dashboard_stats_api(request):
+    """
+    API endpoint to provide dashboard statistics for the admin homepage.
+    Returns JSON data with counts and changes for various entities.
+    """
+    try:
+        # Get current month and last month dates
+        from datetime import datetime, timedelta
+        now = timezone.now()
+        current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        last_month_start = (current_month_start - timedelta(days=1)).replace(day=1)
+
+        # Initialize stats
+        stats = {
+            'clergy_count': 0,
+            'parish_count': 0,
+            'transfer_count': 0,
+            'annointment_count': 0,
+            'clergy_change': 0,
+            'parish_change': 0,
+            'transfer_change': 0,
+            'annointment_change': 0,
+        }
+
+        # Get user permissions
+        user_groups = list(request.user.groups.values_list('name', flat=True))
+        is_superuser = request.user.is_superuser
+
+        can_manage_clergy = 'clergyadmin' in user_groups or is_superuser
+        can_manage_transfers = 'transferadmin' in user_groups or is_superuser
+        can_manage_parishes = 'parishadmin' in user_groups or is_superuser
+
+        # Calculate current counts
+        if can_manage_clergy:
+            stats['clergy_count'] = ClergyDetails.objects.count()
+            stats['annointment_count'] = AnnointmentGazzette.objects.count()
+
+            # Calculate changes (simplified - using recent entries as proxy)
+            current_month_clergy = ClergyDetails.objects.filter(
+                entry_date_in_ccc__gte=current_month_start
+            ).count()
+            stats['clergy_change'] = current_month_clergy
+
+            current_month_annointments = AnnointmentGazzette.objects.filter(
+                # Using year/month as proxy for recent activity
+                year_of_annointment__gte=now.year - 1
+            ).count()
+            stats['annointment_change'] = min(current_month_annointments, 50)  # Cap for display
+
+        if can_manage_parishes:
+            stats['parish_count'] = ParishDirectory.objects.count()
+
+            # Recent parish registrations as change indicator
+            current_month_parishes = ParishRegistration.objects.filter(
+                date_applied__gte=current_month_start
+            ).count()
+            stats['parish_change'] = current_month_parishes
+
+        if can_manage_transfers:
+            stats['transfer_count'] = TransferData.objects.count()
+
+            # Recent transfers
+            current_month_transfers = TransferData.objects.filter(
+                date_transfered__gte=current_month_start
+            ).count()
+            stats['transfer_change'] = current_month_transfers
+
+        return JsonResponse(stats)
+
+    except Exception as e:
+        logger.error(f"Error generating dashboard stats: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'error': 'Unable to load dashboard statistics',
+            'clergy_count': 0,
+            'parish_count': 0,
+            'transfer_count': 0,
+            'annointment_count': 0,
+            'clergy_change': 0,
+            'parish_change': 0,
+            'transfer_change': 0,
+            'annointment_change': 0,
+        }, status=500)

@@ -140,40 +140,56 @@
     <!-- Google Maps (if needed) -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOwAehZ50SPGY0GciT25oiYIKFodpNvv4&libraries=places&callback=initAutocomplete" async defer></script>
 
+    <!-- Modern Sidebar Flyout System -->
+    <script src="{% static 'js/modern-sidebar-flyout.js' %}"></script>
+    
     <!-- Dashboard Core JavaScript -->
     <script>
+        // Wait for modern sidebar system to initialize before binding legacy events
         $(document).ready(function() {
-            // Modern sidebar toggle functionality
-            $('#sidebarToggle, #sidebarToggleTop').on('click', function() {
-                $('.modern-sidebar').toggleClass('collapsed');
-                $('body').toggleClass('sidebar-collapsed');
-                $('.main-content').toggleClass('expanded');
-            });
-
-            // Mobile sidebar toggle
-            $('#mobileToggle, #sidebarToggleTop').on('click', function() {
+            // Disable legacy sidebar toggle events to prevent conflicts
+            $('#sidebarToggle, #sidebarToggleTop').off('click');
+            
+            console.log('Legacy sidebar events disabled. Modern flyout system active.');
+            
+            // Wait for modern sidebar to initialize
+            setTimeout(function() {
+                if (window.sidebarFlyout) {
+                    console.log('Modern Sidebar Flyout System is active');
+                    
+                    // Add body class updates when sidebar toggles
+                    const originalToggle = window.sidebarFlyout.toggleSidebar.bind(window.sidebarFlyout);
+                    window.sidebarFlyout.toggleSidebar = function() {
+                        originalToggle();
+                        // Update body classes for layout adjustments
+                        $('body').toggleClass('sidebar-collapsed', this.isCollapsed);
+                        $('.main-content').toggleClass('expanded', this.isCollapsed);
+                    };
+                } else {
+                    console.warn('Modern Sidebar Flyout System failed to initialize. Using fallback.');
+                    // Fallback: Re-enable legacy functionality
+                    $('#sidebarToggle, #sidebarToggleTop').on('click', function(e) {
+                        e.preventDefault();
+                        $('.modern-sidebar').toggleClass('collapsed');
+                        $('body').toggleClass('sidebar-collapsed');
+                        $('.main-content').toggleClass('expanded');
+                    });
+                }
+            }, 100);
+            
+            // Legacy mobile sidebar functionality (preserved)
+            $('#mobileToggle').on('click', function() {
                 if ($(window).width() <= 768) {
                     $('.modern-sidebar').toggleClass('show');
                     $('.sidebar-overlay').toggleClass('show');
                 }
             });
-
-            // Close mobile sidebar when overlay is clicked
+            
+            // Legacy overlay click handler
             $(document).on('click', '.sidebar-overlay', function() {
                 $('.modern-sidebar').removeClass('show');
                 $(this).removeClass('show');
             });
-
-            // Auto-collapse sidebar on small screens
-            function checkScreenSize() {
-                if ($(window).width() <= 768) {
-                    $('.modern-sidebar').removeClass('show');
-                    $('.sidebar-overlay').removeClass('show');
-                }
-            }
-
-            $(window).resize(checkScreenSize);
-            checkScreenSize();
 
             // Initialize Bootstrap tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

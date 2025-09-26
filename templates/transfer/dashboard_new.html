@@ -7,92 +7,322 @@
 {% block dashboard_subtitle %}Manage clergy transfers and track transfer activities{% endblock %}
 
 {% block dashboard_actions %}
-<div class="btn-group" role="group">
-    <a href="{% url 'clergy' %}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i>New Transfer
-    </a>
-    <a href="{% url 'trfTable' %}" class="btn btn-outline-primary">
-        <i class="fas fa-list me-1"></i>View All Transfers
-    </a>
-    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
-        <i class="fas fa-sync-alt me-1"></i>Refresh
-    </button>
+<div class="dashboard-actions-container">
+    <div class="btn-group-vertical btn-group-lg d-block d-lg-flex" role="group">
+        <a href="{% url 'clergy' %}" class="btn btn-primary mb-2 mb-lg-0 me-lg-2 action-btn">
+            <i class="fas fa-plus me-1"></i><span class="action-text">New Transfer</span>
+        </a>
+        <a href="{% url 'trfTable' %}" class="btn btn-outline-primary mb-2 mb-lg-0 me-lg-2 action-btn">
+            <i class="fas fa-list me-1"></i><span class="action-text">View All Transfers</span>
+        </a>
+        <button type="button" class="btn btn-outline-secondary action-btn" onclick="location.reload()">
+            <i class="fas fa-sync-alt me-1"></i><span class="action-text">Refresh</span>
+        </button>
+    </div>
 </div>
+
+<style>
+/* Responsive Dashboard Actions */
+.dashboard-actions-container {
+    margin-bottom: 1.5rem;
+}
+
+.action-btn {
+    white-space: nowrap !important;
+    transition: all 0.3s ease !important;
+    min-height: 44px !important; /* Touch-friendly minimum */
+    font-size: 0.9rem !important;
+}
+
+.action-text {
+    font-size: 0.9rem !important;
+}
+
+/* Tablet and smaller screens */
+@media (max-width: 991.98px) {
+    .action-btn {
+        width: 100% !important;
+        justify-content: flex-start !important;
+        padding: 0.5rem 0.75rem !important;
+        min-height: 42px !important;
+        font-size: 0.75rem !important;
+        font-weight: 500 !important;
+    }
+    
+    .action-btn i {
+        font-size: 0.9rem !important;
+    }
+    
+    .btn-group-vertical .action-btn {
+        margin-bottom: 0.375rem !important;
+    }
+    
+    .btn-group-vertical .action-btn:last-child {
+        margin-bottom: 0 !important;
+    }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+    .action-btn {
+        padding: 0.5rem 0.625rem !important;
+        min-height: 40px !important;
+        font-size: 0.7rem !important;
+        font-weight: 500 !important;
+    }
+    
+    .action-btn i {
+        font-size: 0.85rem !important;
+    }
+}
+
+/* Mobile screens */
+@media (max-width: 575.98px) {
+    .action-btn {
+        padding: 0.5rem 0.5rem !important;
+        min-height: 38px !important;
+        font-size: 0.65rem !important;
+        font-weight: 500 !important;
+    }
+    
+    .action-btn i {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* Sidebar adjustments */
+.sidebar-collapsed .dashboard-actions-container {
+    transition: all 0.3s ease;
+}
+
+.main-content.expanded .dashboard-actions-container {
+    transition: all 0.3s ease;
+}
+
+/* Ensure buttons don't overflow */
+@media (max-width: 768px) {
+    .action-btn {
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    .action-text {
+        display: inline-block;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-wrap: break-word;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-text {
+        display: inline-block;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-wrap: break-word;
+    }
+}
+
+/* Extra small screens - prevent text overflow */
+@media (max-width: 360px) {
+    .action-btn {
+        padding: 0.375rem 0.375rem !important;
+        min-height: 36px !important;
+        font-size: 0.6rem !important;
+    }
+    
+    .action-text {
+        max-width: calc(100vw - 100px) !important;
+    }
+    
+    .action-btn i {
+        font-size: 0.75rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
+</style>
+
+<style>
+/* Quick Actions Panel - Compact Design */
+.quick-actions-card {
+    max-height: 400px;
+}
+
+.quick-actions-header {
+    padding: 0.75rem 1rem !important;
+}
+
+.quick-actions-title {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+}
+
+.quick-actions-title i {
+    font-size: 0.85rem !important;
+}
+
+.quick-actions-body {
+    padding: 1rem !important;
+}
+
+.quick-action-btn {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    min-height: 36px !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+}
+
+.quick-action-icon {
+    font-size: 0.8rem !important;
+    width: 16px !important;
+    text-align: center !important;
+}
+
+.quick-action-text {
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+}
+
+/* Responsive adjustments for Quick Actions */
+@media (max-width: 991.98px) {
+    .quick-actions-card {
+        max-height: none;
+    }
+    
+    .quick-action-btn {
+        padding: 0.6rem 0.8rem !important;
+        font-size: 0.75rem !important;
+        min-height: 38px !important;
+    }
+    
+    .quick-action-text {
+        font-size: 0.75rem !important;
+    }
+    
+    .quick-action-icon {
+        font-size: 0.75rem !important;
+        width: 15px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .quick-actions-body {
+        padding: 0.75rem !important;
+    }
+    
+    .quick-action-btn {
+        padding: 0.5rem 0.7rem !important;
+        font-size: 0.7rem !important;
+        min-height: 36px !important;
+    }
+    
+    .quick-action-text {
+        font-size: 0.7rem !important;
+    }
+    
+    .quick-action-icon {
+        font-size: 0.7rem !important;
+        width: 14px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .quick-action-btn {
+        padding: 0.5rem 0.6rem !important;
+        font-size: 0.65rem !important;
+        min-height: 34px !important;
+    }
+    
+    .quick-action-text {
+        font-size: 0.65rem !important;
+    }
+    
+    .quick-action-icon {
+        font-size: 0.65rem !important;
+        width: 13px !important;
+    }
+}
+</style>
 {% endblock %}
 
 {% block dashboard_stats %}
 <div class="dashboard-stats mb-4">
-    <div class="row">
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
-                <div class="card-body">
+    <div class="row g-3">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
+            <div class="card border-0 h-100 stats-card" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body p-3">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px; background-color: #2222ddd1;">
-                                <i class="fas fa-exchange-alt text-white fa-lg"></i>
+                        <div class="flex-shrink-0 me-3">
+                            <div class="stats-icon rounded-circle d-flex align-items-center justify-content-center" style="background-color: #2222ddd1;">
+                                <i class="fas fa-exchange-alt text-white"></i>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold text-dark h5 mb-0">{{ total_transfers }}</div>
-                            <div class="text-muted small">Total Transfers</div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="stats-number fw-bold text-dark mb-1">{{ total_transfers }}</div>
+                            <div class="stats-label text-muted">Total Transfers</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
-                <div class="card-body">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
+            <div class="card border-0 h-100 stats-card" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body p-3">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px; background-color: #ffc107;">
-                                <i class="fas fa-clock text-white fa-lg"></i>
+                        <div class="flex-shrink-0 me-3">
+                            <div class="stats-icon rounded-circle d-flex align-items-center justify-content-center" style="background-color: #ffc107;">
+                                <i class="fas fa-clock text-white"></i>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold text-dark h5 mb-0">{{ pending_transfers }}</div>
-                            <div class="text-muted small">Pending Transfers</div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="stats-number fw-bold text-dark mb-1">{{ pending_transfers }}</div>
+                            <div class="stats-label text-muted">Pending Transfers</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
-                <div class="card-body">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
+            <div class="card border-0 h-100 stats-card" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body p-3">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px; background-color: #28a745;">
-                                <i class="fas fa-check-circle text-white fa-lg"></i>
+                        <div class="flex-shrink-0 me-3">
+                            <div class="stats-icon rounded-circle d-flex align-items-center justify-content-center" style="background-color: #28a745;">
+                                <i class="fas fa-check-circle text-white"></i>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold text-dark h5 mb-0">{{ approved_transfers }}</div>
-                            <div class="text-muted small">Approved Transfers</div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="stats-number fw-bold text-dark mb-1">{{ approved_transfers }}</div>
+                            <div class="stats-label text-muted">Approved Transfers</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 h-100" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
-                <div class="card-body">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 mb-3">
+            <div class="card border-0 h-100 stats-card" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px; transition: all 0.3s ease;">
+                <div class="card-body p-3">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 50px; height: 50px; background-color: #dc3545;">
-                                <i class="fas fa-user-slash text-white fa-lg"></i>
+                        <div class="flex-shrink-0 me-3">
+                            <div class="stats-icon rounded-circle d-flex align-items-center justify-content-center" style="background-color: #dc3545;">
+                                <i class="fas fa-user-slash text-white"></i>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold text-dark h5 mb-0">{{ floating_clergy }}</div>
-                            <div class="text-muted small">Floating Clergy</div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="stats-number fw-bold text-dark mb-1">{{ floating_clergy }}</div>
+                            <div class="stats-label text-muted">Floating Clergy</div>
                         </div>
                     </div>
                 </div>
@@ -100,6 +330,161 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Responsive Stats Cards */
+.stats-card {
+    min-height: 80px;
+}
+
+.stats-icon {
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+}
+
+.stats-number {
+    font-size: 1.5rem !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+}
+
+.stats-label {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+}
+
+/* Tablet and smaller screens */
+@media (max-width: 991.98px) {
+    .stats-card {
+        min-height: 65px !important;
+    }
+    
+    .stats-icon {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+    }
+    
+    .stats-icon i {
+        font-size: 0.9rem !important;
+    }
+    
+    .stats-number {
+        font-size: 1.1rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    .stats-label {
+        font-size: 0.65rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    .card-body {
+        padding: 0.625rem !important;
+    }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+    .stats-card {
+        min-height: 60px !important;
+    }
+    
+    .stats-icon {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+    
+    .stats-icon i {
+        font-size: 0.8rem !important;
+    }
+    
+    .stats-number {
+        font-size: 1rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    .stats-label {
+        font-size: 0.6rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    .card-body {
+        padding: 0.5rem !important;
+    }
+}
+
+/* Mobile screens */
+@media (max-width: 575.98px) {
+    .stats-card {
+        min-height: 55px !important;
+    }
+    
+    .stats-icon {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+    }
+    
+    .stats-icon i {
+        font-size: 0.75rem !important;
+    }
+    
+    .stats-number {
+        font-size: 0.9rem !important;
+        line-height: 1.1 !important;
+    }
+    
+    .stats-label {
+        font-size: 0.55rem !important;
+        line-height: 1.1 !important;
+    }
+    
+    .card-body {
+        padding: 0.375rem !important;
+    }
+}
+
+/* Extra small screens - prevent stats overflow */
+@media (max-width: 360px) {
+    .stats-card {
+        min-height: 50px !important;
+    }
+    
+    .stats-number {
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+    }
+    
+    .stats-label {
+        font-size: 0.5rem !important;
+        font-weight: 500 !important;
+    }
+    
+    .card-body {
+        padding: 0.25rem !important;
+    }
+}
+
+/* Sidebar states adjustments */
+.sidebar-collapsed .stats-card {
+    transition: all 0.3s ease;
+}
+
+/* Ensure text doesn't overflow */
+.min-w-0 {
+    min-width: 0;
+}
+
+/* Adjust for sidebar transitions */
+.main-content.expanded .stats-card {
+    transition: all 0.3s ease;
+}
+</style>
 {% endblock %}
 
 {% block main_content_title %}Transfer Activities Overview{% endblock %}
@@ -122,25 +507,25 @@
 
     <!-- Quick Actions Panel -->
     <div class="col-lg-4 mb-4">
-        <div class="card border-0" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px;">
-            <div class="card-header bg-white border-bottom" style="border-radius: 10px 10px 0 0;">
-                <h6 class="card-title mb-0">
+        <div class="card border-0 quick-actions-card" style="box-shadow: 4px 3px 7px 1px rgba(0, 0, 0, 0.2); border-radius: 10px;">
+            <div class="card-header bg-white border-bottom quick-actions-header" style="border-radius: 10px 10px 0 0;">
+                <h6 class="card-title mb-0 quick-actions-title">
                     <i class="fas fa-bolt me-2" style="color: #2222ddd1;"></i>Quick Actions
                 </h6>
             </div>
-            <div class="card-body">
+            <div class="card-body quick-actions-body">
                 <div class="d-grid gap-2">
-                    <a href="{% url 'clergy' %}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Initiate New Transfer
+                    <a href="{% url 'clergy' %}" class="btn btn-primary quick-action-btn">
+                        <i class="fas fa-plus me-2 quick-action-icon"></i><span class="quick-action-text">Initiate New Transfer</span>
                     </a>
-                    <a href="{% url 'trfTable' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-list me-2"></i>View Transfer History
+                    <a href="{% url 'trfTable' %}" class="btn btn-outline-primary quick-action-btn">
+                        <i class="fas fa-list me-2 quick-action-icon"></i><span class="quick-action-text">View Transfer History</span>
                     </a>
-                    <button class="btn btn-outline-secondary" onclick="exportTransfers()">
-                        <i class="fas fa-download me-2"></i>Export Transfer Data
+                    <button class="btn btn-outline-secondary quick-action-btn" onclick="exportTransfers()">
+                        <i class="fas fa-download me-2 quick-action-icon"></i><span class="quick-action-text">Export Transfer Data</span>
                     </button>
-                    <button class="btn btn-outline-info" onclick="generateReport()">
-                        <i class="fas fa-chart-bar me-2"></i>Generate Report
+                    <button class="btn btn-outline-info quick-action-btn" onclick="generateReport()">
+                        <i class="fas fa-chart-bar me-2 quick-action-icon"></i><span class="quick-action-text">Generate Report</span>
                     </button>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from .models import *
 from .forms import ParishForm, LocationForm, ParishRegForm, ParishDirectoryForm, ParishRegForm1
 from django.contrib.auth.decorators import login_required
@@ -6,7 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Count
+from django.db.models import Count, Q
 from datetime import timedelta
 from django.utils import timezone
 from django.core.cache import cache
@@ -72,6 +73,8 @@ def restructure_parish(request):
                         location = form.cleaned_data['district']
                     elif form.cleaned_data.get('area'):
                         location = form.cleaned_data['area']
+                    elif form.cleaned_data.get('division'):
+                        location = form.cleaned_data['division']
                     elif form.cleaned_data.get('state'):
                         location = form.cleaned_data['state']
                     elif form.cleaned_data.get('region'):
@@ -118,11 +121,17 @@ def get_regions_and_areas(request):
         diocese_id = request.GET.get('diocese_id')  # Extract diocese ID from query parameters
         region_id = request.GET.get('region_id')    # Extract region ID from query parameters
         state_id = request.GET.get('state_id')      # Extract state ID from query parameters
+        area_id = request.GET.get('area_id')        # Extract area ID from query parameters
+        district_id = request.GET.get('district_id') # Extract district ID from query parameters
+        division_id = request.GET.get('division_id') # Extract division ID from query parameters
 
-        # Initialize empty lists for regions, states, and areas
+        # Initialize empty lists for regions, states, areas, districts, divisions, and zones
         regions = []
         states = []
         areas = []
+        districts = []
+        divisions = []
+        zones = []
 
         # Fetch regions for the selected diocese if diocese_id is provided and not empty
         if diocese_id and diocese_id.strip():
@@ -138,23 +147,50 @@ def get_regions_and_areas(request):
             except (ValueError, TypeError):
                 states = []
 
-        # Fetch areas for the selected state if state_id is provided and not empty
+        # Fetch divisions for the selected state if state_id is provided and not empty
         if state_id and state_id.strip():
             try:
-                areas = Location.objects.filter(parent_id=int(state_id), level='area')
+                divisions = Location.objects.filter(parent_id=int(state_id), level='division')
+            except (ValueError, TypeError):
+                divisions = []
+
+        # Fetch areas for the selected division if division_id is provided and not empty
+        if division_id and division_id.strip():
+            try:
+                areas = Location.objects.filter(parent_id=int(division_id), level='area')
             except (ValueError, TypeError):
                 areas = []
 
-        # Serialize regions, states, and areas data
+        # Fetch districts for the selected area if area_id is provided and not empty
+        if area_id and area_id.strip():
+            try:
+                districts = Location.objects.filter(parent_id=int(area_id), level='district')
+            except (ValueError, TypeError):
+                districts = []
+
+        # Fetch zones for the selected district if district_id is provided and not empty
+        if district_id and district_id.strip():
+            try:
+                zones = Location.objects.filter(parent_id=int(district_id), level='zone')
+            except (ValueError, TypeError):
+                zones = []
+
+        # Serialize regions, states, areas, districts, divisions, and zones data
         serialized_regions = [{'id': region.id, 'name': region.name} for region in regions]
         serialized_states = [{'id': state.id, 'name': state.name} for state in states]
         serialized_areas = [{'id': area.id, 'name': area.name} for area in areas]
+        serialized_districts = [{'id': district.id, 'name': district.name} for district in districts]
+        serialized_divisions = [{'id': division.id, 'name': division.name} for division in divisions]
+        serialized_zones = [{'id': zone.id, 'name': zone.name} for zone in zones]
 
-        # Return JSON response with regions, states, and areas data
+        # Return JSON response with all location data
         return JsonResponse({
             'regions': serialized_regions, 
             'states': serialized_states,
-            'areas': serialized_areas
+            'areas': serialized_areas,
+            'districts': serialized_districts,
+            'divisions': serialized_divisions,
+            'zones': serialized_zones
         })
 
 
@@ -163,7 +199,7 @@ def determine_location_from_hierarchy(form_data):
     Determine the most specific location from the form hierarchy.
 
     This function takes form cleaned_data and returns the most specific
-    location object based on the hierarchy: zone > district > area > state > region > diocese
+    location object based on the hierarchy: zone > district > area > division > state > region > diocese
 
     Args:
         form_data (dict): Cleaned form data containing location fields
@@ -179,6 +215,8 @@ def determine_location_from_hierarchy(form_data):
             return form_data['district']
         elif form_data.get('area'):
             return form_data['area']
+        elif form_data.get('division'):
+            return form_data['division']
         elif form_data.get('state'):
             return form_data['state']
         elif form_data.get('region'):
@@ -538,6 +576,53 @@ def get_all_parishes_in_children(location):
         raise
 
 
+def get_all_parishes_queryset(location):
+    """
+    Get a QuerySet of all parishes under a location and its children.
+
+    This function builds a QuerySet that includes all parishes associated with
+    the given location and all its sub-locations in the hierarchy.
+
+    Args:
+        location: Location instance to get parishes for
+
+    Returns:
+        QuerySet: QuerySet of ParishRestructure objects under the location hierarchy
+
+    Raises:
+        Exception: If there's an error accessing the database
+    """
+    try:
+        # Validate input
+        if not location:
+            logger.warning("get_all_parishes_queryset called with None location")
+            return ParishRestructure.objects.none()
+
+        logger.debug(f"Building QuerySet for parishes under location: {location.name} (Level: {location.level})")
+
+        # Get all location IDs in the hierarchy
+        location_ids = []
+
+        def collect_location_ids(loc):
+            location_ids.append(loc.id)
+            for child in loc.children.all():
+                collect_location_ids(child)
+
+        collect_location_ids(location)
+
+        # Build QuerySet for all parishes under these locations
+        parishes_queryset = ParishRestructure.objects.filter(
+            location_id__in=location_ids
+        ).select_related('parish', 'location')
+
+        logger.debug(f"Built QuerySet for {parishes_queryset.count()} parishes under {location.name}")
+        return parishes_queryset
+
+    except Exception as e:
+        logger.error(f"Unexpected error in get_all_parishes_queryset for location {location.name if location else 'None'}: {str(e)}", exc_info=True)
+        raise
+
+
 
 
 @login_required  
@@ -564,6 +649,96 @@ def view_parishes(request):
     parishes = []
     
     try:
+        # Check if this is a DataTables server-side request (GET with draw parameter)
+        if request.method == 'GET' and request.GET.get('draw'):
+            location_id = request.GET.get('location_id')
+            logger.info(f"DataTables request received: draw={request.GET.get('draw')}, location_id={location_id}")
+            if not location_id:
+                logger.warning("DataTables request missing location_id")
+                return JsonResponse({
+                    'draw': int(request.GET.get('draw', 1)),
+                    'recordsTotal': 0,
+                    'recordsFiltered': 0,
+                    'data': []
+                })
+            
+            try:
+                selected_location = Location.objects.get(pk=location_id)
+                parishes = get_all_parishes_queryset(selected_location)
+                logger.info(f"DataTables: Found {parishes.count()} parishes for location {selected_location.name}")
+                
+                # Handle DataTables server-side processing
+                draw = int(request.GET.get('draw', 1))
+                start = int(request.GET.get('start', 0))
+                length = int(request.GET.get('length', 10))
+                search_value = request.GET.get('search[value]', '')
+                logger.info(f"DataTables params: draw={draw}, start={start}, length={length}, search='{search_value}'")
+                
+                # Store total count before filtering
+                total_count = parishes.count()
+                
+                # Apply search filter if provided
+                if search_value:
+                    parishes = parishes.filter(
+                        Q(parish__name__icontains=search_value) |
+                        Q(address__icontains=search_value) |
+                        Q(location__name__icontains=search_value)
+                    )
+                    logger.info(f"DataTables: After search filter, {parishes.count()} parishes remain")
+                
+                # Get filtered count
+                filtered_count = parishes.count()
+                
+                # Apply ordering
+                order_column = int(request.GET.get('order[0][column]', 1))
+                order_dir = request.GET.get('order[0][dir]', 'asc')
+                
+                # Map column index to field name
+                column_mapping = {
+                    1: 'parish__name',
+                    2: 'address', 
+                    3: 'location__name',
+                    4: 'parish__phone_number',
+                    5: 'created_at'
+                }
+                
+                if order_column in column_mapping:
+                    order_field = column_mapping[order_column]
+                    if order_dir == 'desc':
+                        order_field = f'-{order_field}'
+                    parishes = parishes.order_by(order_field)
+                
+                # Apply pagination
+                parishes = parishes[start:start + length]
+                logger.info(f"DataTables: Returning {len(parishes)} parishes (page {start//length + 1})")
+                
+                # Format data for DataTables
+                data = []
+                for parish in parishes:
+                    data.append([
+                        f'<div class="form-check"><input class="form-check-input" type="checkbox" value="{parish.id}" id="check-{parish.id}"></div>',  # Checkbox
+                        f'<div class="d-flex align-items-center"><div class="avatar avatar-sm me-3"><div class="avatar-initial bg-primary rounded-circle"><i class="fas fa-church text-white"></i></div></div><div><h6 class="mb-0">{parish.parish.name if parish.parish else "N/A"}</h6><small class="text-muted">ID: {parish.id}</small></div></div>',  # Parish Name
+                        f'<span class="badge bg-light text-dark">{parish.address or "N/A"}</span>',  # Address
+                        f'<span class="badge bg-info">{parish.location.name if parish.location else "N/A"}</span><br><small class="text-muted">{parish.location.get_level_display() if parish.location else "N/A"}</small>',  # Location
+                        f'<span class="badge bg-secondary">{selected_location.name}</span>',  # Selected Location
+                        f'<div class="btn-group" role="group"><a href="/parish/edit/{parish.id}/" class="btn btn-outline-primary btn-sm" title="Edit Parish"><i class="fas fa-edit"></i></a><a href="/parish/view/{parish.id}/" class="btn btn-outline-info btn-sm" title="View Details"><i class="fas fa-eye"></i></a><a href="/parish/delete/{parish.id}/" class="btn btn-outline-danger btn-sm" title="Delete Parish" onclick="return confirmDelete(\'{parish.parish.name if parish.parish else "this parish"}\')"><i class="fas fa-trash"></i></a></div>'  # Actions
+                    ])
+                
+                logger.info(f"DataTables: Sending response with {len(data)} rows")
+                return JsonResponse({
+                    'draw': draw,
+                    'recordsTotal': total_count,
+                    'recordsFiltered': filtered_count,
+                    'data': data
+                })
+            except Location.DoesNotExist:
+                return JsonResponse({
+                    'draw': int(request.GET.get('draw', 1)),
+                    'recordsTotal': 0,
+                    'recordsFiltered': 0,
+                    'data': []
+                })
+        
         if request.method == 'POST':
             location_id = request.POST.get('parent')
             
@@ -604,6 +779,42 @@ def view_parishes(request):
                 parishes = get_all_parishes_in_children(selected_location)
                 logger.info(f"Found {len(parishes)} parishes under location {selected_location.name}")
                 
+                # Check if this is a regular AJAX request
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    # Return JSON response for AJAX requests
+                    parishes_data = []
+                    for parish in parishes:
+                        parishes_data.append({
+                            'id': parish.id,
+                            'parish': {
+                                'name': parish.parish.name if parish.parish else 'N/A',
+                                'id': parish.parish.id if parish.parish else None
+                            },
+                            'address': parish.address,
+                            'location': {
+                                'id': parish.location.id if parish.location else None,
+                                'name': parish.location.name if parish.location else 'N/A',
+                                'level': parish.location.get_level_display() if parish.location else 'N/A'
+                            }
+                        })
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'parishes': parishes_data,
+                        'selected_location': {
+                            'id': selected_location.id,
+                            'name': selected_location.name,
+                            'level': selected_location.get_level_display()
+                        },
+                        'stats': {
+                            'total_parishes': len(parishes),
+                            'location_name': selected_location.name,
+                            'location_level': selected_location.get_level_display(),
+                            'sub_locations': selected_location.children.count()
+                        },
+                        'message': f'Found {len(parishes)} parish(es) under {selected_location.name}'
+                    })
+                
                 if parishes:
                     messages.success(request, f'Found {len(parishes)} parish(es) under {selected_location.name}')
                     return render(request, 'ParishRestructure/select_parish_new.html', {
@@ -621,6 +832,19 @@ def view_parishes(request):
                     
             except Exception as e:
                 logger.error(f"Error retrieving parishes for location {selected_location.name}: {str(e)}", exc_info=True)
+                
+                # Check if this is an AJAX request
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'An error occurred while retrieving parish data. Please try again.',
+                        'parishes': [],
+                        'selected_location': {
+                            'id': selected_location.id,
+                            'name': selected_location.name
+                        }
+                    }, status=500)
+                
                 messages.error(request, 'An error occurred while retrieving parish data. Please try again or contact support if the problem persists.')
                 return render(request, 'ParishRestructure/select_parish_new.html', {
                     'locations': locations,
@@ -638,6 +862,15 @@ def view_parishes(request):
     except Exception as e:
         # Catch any unexpected errors
         logger.error(f"Unexpected error in view_parishes view: {str(e)}", exc_info=True)
+        
+        # Check if this is an AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'An unexpected error occurred. Please try again.',
+                'parishes': []
+            }, status=500)
+        
         messages.error(request, 'An unexpected error occurred. Please try again or contact support if the problem persists.')
         
         # Return safe fallback
@@ -863,7 +1096,7 @@ def determine_location_from_hierarchy(cleaned_data):
     Returns:
         Location instance or None
     """
-    location_hierarchy = ['zone', 'district', 'area', 'state', 'region', 'diocese']
+    location_hierarchy = ['zone', 'district', 'area', 'division', 'state', 'region', 'diocese']
 
     for location_type in location_hierarchy:
         if location_type in cleaned_data and cleaned_data[location_type]:
@@ -1050,6 +1283,8 @@ def edit_reg_parish(request, pk):
             messages.error(request, 'Form validation failed. Please check the errors below.')
     else:
         form = ParishRegForm1(instance=parish)
+        print(f"Form initial data: {form.initial}")  # Debug: print initial form data
+        print(f"Parish instance: {parish.__dict__}")  # Debug: print parish instance data
         
         
     return render(request, 'ParishRestructure/edit_regparish.html', {'form': form})
@@ -1168,92 +1403,26 @@ def all_parish(request):
 
     start_time = time.time()
 
+    # Check if this is a DataTables AJAX request
+    if request.GET.get('draw'):
+        return all_parish_datatables(request)
+
+    # For initial page load, just provide basic context without Django pagination
+    # DataTables will handle all pagination, sorting, and filtering via AJAX
     try:
-        # Get page number and size from request
-        page = request.GET.get('page', 1)
-        page_size = request.GET.get('page_size', 25)
+        # Get total statistics
+        total_parishes = ParishDirectory.objects.count()
+        registered_parishes = ParishDirectory.objects.filter(register_status=True).count()
+        unregistered_parishes = total_parishes - registered_parishes
+        registration_percentage = round((registered_parishes / total_parishes * 100), 1) if total_parishes > 0 else 0
 
-        try:
-            page_size = int(page_size)
-            if page_size < 1 or page_size > 100:
-                page_size = 25
-        except ValueError:
-            page_size = 25
-
-        # Create cache key for statistics
-        cache_key = f'parish_stats_{page_size}'
-        cached_stats = cache.get(cache_key)
-
-        if cached_stats:
-            context = cached_stats.copy()
-            # Update pagination-specific data
-            context.update({
-                'search_query': request.GET.get('search', '').strip(),
-                'status_filter': request.GET.get('status', '').strip(),
-                'page_size': page_size,
-            })
-        else:
-            # Get total statistics (cached)
-            total_parishes = ParishDirectory.objects.count()
-            registered_parishes = ParishDirectory.objects.filter(register_status=True).count()
-            unregistered_parishes = total_parishes - registered_parishes
-
-            # Cache the statistics for 10 minutes
-            cached_stats = {
-                'total_parishes': total_parishes,
-                'registered_parishes': registered_parishes,
-                'unregistered_parishes': unregistered_parishes,
-                'registration_percentage': round((registered_parishes / total_parishes * 100), 1) if total_parishes > 0 else 0,
-            }
-            cache.set(cache_key, cached_stats, 600)  # 10 minutes
-
-            context = cached_stats.copy()
-
-        # Apply search and status filters
-        search_query = request.GET.get('search', '').strip()
-        status_filter = request.GET.get('status', '').strip()
-
-        # Get filtered queryset with optimized fields
-        parishes_qs = ParishDirectory.objects.select_related('location').only(
-            'id', 'name', 'address', 'phone', 'email', 'register_status',
-            'location__name', 'location__level'
-        ).order_by('name')
-
-        if search_query:
-            from django.db.models import Q
-            parishes_qs = parishes_qs.filter(
-                Q(name__icontains=search_query) |
-                Q(address__icontains=search_query) |
-                Q(phone__icontains=search_query) |
-                Q(email__icontains=search_query) |
-                Q(location__name__icontains=search_query)
-            )
-
-        if status_filter in ['registered', 'unregistered']:
-            is_registered = status_filter == 'registered'
-            parishes_qs = parishes_qs.filter(register_status=is_registered)
-
-        # Create paginator
-        paginator = Paginator(parishes_qs, page_size)
-
-        try:
-            parishes_page = paginator.page(page)
-        except PageNotAnInteger:
-            parishes_page = paginator.page(1)
-        except EmptyPage:
-            parishes_page = paginator.page(paginator.num_pages)
-
-        # Update context with pagination data
-        context.update({
-            'parishes': parishes_page,
-            'paginator': paginator,
-            'page_obj': parishes_page,
-            'is_paginated': paginator.num_pages > 1,
-            'search_query': search_query,
-            'status_filter': status_filter,
-            'page_size': page_size,
+        context = {
+            'total_parishes': total_parishes,
+            'registered_parishes': registered_parishes,
+            'unregistered_parishes': unregistered_parishes,
+            'registration_percentage': registration_percentage,
             'page_title': 'Parish Directory',
-            'page_subtitle': f'Complete overview of all parishes in the system (Page {parishes_page.number} of {paginator.num_pages})',
+            'page_subtitle': 'Complete overview of all parishes in the system',
             'breadcrumb_items': [
                 {'title': 'Dashboard', 'url': 'parish_dashboard'},
                 {'title': 'All Parishes', 'url': None, 'active': True}
@@ -1261,25 +1430,24 @@ def all_parish(request):
             'quick_stats': [
                 {
                     'title': 'Total Parishes',
-                    'value': context['total_parishes'],
+                    'value': total_parishes,
                     'icon': 'bi-building',
                     'color': 'primary'
                 },
                 {
                     'title': 'Registered',
-                    'value': context['registered_parishes'],
+                    'value': registered_parishes,
                     'icon': 'bi-check-circle-fill',
                     'color': 'success'
                 },
                 {
                     'title': 'Pending Registration',
-                    'value': context['unregistered_parishes'],
+                    'value': unregistered_parishes,
                     'icon': 'bi-clock',
                     'color': 'warning'
                 }
             ],
-            'load_time': round(time.time() - start_time, 2),
-        })
+        }
 
         return render(request, 'ParishRestructure/view_allparish.html', context)
 
@@ -1288,6 +1456,141 @@ def all_parish(request):
         messages.error(request, 'An error occurred while loading the parish directory. Please try again.')
         return redirect('parish_dashboard')
 
+
+
+def all_parish_datatables(request):
+    """
+    Handle DataTables server-side processing for parish data.
+    """
+    from django.db.models import Q
+    import json
+
+    # DataTables parameters
+    draw = int(request.GET.get('draw', 1))
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 10))
+    search_value = request.GET.get('search[value]', '').strip()
+
+    # Column ordering
+    order_column_index = int(request.GET.get('order[0][column]', 0))
+    order_direction = request.GET.get('order[0][dir]', 'asc')
+
+    # Map column index to field name (matching template column definitions)
+    column_mapping = {
+        0: 'id',  # Checkbox column (not sortable)
+        1: 'name',  # Parish Name
+        2: 'address',  # Address
+        3: 'register_status',  # Status
+        4: 'id',  # Actions column (not sortable, use id for consistency)
+    }
+
+    order_field = column_mapping.get(order_column_index, 'name')
+
+    # Base queryset with optimized fields
+    queryset = ParishDirectory.objects.select_related('parishregistration').only(
+        'id', 'name', 'address', 'register_status',
+        'parishregistration__country', 'parishregistration__state',
+        'parishregistration__city', 'parishregistration__diocese__name'
+    )
+
+    # Apply search filter
+    if search_value:
+        queryset = queryset.filter(
+            Q(name__icontains=search_value) |
+            Q(address__icontains=search_value) |
+            Q(parishregistration__country__icontains=search_value) |
+            Q(parishregistration__state__icontains=search_value) |
+            Q(parishregistration__city__icontains=search_value) |
+            Q(parishregistration__diocese__name__icontains=search_value)
+        )
+
+    # Get total records count (before filtering)
+    total_records = ParishDirectory.objects.count()
+
+    # Get filtered records count
+    records_filtered = queryset.count()
+
+    # Apply ordering
+    if order_direction == 'desc':
+        queryset = queryset.order_by(f'-{order_field}')
+    else:
+        queryset = queryset.order_by(order_field)
+
+    # Apply pagination
+    queryset = queryset[start:start + length]
+
+    # Prepare data for DataTables
+    data = []
+    for parish in queryset:
+        # Get registration details
+        registration = parish.parishregistration if hasattr(parish, 'parishregistration') else None
+
+        # Status badge with registration link for unregistered parishes
+        if parish.register_status:
+            status_badge = '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Registered</span>'
+        elif registration and registration.date_approved is None:
+            status_badge = '<span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-clock me-1"></i>Waiting for Approval</span>'
+        else:
+            status_badge = f'''
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                        <i class="bi bi-x-circle-fill me-1"></i>Not Registered
+                    </span>
+                    <a href="/parish/regparish/{parish.id}/" class="btn btn-sm btn-outline-primary"
+                       title="Register Parish" data-bs-toggle="tooltip">
+                        <i class="bi bi-plus-circle-dotted"></i>
+                    </a>
+                </div>
+            '''
+
+        row = {
+            'DT_RowId': f'row_{parish.id}',
+            'checkbox': f'<div class="form-check"><input class="form-check-input row-checkbox" type="checkbox" value="{parish.id}" id="check-{parish.id}"></div>',
+            'name': f'''
+                <div class="d-flex align-items-center">
+                    <div class="avatar-wrapper me-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">{parish.name}</div>
+                        <small class="text-muted">ID: {parish.id}</small>
+                    </div>
+                </div>
+            ''',
+            'address': parish.address or 'N/A',
+            'status': status_badge,
+            'country': registration.country if registration else 'N/A',
+            'state': registration.state if registration else 'N/A',
+            'city': registration.city if registration else 'N/A',
+            'actions': f'''
+                <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
+                    <a href="/parish/view_parish/{parish.id}/" class="btn btn-xs btn-outline-primary" title="View Details" data-bs-toggle="tooltip">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/parish/edit_parish/{parish.id}/" class="btn btn-xs btn-outline-success" title="Edit Parish" data-bs-toggle="tooltip">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="/parish/view/{parish.id}/" class="btn btn-xs btn-outline-info" title="View Registration" data-bs-toggle="tooltip">
+                        <i class="fas fa-file-alt"></i>
+                    </a>
+                    <a href="/parish/generate_parish_pdf/{parish.id}/" class="btn btn-xs btn-outline-secondary" title="Download PDF" data-bs-toggle="tooltip" target="_blank">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            '''
+        }
+        data.append(row)
+
+    response = {
+        'draw': draw,
+        'recordsTotal': total_records,
+        'recordsFiltered': records_filtered,
+        'data': data
+    }
+
+    return JsonResponse(response)
 
 
 @login_required  
@@ -1329,6 +1632,10 @@ def approval_queue(request):
     - Statistics and summary information
     """
     try:
+        # Check if this is a DataTables AJAX request
+        if request.GET.get('draw'):
+            return approval_queue_datatables(request)
+
         # Get filter parameters
         diocese_filter = request.GET.get('diocese', '')
         status_filter = request.GET.get('status', '')
@@ -1438,7 +1745,145 @@ def approval_queue(request):
             'dioceses': [],
             'error_message': 'Unable to load parish data at this time.'
         })
-    
+
+
+def approval_queue_datatables(request):
+    """
+    Handle DataTables server-side processing for approval queue data.
+    """
+    from django.db.models import Q
+    import json
+
+    # DataTables parameters
+    draw = int(request.GET.get('draw', 1))
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 10))
+    search_value = request.GET.get('search[value]', '').strip()
+
+    # Column ordering
+    order_column_index = int(request.GET.get('order[0][column]', 0))
+    order_direction = request.GET.get('order[0][dir]', 'desc')
+
+    # Map column index to field name
+    column_mapping = {
+        1: 'parish__name',  # Parish Name (shifted due to checkbox column)
+        2: 'diocese__name',  # Diocese
+        3: 'date_applied',  # Applied Date
+        4: 'id',  # Documents (calculated field)
+        5: 'id',  # Actions (not sortable)
+    }
+
+    order_field = column_mapping.get(order_column_index, 'date_applied')
+
+    # Base queryset
+    queryset = ParishRegistration.objects.filter(date_approved__isnull=True).select_related('parish', 'diocese')
+
+    # Apply search filter
+    if search_value:
+        queryset = queryset.filter(
+            Q(parish__name__icontains=search_value) |
+            Q(diocese__name__icontains=search_value) |
+            Q(country__icontains=search_value) |
+            Q(state__icontains=search_value) |
+            Q(city__icontains=search_value)
+        )
+
+    # Get total records count (before filtering)
+    total_records = ParishRegistration.objects.filter(date_approved__isnull=True).count()
+
+    # Get filtered records count
+    records_filtered = queryset.count()
+
+    # Apply ordering
+    if order_direction == 'desc':
+        queryset = queryset.order_by(f'-{order_field}')
+    else:
+        queryset = queryset.order_by(order_field)
+
+    # Apply pagination
+    queryset = queryset[start:start + length]
+
+    # Prepare data for DataTables
+    data = []
+    for registration in queryset:
+        # Calculate document completion
+        doc_count = sum([
+            registration.application_for_registration or False,
+            registration.original_receipt_of_land or False,
+            registration.original_survey_plan or False,
+            registration.building_plan or False,
+            registration.sworn_affidavit or False,
+            registration.passport_photograph or False,
+            registration.payment_proof_of_auditorium or False,
+            registration.approval_from_government_diaspora or False
+        ])
+        completion_percentage = (doc_count / 8) * 100
+
+        # Progress bar for documents
+        if completion_percentage == 100:
+            progress_class = 'bg-success'
+            status_text = 'Complete'
+        elif completion_percentage >= 50:
+            progress_class = 'bg-warning'
+            status_text = 'Partial'
+        else:
+            progress_class = 'bg-danger'
+            status_text = 'Incomplete'
+
+        progress_bar = f'''
+            <div class="progress" style="height: 20px;">
+                <div class="progress-bar {progress_class}" role="progressbar"
+                     style="width: {completion_percentage}%" aria-valuenow="{completion_percentage}"
+                     aria-valuemin="0" aria-valuemax="100">
+                    {doc_count}/8 ({completion_percentage:.0f}%)
+                </div>
+            </div>
+            <small class="text-muted">{status_text}</small>
+        '''
+
+        row = {
+            'DT_RowId': f'row_{registration.id}',
+            'parish_name': f'''
+                <div class="d-flex align-items-center">
+                    <div class="avatar-wrapper me-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">{registration.parish.name}</div>
+                        <small class="text-muted">{registration.city or 'N/A'}, {registration.state or 'N/A'}</small>
+                    </div>
+                </div>
+            ''',
+            'diocese': registration.diocese.name if registration.diocese else 'N/A',
+            'date_applied': registration.date_applied.strftime('%B %d, %Y') if registration.date_applied else 'N/A',
+            'documents': progress_bar,
+            'actions': f'''
+                <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
+                    <a href="/parish/view-regparish/{registration.id}/" class="btn btn-xs btn-outline-primary" title="View Details" data-bs-toggle="tooltip">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/parish/approve/{registration.id}/" class="btn btn-xs btn-outline-success" title="Approve" data-bs-toggle="tooltip" onclick="return confirm('Are you sure you want to approve this parish registration?')">
+                        <i class="fas fa-check"></i>
+                    </a>
+                    <a href="/parish/reject/{registration.id}/" class="btn btn-xs btn-outline-danger" title="Reject" data-bs-toggle="tooltip" onclick="return confirm('Are you sure you want to reject this parish registration?')">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            '''
+        }
+        data.append(row)
+
+    response = {
+        'draw': draw,
+        'recordsTotal': total_records,
+        'recordsFiltered': records_filtered,
+        'data': data
+    }
+
+    return JsonResponse(response)
+
 
 @login_required
 def approved(request):
@@ -1452,6 +1897,10 @@ def approved(request):
     - Statistics and summary information
     """
     try:
+        # Check if this is a DataTables AJAX request
+        if request.GET.get('draw'):
+            return approved_datatables(request)
+
         # Get filter parameters
         diocese_filter = request.GET.get('diocese', '')
         date_from = request.GET.get('date_from', '')
@@ -1542,6 +1991,110 @@ def approved(request):
             'monthly_approvals': [],
             'error_message': 'Unable to load parish data at this time.'
         })
+
+
+def approved_datatables(request):
+    """
+    Handle DataTables server-side processing for approved parishes data.
+    """
+    from django.db.models import Q
+    import json
+
+    # DataTables parameters
+    draw = int(request.GET.get('draw', 1))
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 10))
+    search_value = request.GET.get('search[value]', '').strip()
+
+    # Column ordering
+    order_column_index = int(request.GET.get('order[0][column]', 0))
+    order_direction = request.GET.get('order[0][dir]', 'desc')
+
+    # Map column index to field name
+    column_mapping = {
+        1: 'parish__name',  # Parish Name (shifted due to checkbox column)
+        2: 'diocese__name',  # Diocese
+        3: 'date_approved',  # Approval Date
+        4: 'date_issued_certificate',  # Certificate Date (not sortable, but included for consistency)
+        5: 'id',  # Actions (not sortable)
+    }
+
+    order_field = column_mapping.get(order_column_index, 'date_approved')
+
+    # Base queryset
+    queryset = ParishRegistration.objects.filter(date_approved__isnull=False).select_related('parish', 'diocese')
+
+    # Apply search filter
+    if search_value:
+        queryset = queryset.filter(
+            Q(parish__name__icontains=search_value) |
+            Q(diocese__name__icontains=search_value) |
+            Q(country__icontains=search_value) |
+            Q(state__icontains=search_value) |
+            Q(city__icontains=search_value)
+        )
+
+    # Get total records count (before filtering)
+    total_records = ParishRegistration.objects.filter(date_approved__isnull=False).count()
+
+    # Get filtered records count
+    records_filtered = queryset.count()
+
+    # Apply ordering
+    if order_direction == 'desc':
+        queryset = queryset.order_by(f'-{order_field}')
+    else:
+        queryset = queryset.order_by(order_field)
+
+    # Apply pagination
+    queryset = queryset[start:start + length]
+
+    # Prepare data for DataTables
+    data = []
+    for registration in queryset:
+        row = {
+            'DT_RowId': f'row_{registration.id}',
+            'checkbox': f'<div class="form-check"><input class="form-check-input row-checkbox" type="checkbox" value="{registration.id}" id="check-{registration.id}"></div>',
+            'parish_name': f'''
+                <div class="d-flex align-items-center">
+                    <div class="avatar-wrapper me-3">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark">{registration.parish.name}</div>
+                        <small class="text-muted">{registration.city or 'N/A'}, {registration.state or 'N/A'}</small>
+                    </div>
+                </div>
+            ''',
+            'diocese': registration.diocese.name if registration.diocese else 'N/A',
+            'date_approved': registration.date_approved.strftime('%B %d, %Y') if registration.date_approved else 'N/A',
+            'certificate_date': registration.date_issued_certificate.strftime('%B %d, %Y') if registration.date_issued_certificate else '<span class="text-muted">Pending</span>',
+            'actions': f'''
+                <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
+                    <a href="{reverse("view-parish", args=[registration.id])}" class="btn btn-xs btn-outline-primary" title="View Details" data-bs-toggle="tooltip">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{reverse("edit_regparish", args=[registration.id])}" class="btn btn-xs btn-outline-success" title="Edit Registration" data-bs-toggle="tooltip">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="/parish/generate_parish_pdf/{registration.id}/" class="btn btn-xs btn-outline-secondary" title="Download Certificate" data-bs-toggle="tooltip" target="_blank">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            '''
+        }
+        data.append(row)
+
+    response = {
+        'draw': draw,
+        'recordsTotal': total_records,
+        'recordsFiltered': records_filtered,
+        'data': data
+    }
+
+    return JsonResponse(response)
 
 
 @login_required  

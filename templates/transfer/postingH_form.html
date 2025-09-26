@@ -348,6 +348,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     drawCallback: function() {
                         // Re-adjust columns after each draw
                         this.api().columns.adjust();
+                        // Scroll to top of table after pagination change
+                        const tableElement = document.getElementById('dataTable');
+                        if (tableElement) {
+                            tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
                     }
                 });
 

@@ -1,0 +1,744 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load admin_urls %}
+{% load i18n %}
+
+{% block extrastyle %}
+<style>
+/* Dashboard Styles for Unfold - Theme Aware */
+:root {
+    /* Light theme variables (default) */
+    --dashboard-bg-primary: #ffffff;
+    --dashboard-text-primary: #1f2937;
+    --dashboard-text-secondary: #6b7280;
+    --dashboard-text-muted: #9ca3af;
+    --dashboard-border: #e5e7eb;
+    --dashboard-card-bg: #ffffff;
+    --dashboard-card-hover: #f9fafb;
+    --dashboard-shadow: rgba(0, 0, 0, 0.1);
+    --dashboard-shadow-hover: rgba(0, 0, 0, 0.15);
+    --dashboard-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --dashboard-gradient-clergy: linear-gradient(135deg, #667eea, #764ba2);
+    --dashboard-gradient-parish: linear-gradient(135deg, #f093fb, #f5576c);
+    --dashboard-gradient-transfer: linear-gradient(135deg, #4facfe, #00f2fe);
+    --dashboard-gradient-annointment: linear-gradient(135deg, #43e97b, #38f9d7);
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+    --dashboard-bg-primary: #1f2937;
+    --dashboard-text-primary: #f9fafb;
+    --dashboard-text-secondary: #d1d5db;
+    --dashboard-text-muted: #6b7280;
+    --dashboard-border: #374151;
+    --dashboard-card-bg: #111827;
+    --dashboard-card-hover: #1f2937;
+    --dashboard-shadow: rgba(0, 0, 0, 0.3);
+    --dashboard-shadow-hover: rgba(0, 0, 0, 0.4);
+    --dashboard-gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --dashboard-gradient-clergy: linear-gradient(135deg, #4f46e5, #7c3aed);
+    --dashboard-gradient-parish: linear-gradient(135deg, #ec4899, #f97316);
+    --dashboard-gradient-transfer: linear-gradient(135deg, #06b6d4, #0891b2);
+    --dashboard-gradient-annointment: linear-gradient(135deg, #10b981, #059669);
+}
+
+.admin-dashboard {
+    margin-bottom: 2rem;
+}
+
+.dashboard-header {
+    background: var(--dashboard-gradient-primary);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px var(--dashboard-shadow);
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.welcome-user {
+    font-weight: 600;
+}
+
+.current-time {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--dashboard-card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px var(--dashboard-shadow);
+    border: 1px solid var(--dashboard-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--dashboard-shadow-hover);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.clergy-card .stat-icon {
+    background: var(--dashboard-gradient-clergy);
+    color: white;
+}
+
+.parish-card .stat-icon {
+    background: var(--dashboard-gradient-parish);
+    color: white;
+}
+
+.transfer-card .stat-icon {
+    background: var(--dashboard-gradient-transfer);
+    color: white;
+}
+
+.annointment-card .stat-icon {
+    background: var(--dashboard-gradient-annointment);
+    color: white;
+}
+
+.stat-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dashboard-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-content p {
+    font-size: 0.95rem;
+    color: var(--dashboard-text-secondary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-change {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.quick-actions {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dashboard-text-primary);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: var(--dashboard-gradient-primary);
+    border-radius: 2px;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    background: var(--dashboard-card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px var(--dashboard-shadow);
+    border: 1px solid var(--dashboard-border);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--dashboard-shadow-hover);
+    border-color: #667eea;
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: var(--dashboard-gradient-clergy);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.action-content h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dashboard-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.action-content p {
+    font-size: 0.9rem;
+    color: var(--dashboard-text-secondary);
+    margin: 0;
+}
+
+.bottom-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.recent-activity {
+    background: var(--dashboard-card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px var(--dashboard-shadow);
+    border: 1px solid var(--dashboard-border);
+}
+
+.activity-item:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--dashboard-border);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--dashboard-card-hover);
+    color: var(--dashboard-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.activity-content p {
+    font-size: 0.9rem;
+    color: var(--dashboard-text-primary);
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: var(--dashboard-text-muted);
+}
+
+.system-status {
+    background: var(--dashboard-card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px var(--dashboard-shadow);
+    border: 1px solid var(--dashboard-border);
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.status-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--dashboard-card-hover);
+    border-radius: 8px;
+    border: 1px solid var(--dashboard-border);
+}
+
+.status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.status-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dashboard-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.status-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-healthy {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Dark theme status indicators */
+[data-theme="dark"] .status-healthy {
+    background: #064e3b;
+    color: #34d399;
+}
+
+[data-theme="dark"] .status-warning {
+    background: #451a03;
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .status-error {
+    background: #450a0a;
+    color: #f87171;
+}
+
+.status-content p {
+    font-size: 0.875rem;
+    color: var(--dashboard-text-secondary);
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bottom-section {
+        grid-template-columns: 1fr;
+    }
+
+    .user-info {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+
+    .stat-card,
+    .action-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <!-- Welcome Header -->
+    <div class="dashboard-header">
+        <div class="welcome-section">
+            <h1 class="dashboard-title">Welcome to CCC Administrative Dashboard</h1>
+            <p class="dashboard-subtitle">Comprehensive Church Administration Management System</p>
+            <div class="user-info">
+                <span class="welcome-user">Hello, {{ user.get_full_name|default:user.username }}!</span>
+                <div class="header-actions">
+                    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <span class="current-time" id="current-time"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card clergy-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number" id="clergy-count">0</h3>
+                <p class="stat-label">Total Clergy</p>
+                <span class="stat-change" id="clergy-change">+0 this month</span>
+            </div>
+        </div>
+
+        <div class="stat-card parish-card">
+            <div class="stat-icon">
+                <i class="fas fa-church"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number" id="parish-count">0</h3>
+                <p class="stat-label">Active Parishes</p>
+                <span class="stat-change" id="parish-change">+0 this month</span>
+            </div>
+        </div>
+
+        <div class="stat-card transfer-card">
+            <div class="stat-icon">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number" id="transfer-count">0</h3>
+                <p class="stat-label">Transfers</p>
+                <span class="stat-change" id="transfer-change">+0 this month</span>
+            </div>
+        </div>
+
+        <div class="stat-card annointment-card">
+            <div class="stat-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number" id="annointment-count">0</h3>
+                <p class="stat-label">Annointments</p>
+                <span class="stat-change" id="annointment-change">+0 this month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="actions-grid">
+            <a href="{% url 'admin:clergy_registration_clergydetails_add' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="action-content">
+                    <h4>Add Clergy</h4>
+                    <p>Register new clergy member</p>
+                </div>
+            </a>
+
+            <a href="{% url 'admin:ParishRestructure_parishregistration_add' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="action-content">
+                    <h4>Register Parish</h4>
+                    <p>Add new parish registration</p>
+                </div>
+            </a>
+
+            <a href="{% url 'admin:transfer_transferdata_add' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-random"></i>
+                </div>
+                <div class="action-content">
+                    <h4>Record Transfer</h4>
+                    <p>Process clergy transfer</p>
+                </div>
+            </a>
+
+            <a href="{% url 'analytics_dashboard' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="action-content">
+                    <h4>View Analytics</h4>
+                    <p>Access detailed reports</p>
+                </div>
+            </a>
+
+            <a href="{% url 'admin:users_userprofile_changelist' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <div class="action-content">
+                    <h4>Manage Users</h4>
+                    <p>User accounts & permissions</p>
+                </div>
+            </a>
+
+            <a href="{% url 'admin:ParishRestructure_parishrestructure_changelist' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="action-content">
+                    <h4>Parish Management</h4>
+                    <p>Oversee parish operations</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity & System Status in a grid -->
+    <div class="bottom-section">
+        <div class="recent-activity">
+            <h2 class="section-title">Recent Activity</h2>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>New clergy registered:</strong> John Doe - Pastor</p>
+                        <span class="activity-time">2 hours ago</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-church"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Parish approved:</strong> Grace Assembly, Lagos</p>
+                        <span class="activity-time">1 day ago</span>
+                    </div>
+                </div>
+
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Transfer completed:</strong> Rev. Smith → New Parish</p>
+                        <span class="activity-time">3 days ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="system-status">
+            <h2 class="section-title">System Overview</h2>
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="status-content">
+                        <h4>Database Status</h4>
+                        <span class="status-indicator status-healthy">Healthy</span>
+                        <p>Last backup: Today 2:00 AM</p>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="status-content">
+                        <h4>Server Status</h4>
+                        <span class="status-indicator status-healthy">Online</span>
+                        <p>Uptime: 15 days</p>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="status-content">
+                        <h4>Security Status</h4>
+                        <span class="status-indicator status-healthy">Secure</span>
+                        <p>Last scan: Today 1:00 AM</p>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="status-content">
+                        <h4>System Load</h4>
+                        <span class="status-indicator status-healthy">Normal</span>
+                        <p>CPU: 25% | Memory: 45%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Theme management
+function getCurrentTheme() {
+    return localStorage.getItem('admin-theme') || 'light';
+}
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('admin-theme', theme);
+
+    // Update toggle button icon
+    const toggleBtn = document.getElementById('theme-toggle');
+    const icon = toggleBtn.querySelector('i');
+
+    if (theme === 'dark') {
+        icon.className = 'fas fa-sun';
+        toggleBtn.title = 'Switch to light theme';
+    } else {
+        icon.className = 'fas fa-moon';
+        toggleBtn.title = 'Switch to dark theme';
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = getCurrentTheme();
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+}
+
+// Update current time
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+    document.getElementById('current-time').textContent = timeString;
+}
+
+// Update statistics from API
+async function updateStatistics() {
+    try {
+        const response = await fetch('/admin/api/dashboard-stats/');
+        const data = await response.json();
+
+        document.getElementById('clergy-count').textContent = data.clergy_count || 0;
+        document.getElementById('parish-count').textContent = data.parish_count || 0;
+        document.getElementById('transfer-count').textContent = data.transfer_count || 0;
+        document.getElementById('annointment-count').textContent = data.annointment_count || 0;
+
+        // Update change indicators
+        document.getElementById('clergy-change').textContent = `+${data.clergy_change || 0} this month`;
+        document.getElementById('parish-change').textContent = `+${data.parish_change || 0} this month`;
+        document.getElementById('transfer-change').textContent = `+${data.transfer_change || 0} this month`;
+        document.getElementById('annointment-change').textContent = `+${data.annointment_change || 0} this month`;
+
+    } catch (error) {
+        console.error('Error fetching dashboard statistics:', error);
+    }
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize theme
+    setTheme(getCurrentTheme());
+
+    // Setup theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+    updateTime();
+    updateStatistics();
+
+    // Update time every second
+    setInterval(updateTime, 1000);
+});
+</script>
+{% endblock %}
