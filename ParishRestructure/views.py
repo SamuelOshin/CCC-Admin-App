@@ -18,6 +18,9 @@ from django.db.models.functions import TruncMonth
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from django.http import Http404
+
+# Set up logger
+logger = logging.getLogger(__name__)
 #api
 from rest_framework import viewsets
 from .serializers import ParishDirectorySerializer
@@ -721,7 +724,7 @@ def view_parishes(request):
                         f'<span class="badge bg-light text-dark">{parish.address or "N/A"}</span>',  # Address
                         f'<span class="badge bg-info">{parish.location.name if parish.location else "N/A"}</span><br><small class="text-muted">{parish.location.get_level_display() if parish.location else "N/A"}</small>',  # Location
                         f'<span class="badge bg-secondary">{selected_location.name}</span>',  # Selected Location
-                        f'<div class="btn-group" role="group"><a href="/parish/edit/{parish.id}/" class="btn btn-outline-primary btn-sm" title="Edit Parish"><i class="fas fa-edit"></i></a><a href="/parish/view/{parish.id}/" class="btn btn-outline-info btn-sm" title="View Details"><i class="fas fa-eye"></i></a><a href="/parish/delete/{parish.id}/" class="btn btn-outline-danger btn-sm" title="Delete Parish" onclick="return confirmDelete(\'{parish.parish.name if parish.parish else "this parish"}\')"><i class="fas fa-trash"></i></a></div>'  # Actions
+                        f'<div class="btn-group" role="group"><a href="/parish/edit_parish/{parish.id}/" class="btn btn-outline-primary btn-sm" title="Edit Parish"><i class="fas fa-edit"></i></a><a href="/parish/view/{parish.id}/" class="btn btn-outline-info btn-sm" title="View Details"><i class="fas fa-eye"></i></a><button type="button" class="btn btn-outline-danger btn-sm" title="Delete Parish" onclick="showDeleteRestructureModal({parish.id}, \'{parish.parish.name if parish.parish else "this parish"}\')"><i class="fas fa-trash"></i></button></div>'  # Actions
                     ])
                 
                 logger.info(f"DataTables: Sending response with {len(data)} rows")
@@ -1105,20 +1108,97 @@ def determine_location_from_hierarchy(cleaned_data):
     return None
 
 
+@login_required
 def delete_restructure(request, pk):
-    parish = get_object_or_404(ParishRestructure, pk=pk)
-    parish.delete()
-    messages.warning(request, 'Parish deleted successfully.')
+    """
+    Delete a parish restructure record with optimized database operations and proper error handling.
+
+    This view handles the deletion of ParishRestructure instances with:
+    - Transaction management for data integrity
+    - Comprehensive error handling and user feedback
+    - Optimized database queries
+    """
+    from django.db import transaction
+    from django.contrib import messages
+
+    try:
+        with transaction.atomic():
+            # Get the restructure record with select_related to optimize queries
+            restructure = get_object_or_404(
+                ParishRestructure.objects.select_related('parish'),
+                pk=pk
+            )
+
+            # Store parish name for feedback
+            parish_name = restructure.parish.name if restructure.parish else f"Restructure {pk}"
+
+            # Perform the deletion
+            restructure.delete()
+
+            # Provide feedback
+            messages.warning(request, f'Parish restructure for "{parish_name}" deleted successfully.')
+
+    except Exception as e:
+        # Log the error for debugging
+        logger.error(f"Error deleting restructure {pk}: {str(e)}", exc_info=True)
+        messages.error(
+            request,
+            'An error occurred while deleting the restructure record. Please try again or contact support if the problem persists.'
+        )
+
     return redirect('view_parishes')
 
 
 # Delete Parish fo all parish data table
 @login_required  
 def delete_parish(request, pk):
-    parish = get_object_or_404(ParishDirectory, pk=pk)
-    parish.delete()
-    messages.warning(request, 'Parish deleted successfully.')
-    return redirect('parish_dashboard')
+    """
+    Delete a parish with optimized database operations and proper error handling.
+    
+    This view handles the deletion of ParishDirectory instances with:
+    - Transaction management for data integrity
+    - Cascade deletion of related ParishRegistration and ParishRestructure objects
+    - Comprehensive error handling and user feedback
+    - Optimized database queries
+    """
+    from django.db import transaction
+    from django.contrib import messages
+    
+    try:
+        with transaction.atomic():
+            # Get the parish with select_related to optimize queries
+            parish = get_object_or_404(
+                ParishDirectory.objects.select_related('parishregistration'), 
+                pk=pk
+            )
+            
+            # Store parish name for feedback
+            parish_name = parish.name
+            
+            # Check for related objects that might cause issues
+            related_restructure_count = parish.parishrestructure_set.count()
+            
+            # Perform the deletion (cascade will handle related objects)
+            parish.delete()
+            
+            # Provide detailed feedback
+            if related_restructure_count > 0:
+                messages.warning(
+                    request, 
+                    f'Parish "{parish_name}" and {related_restructure_count} related restructure record(s) deleted successfully.'
+                )
+            else:
+                messages.warning(request, f'Parish "{parish_name}" deleted successfully.')
+            
+    except Exception as e:
+        # Log the error for debugging
+        logger.error(f"Error deleting parish {pk}: {str(e)}", exc_info=True)
+        messages.error(
+            request, 
+            'An error occurred while deleting the parish. Please try again or contact support if the problem persists.'
+        )
+    
+    return redirect('all-parish')
 
 @login_required  
 def view_parish(request, pk):
@@ -1536,7 +1616,7 @@ def all_parish_datatables(request):
                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
                         <i class="bi bi-x-circle-fill me-1"></i>Not Registered
                     </span>
-                    <a href="/parish/regparish/{parish.id}/" class="btn btn-sm btn-outline-primary"
+                    <a href="/parish/reg_parish/{parish.id}" class="btn btn-sm btn-outline-primary"
                        title="Register Parish" data-bs-toggle="tooltip">
                         <i class="bi bi-plus-circle-dotted"></i>
                     </a>
@@ -1547,17 +1627,17 @@ def all_parish_datatables(request):
             'DT_RowId': f'row_{parish.id}',
             'checkbox': f'<div class="form-check"><input class="form-check-input row-checkbox" type="checkbox" value="{parish.id}" id="check-{parish.id}"></div>',
             'name': f'''
-                <div class="d-flex align-items-center">
-                    <div class="avatar-wrapper me-3">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;">
-                            <i class="fas fa-building"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="fw-semibold text-dark">{parish.name}</div>
-                        <small class="text-muted">ID: {parish.id}</small>
-                    </div>
+            <div class="d-flex align-items-center">
+                <div class="avatar-wrapper me-3">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center avatar-sm" style="width: 40px; height: 40px;">
+                    <i class="fas fa-building"></i>
                 </div>
+                </div>
+                <div>
+                <div class="fw-semibold text-dark">{parish.name}</div>
+                <small class="text-muted">ID: {parish.id}</small>
+                </div>
+            </div>
             ''',
             'address': parish.address or 'N/A',
             'status': status_badge,
@@ -1565,20 +1645,18 @@ def all_parish_datatables(request):
             'state': registration.state if registration else 'N/A',
             'city': registration.city if registration else 'N/A',
             'actions': f'''
-                <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
-                    <a href="/parish/view_parish/{parish.id}/" class="btn btn-xs btn-outline-primary" title="View Details" data-bs-toggle="tooltip">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <a href="/parish/edit_parish/{parish.id}/" class="btn btn-xs btn-outline-success" title="Edit Parish" data-bs-toggle="tooltip">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a href="/parish/view/{parish.id}/" class="btn btn-xs btn-outline-info" title="View Registration" data-bs-toggle="tooltip">
-                        <i class="fas fa-file-alt"></i>
-                    </a>
-                    <a href="/parish/generate_parish_pdf/{parish.id}/" class="btn btn-xs btn-outline-secondary" title="Download PDF" data-bs-toggle="tooltip" target="_blank">
-                        <i class="fas fa-download"></i>
-                    </a>
-                </div>
+            <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
+                <a href="/parish/view_parish/{parish.id}/" class="btn btn-xs btn-outline-primary" title="View Details" data-bs-toggle="tooltip">
+                <i class="fas fa-eye"></i>
+                </a>
+                <a href="/parish/edit/{parish.id}/" class="btn btn-xs btn-outline-success" title="Edit Parish" data-bs-toggle="tooltip">
+                <i class="fas fa-edit"></i>
+                </a>
+                <button type="button" class="btn btn-xs btn-outline-danger" title="Delete Parish" data-bs-toggle="tooltip" 
+                        onclick="showDeleteModal({parish.id}, '{parish.name.replace(chr(39), chr(92) + chr(39))}')">
+                <i class="fas fa-trash"></i>
+                </button>
+            </div>
             '''
         }
         data.append(row)
