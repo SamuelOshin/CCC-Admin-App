@@ -110,6 +110,44 @@
 </div>
 {% endblock %}
 
+{% block table_modals %}
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteParishModal" tabindex="-1" aria-labelledby="deleteParishModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteParishModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="bi bi-trash-fill text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h6 class="text-center mb-3">Are you sure you want to delete this parish?</h6>
+                <p class="text-muted text-center mb-0" id="deleteParishName"></p>
+                <div class="alert alert-warning mt-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. All associated data including registrations and documents will be permanently deleted.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cancel
+                </button>
+                <form id="deleteParishForm" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Delete Parish
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block extra_css %}
 <style>
 /* Parish Directory Specific Styles */
@@ -358,6 +396,40 @@
 
 {% block extra_js %}
 <script>
+// Delete Modal Functions - defined globally
+function showDeleteModal(parishId, parishName) {
+    try {
+        // Update modal content
+        const parishNameElement = document.getElementById('deleteParishName');
+        if (parishNameElement) {
+            parishNameElement.textContent = parishName;
+        } else {
+            console.error('deleteParishName element not found');
+            return;
+        }
+        
+        // Update form action
+        const form = document.getElementById('deleteParishForm');
+        if (form) {
+            form.action = `/parish/delete_parish/${parishId}/`;
+        } else {
+            console.error('deleteParishForm element not found');
+            return;
+        }
+        
+        // Show modal
+        const modalElement = document.getElementById('deleteParishModal');
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        } else {
+            console.error('deleteParishModal element not found');
+        }
+    } catch (error) {
+        console.error('Error in showDeleteModal:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Override the base DataTables initialization for custom configuration
     function initializeDataTable() {

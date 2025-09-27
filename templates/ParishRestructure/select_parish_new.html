@@ -237,7 +237,7 @@
     <i class="fas fa-location-arrow me-1"></i>Direct Location
 </th>
 <th scope="col">
-    <i class="fas fa-sitemap me-1"></i>Region
+    <i class="fas fa-sitemap me-1"></i>Parent Location
 </th>
 <th scope="col" class="text-center">
     <i class="fas fa-cogs me-1"></i>Actions
@@ -330,6 +330,47 @@
         </td>
     </tr>
 {% endif %}
+{% endblock %}
+
+<!-- Table Modals -->
+{% block table_modals %}
+<!-- Restructure Delete Confirmation Modal -->
+<div class="modal fade" id="deleteRestructureModal" tabindex="-1" aria-labelledby="deleteRestructureModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteRestructureModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="display-1 text-danger mb-3">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Delete Parish Restructure</h4>
+                    <p class="text-muted mb-0">Are you sure you want to delete the restructure for:</p>
+                </div>
+                <div class="alert alert-light border text-center">
+                    <strong id="delete-restructure-name" class="text-dark">Loading...</strong>
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action will permanently remove the parish restructure record and cannot be undone.
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteRestructureBtn" onclick="confirmDeleteRestructure()">
+                    <i class="fas fa-trash me-1"></i>Delete Restructure
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 <!-- Override base layout DataTables initialization for conditional rendering -->
@@ -1066,6 +1107,56 @@ function clearLocationSelection() {
 // Override the base layout's refreshTable function
 function refreshTable() {
     window.location.reload();
+}
+
+// Restructure Delete Modal Functions
+let restructureToDelete = null;
+
+function showDeleteRestructureModal(restructureId, parishName) {
+    if (!restructureId || !parishName) {
+        console.error('Invalid parameters for showDeleteRestructureModal');
+        return;
+    }
+    
+    restructureToDelete = restructureId;
+    const nameElement = document.getElementById('delete-restructure-name');
+    if (nameElement) {
+        nameElement.textContent = parishName;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteRestructureModal'));
+    modal.show();
+}
+
+function confirmDeleteRestructure() {
+    if (!restructureToDelete) {
+        console.error('No restructure ID to delete');
+        return;
+    }
+    
+    const confirmBtn = document.getElementById('confirmDeleteRestructureBtn');
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Deleting...';
+    }
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/parish/delete_restructure/${restructureToDelete}/`;
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken.value;
+        form.appendChild(csrfInput);
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 {% endblock %}

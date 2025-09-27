@@ -339,16 +339,16 @@ def all_clergy_datatables(request):
             f'<span class="badge bg-success">{rank}</span>',  # rank
             f'''
                 <div class="action-buttons d-flex justify-content-center align-items-center gap-1">
-                    <a href="/clergy/view_clergy/{clergy.clergy_id}/" class="btn btn-xs btn-outline-primary" title="View Profile" data-bs-toggle="tooltip">
+                    <a href="/clergy/{clergy.clergy_id}" class="btn btn-xs btn-outline-primary" title="View Profile" data-bs-toggle="tooltip">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <a href="/clergy/edit_clergy/{clergy.clergy_id}/" class="btn btn-xs btn-outline-success" title="Edit Clergy" data-bs-toggle="tooltip">
+                    <a href="/clergy/edit/new/{clergy.clergy_id}" class="btn btn-xs btn-outline-success" title="Edit Clergy" data-bs-toggle="tooltip">
                         <i class="fas fa-edit"></i>
                     </a>
-                    <a href="/clergy/view-and-add-annointment/{clergy.clergy_id}/" class="btn btn-xs btn-outline-info" title="View Appointments" data-bs-toggle="tooltip">
+                    <a href="/clergy/view-annointments/{clergy.clergy_id}" class="btn btn-xs btn-outline-info" title="View Appointments" data-bs-toggle="tooltip">
                         <i class="fas fa-crown"></i>
                     </a>
-                    <a href="/clergy/generate_clergy_pdf/{clergy.clergy_id}/" class="btn btn-xs btn-outline-secondary" title="Download PDF" data-bs-toggle="tooltip" target="_blank">
+                    <a href="/clergy/{clergy.clergy_id}/pdf/" class="btn btn-xs btn-outline-secondary" title="Download PDF" data-bs-toggle="tooltip" target="_blank">
                         <i class="fas fa-download"></i>
                     </a>
                 </div>
