@@ -2,7 +2,7 @@
 
 echo "BUILD START"
 # Activate the virtual environment (correct path for Render)
-. /opt/render/project/venv/bin/activate
+. /opt/render/project/src/venv/bin/activate
 
 # Install dependencies first
 python3 -m pip install -r requirements.txt
