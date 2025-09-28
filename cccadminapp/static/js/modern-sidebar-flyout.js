@@ -66,8 +66,9 @@ class ModernSidebarFlyout {
         this.toggleBtn = document.getElementById('sidebarToggle');
         this.toggleBtnTop = document.getElementById('sidebarToggleTop');
         
-        // Flyout overlay
+        // Overlays
         this.flyoutOverlay = document.getElementById('flyoutOverlay');
+        this.sidebarOverlay = document.querySelector('.sidebar-overlay');
         
         if (!this.sidebar) {
             return;
@@ -82,16 +83,25 @@ class ModernSidebarFlyout {
      */
     loadSavedState() {
         try {
-            const savedState = localStorage.getItem(this.config.storageKey);
-            if (savedState) {
-                const state = JSON.parse(savedState);
-                this.isCollapsed = state.collapsed || false;
+            // Always start collapsed on mobile, respect saved state on desktop
+            this.isMobile = window.innerWidth <= this.config.breakpoint;
+            
+            if (this.isMobile) {
+                // Always start collapsed (hidden) on mobile
+                this.isCollapsed = true;
             } else {
-                this.isCollapsed = window.innerWidth <= this.config.breakpoint;
+                // On desktop, use saved state or default to expanded
+                const savedState = localStorage.getItem(this.config.storageKey);
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    this.isCollapsed = state.collapsed || false;
+                } else {
+                    this.isCollapsed = false;
+                }
             }
             this.updateSidebarState();
         } catch (error) {
-            this.isCollapsed = false;
+            this.isCollapsed = this.isMobile;
             this.updateSidebarState();
         }
     }
@@ -151,6 +161,15 @@ class ModernSidebarFlyout {
         if (this.flyoutOverlay) {
             this.flyoutOverlay.addEventListener('click', () => {
                 this.hideFlyout();
+            });
+        }
+        
+        // Sidebar overlay (for mobile)
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.addEventListener('click', () => {
+                if (this.isMobile && !this.isCollapsed) {
+                    this.toggleSidebar();
+                }
             });
         }
         
@@ -398,27 +417,48 @@ class ModernSidebarFlyout {
      * Update sidebar visual state
      */
     updateSidebarState() {
-        if (this.isCollapsed) {
-            this.sidebar.classList.add('collapsed');
-            this.toggleBtn?.setAttribute('aria-label', 'Expand sidebar');
-            this.toggleBtnTop?.setAttribute('aria-label', 'Expand sidebar');
-            this.sidebar.setAttribute('aria-expanded', 'false');
-            
-            document.body.classList.add('sidebar-collapsed');
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                mainContent.classList.add('expanded');
+        // Handle mobile vs desktop differently
+        if (this.isMobile) {
+            // On mobile, use .show class to control visibility
+            if (this.isCollapsed) {
+                this.sidebar.classList.remove('show');
+                this.toggleBtnTop?.setAttribute('aria-label', 'Open sidebar');
+                this.sidebar.setAttribute('aria-expanded', 'false');
+                // Hide overlay
+                if (this.sidebarOverlay) {
+                    this.sidebarOverlay.classList.remove('show');
+                }
+            } else {
+                this.sidebar.classList.add('show');
+                this.toggleBtnTop?.setAttribute('aria-label', 'Close sidebar');
+                this.sidebar.setAttribute('aria-expanded', 'true');
+                // Show overlay
+                if (this.sidebarOverlay) {
+                    this.sidebarOverlay.classList.add('show');
+                }
             }
         } else {
-            this.sidebar.classList.remove('collapsed');
-            this.toggleBtn?.setAttribute('aria-label', 'Collapse sidebar');
-            this.toggleBtnTop?.setAttribute('aria-label', 'Collapse sidebar');
-            this.sidebar.setAttribute('aria-expanded', 'true');
-            
-            document.body.classList.remove('sidebar-collapsed');
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                mainContent.classList.remove('expanded');
+            // On desktop, use .collapsed class for width changes
+            if (this.isCollapsed) {
+                this.sidebar.classList.add('collapsed');
+                this.toggleBtn?.setAttribute('aria-label', 'Expand sidebar');
+                this.sidebar.setAttribute('aria-expanded', 'false');
+                
+                document.body.classList.add('sidebar-collapsed');
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.classList.add('expanded');
+                }
+            } else {
+                this.sidebar.classList.remove('collapsed');
+                this.toggleBtn?.setAttribute('aria-label', 'Collapse sidebar');
+                this.sidebar.setAttribute('aria-expanded', 'true');
+                
+                document.body.classList.remove('sidebar-collapsed');
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.classList.remove('expanded');
+                }
             }
         }
     }
@@ -656,6 +696,8 @@ class ModernSidebarFlyout {
      * Setup responsive behavior
      */
     setupResponsive() {
+        // Set initial mobile state
+        this.isMobile = window.innerWidth <= this.config.breakpoint;
         this.handleResize();
     }
     
@@ -671,11 +713,22 @@ class ModernSidebarFlyout {
             this.hideFlyout();
         }
         
-        // Auto-expand sidebar on desktop if collapsed on mobile
-        if (!this.isMobile && this.isCollapsed && wasMobile) {
-            this.isCollapsed = false;
-            this.updateSidebarState();
+        // Handle state transitions between mobile and desktop
+        if (wasMobile && !this.isMobile) {
+            // Switching from mobile to desktop
+            // If sidebar was hidden on mobile, show it on desktop
+            if (this.isCollapsed) {
+                this.isCollapsed = false;
+            }
+        } else if (!wasMobile && this.isMobile) {
+            // Switching from desktop to mobile
+            // If sidebar was expanded on desktop, hide it on mobile
+            if (!this.isCollapsed) {
+                this.isCollapsed = true;
+            }
         }
+        
+        this.updateSidebarState();
     }
     
     /**
