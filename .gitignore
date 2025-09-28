@@ -154,3 +154,4 @@ secrets.json
 db.sqlite3
 .github/instructions/
 .vscode/
+.playwright-mcp/
