@@ -193,8 +193,12 @@ class CustomUserAdmin(UserAdmin):
 
 
 # Register the custom admin
-admin.site.unregister(User)
-admin.site.register(User, CustomUserAdmin)
+# User and UserProfile are now registered in cccadminapp/admin.py with custom admin site
+# try:
+#     admin.site.unregister(User)
+# except admin.sites.NotRegistered:
+#     pass  # User not registered, continue
+# admin.site.register(User, CustomUserAdmin)
 
-# Register UserProfile
-admin.site.register(UserProfile)
+# UserProfile is registered in cccadminapp/admin.py with custom admin site
+# admin.site.register(UserProfile)

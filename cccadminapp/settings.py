@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cccadminapp',
     'clergy_registration',
     'ParishRestructure',
     'users',
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
     'fontawesomefree',
     'rest_framework',
     'phonenumber_field',
+    'storages',
     # 'django_browser_reload',
     
 ]
@@ -101,24 +103,27 @@ WSGI_APPLICATION = 'cccadminapp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'), 
-    }
-}
+# Database configuration based on environment
+ENVIRONMENT = config('ENVIRONMENT', default='development')
 
-# Temporary SQLite for testing
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+if ENVIRONMENT == 'production':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': config('DB_PORT'), 
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 #Railway DB
 # DATABASES = {
@@ -181,20 +186,25 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'cccadminapp/media')
+# Supabase Storage Configuration
+AWS_ACCESS_KEY_ID = config('SUPABASE_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = config('SUPABASE_SECRET_KEY')
+AWS_STORAGE_BUCKET_NAME = config('SUPABASE_STORAGE_BUCKET')
+AWS_S3_ENDPOINT_URL = f"{config('SUPABASE_URL')}/storage/v1/s3"
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_CUSTOM_DOMAIN = f"{config('SUPABASE_URL').replace('https://', '')}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}"
 
 STORAGES = {
     'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-        'OPTIONS': {
-            'location': MEDIA_ROOT,
-        },
+        'BACKEND': 'cccadminapp.supabase_storage.SupabaseStorage',
     },
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'cccadminapp/media')
 
 # Set the session timeout to 30 minutes (1800 seconds)
 SESSION_COOKIE_AGE = 1800

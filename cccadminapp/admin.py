@@ -64,6 +64,8 @@ from clergy_registration.models import ClergyDetails, AnnointmentGazzette
 from ParishRestructure.models import Location, ParishRestructure, ParishRegistration, ParishDirectory
 from transfer.models import PostingHistory, ClergyTrfbio, TransferData
 from users.models import UserProfile
+from users.admin import CustomUserAdmin
+from django.contrib.auth.models import Group, User
 
 # Register models with the custom admin site
 admin_site.register(ClergyDetails)
@@ -76,3 +78,5 @@ admin_site.register(PostingHistory)
 admin_site.register(ClergyTrfbio)
 admin_site.register(TransferData)
 admin_site.register(UserProfile)
+admin_site.register(Group)
+admin_site.register(User, CustomUserAdmin)
