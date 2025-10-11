@@ -303,36 +303,36 @@ def parish_dashboard(request):
                 ).count()
                 pending_data.insert(0, pending)
             
-            # UPDATED: Get diocese distribution data from ParishRestructure (with hierarchy traversal)
-            # This ensures we use real parish data and group by diocese, even if parishes are linked to districts/regions
+            # UPDATED: Get diocese distribution data - showing ALL dioceses including those with 0 parishes
+            # First, get all dioceses and archdioceses from Location model
+            all_dioceses = Location.objects.filter(
+                Q(level='diocese') | Q(level='archdiocese')
+            ).values_list('name', flat=True).distinct()
+            
+            # Initialize counts for all dioceses with 0
+            diocese_counts = {diocese_name: 0 for diocese_name in all_dioceses}
+            
+            # Count parishes for each diocese by traversing hierarchy
             parishes_with_locations = ParishRestructure.objects.select_related('location').filter(location__isnull=False)
             
-            diocese_counts = {}
             for parish_restructure in parishes_with_locations:
                 location = parish_restructure.location
                 # Traverse up the hierarchy to find the diocese
                 current_location = location
                 diocese_name = None
                 while current_location:
-                    if current_location.level.lower() == 'diocese':
+                    if current_location.level.lower() in ['diocese', 'archdiocese']:
                         diocese_name = current_location.name
                         break
                     current_location = current_location.parent
                 
-                if diocese_name:
-                    diocese_counts[diocese_name] = diocese_counts.get(diocese_name, 0) + 1
+                if diocese_name and diocese_name in diocese_counts:
+                    diocese_counts[diocese_name] += 1
             
-            # Prepare data for chart (sort by count descending)
-            sorted_diocese = sorted(diocese_counts.items(), key=lambda x: x[1], reverse=True)
+            # Prepare data for chart (sort by count descending, then by name)
+            sorted_diocese = sorted(diocese_counts.items(), key=lambda x: (-x[1], x[0]))
             region_names = [name for name, count in sorted_diocese]
             region_counts = [count for name, count in sorted_diocese]
-            
-            # If no data from ParishRestructure, fall back to all dioceses with 0 count (preserves structure)
-            if not region_names:
-                dioceses = Location.objects.filter(level__iexact='diocese')
-                for diocese in dioceses:
-                    region_names.append(diocese.name)
-                    region_counts.append(0)
             
             # Get summary statistics
             total_parishes = ParishDirectory.objects.count()
@@ -442,6 +442,139 @@ def parish_dashboard(request):
             if pending_previous_week > 0:
                 week_growth = ((pending_last_week - pending_previous_week) / pending_previous_week) * 100
             
+            # === HIERARCHY DISTRIBUTION ANALYTICS ===
+            # Generate hierarchy distribution charts for all levels
+            hierarchy_levels = ['region', 'state', 'division', 'subdivision', 'area', 'district', 'zone']
+            hierarchy_charts = {}
+            
+            for level in hierarchy_levels:
+                # Get all locations at this level
+                locations_at_level = Location.objects.filter(level=level)
+                
+                # Count parishes at each location (by traversing up from parish locations)
+                level_counts = {}
+                for location in locations_at_level:
+                    level_counts[location.name] = 0
+                
+                # Count parishes by traversing hierarchy
+                for parish_restructure in parishes_with_locations:
+                    location = parish_restructure.location
+                    current_location = location
+                    while current_location:
+                        if current_location.level == level and current_location.name in level_counts:
+                            level_counts[current_location.name] += 1
+                            break
+                        current_location = current_location.parent
+                
+                # Prepare chart data (only if there are locations at this level)
+                if level_counts:
+                    sorted_items = sorted(level_counts.items(), key=lambda x: (-x[1], x[0]))
+                    # Limit to top 10 for readability
+                    sorted_items = sorted_items[:10]
+                    
+                    hierarchy_charts[level] = json.dumps({
+                        'labels': [name for name, count in sorted_items],
+                        'datasets': [{
+                            'label': f'{level.capitalize()} Distribution',
+                            'data': [count for name, count in sorted_items],
+                            'backgroundColor': [
+                                '#5e35b1', '#3949ab', '#1e88e5', '#00acc1', 
+                                '#00897b', '#43a047', '#7cb342', '#c0ca33',
+                                '#fdd835', '#ffb300'
+                            ],
+                            'borderWidth': 2,
+                            'borderColor': '#ffffff'
+                        }]
+                    })
+            
+            # === ADVANCED RESTRUCTURING ANALYTICS ===
+            # 1. Restructuring trends over time (last 6 months)
+            restructuring_trend_data = []
+            restructuring_labels = []
+            
+            for i in range(6):
+                month_start = today.replace(day=1) - timedelta(days=30*i)
+                if i == 0:
+                    month_end = today
+                else:
+                    next_month = month_start.replace(day=28) + timedelta(days=4)
+                    month_end = next_month.replace(day=1) - timedelta(days=1)
+                
+                restructuring_labels.insert(0, month_start.strftime('%b %Y'))
+                
+                # Count restructuring records for this month
+                restructuring_in_month = ParishRestructure.objects.filter(
+                    created_at__gte=month_start,
+                    created_at__lte=month_end
+                ).count() if hasattr(ParishRestructure, 'created_at') else 0
+                
+                restructuring_trend_data.insert(0, restructuring_in_month)
+            
+            restructuring_trend_chart = json.dumps({
+                'labels': restructuring_labels,
+                'datasets': [{
+                    'label': 'Restructuring Activities',
+                    'data': restructuring_trend_data,
+                    'borderColor': '#5e35b1',
+                    'backgroundColor': 'rgba(94, 53, 177, 0.1)',
+                    'borderWidth': 3,
+                    'fill': True,
+                    'tension': 0.4,
+                    'pointBackgroundColor': '#5e35b1',
+                    'pointBorderColor': '#ffffff',
+                    'pointBorderWidth': 2,
+                    'pointRadius': 5,
+                    'pointHoverRadius': 7
+                }]
+            })
+            
+            # 2. Document submission tracking
+            # Count parishes with/without required documents
+            total_restructured = ParishRestructure.objects.count()
+            
+            # Count parishes with specific document fields (if they exist in the model)
+            document_stats = {
+                'total_restructured': total_restructured,
+                'with_all_docs': 0,
+                'partial_docs': 0,
+                'no_docs': 0
+            }
+            
+            # Try to get document completion stats
+            try:
+                # Check ParishRegistration model for document fields
+                registrations = ParishRegistration.objects.all()
+                for reg in registrations:
+                    doc_count = 0
+                    if hasattr(reg, 'application_for_registration') and reg.application_for_registration:
+                        doc_count += 1
+                    if hasattr(reg, 'original_receipt_of_land') and reg.original_receipt_of_land:
+                        doc_count += 1
+                    
+                    if doc_count >= 2:
+                        document_stats['with_all_docs'] += 1
+                    elif doc_count > 0:
+                        document_stats['partial_docs'] += 1
+                    else:
+                        document_stats['no_docs'] += 1
+            except Exception as e:
+                logger.warning(f"Could not calculate document stats: {str(e)}")
+            
+            # 3. Restructuring status breakdown
+            restructuring_status_chart = json.dumps({
+                'labels': ['Active', 'Completed', 'Pending Approval'],
+                'datasets': [{
+                    'data': [
+                        restructuring_count,
+                        approved_this_month,
+                        pending_registrations
+                    ],
+                    'backgroundColor': ['#ff9800', '#4caf50', '#2196f3'],
+                    'borderWidth': 2,
+                    'borderColor': '#ffffff'
+                }]
+            })
+            
             # Create dashboard stats dictionary
             dashboard_stats = {
                 'total_parishes': total_parishes,
@@ -458,12 +591,31 @@ def parish_dashboard(request):
             cache.set('parish_chart_data', json.dumps(chart_data), 3600)
             cache.set('region_chart_data', json.dumps(region_chart_data), 3600)
             cache.set('dashboard_stats', dashboard_stats, 3600)
+            cache.set('hierarchy_charts', hierarchy_charts, 3600)
+            cache.set('restructuring_trend_chart', restructuring_trend_chart, 3600)
+            cache.set('restructuring_status_chart', restructuring_status_chart, 3600)
+            cache.set('document_stats', document_stats, 3600)
         
         # Add data to context
         context.update({
             'chart_data': chart_data if isinstance(chart_data, str) else json.dumps(chart_data),
             'region_chart_data': region_chart_data if isinstance(region_chart_data, str) else json.dumps(region_chart_data),
         })
+        
+        # Add hierarchy charts and analytics to context
+        hierarchy_charts_data = cache.get('hierarchy_charts')
+        restructuring_trend_chart_data = cache.get('restructuring_trend_chart')
+        restructuring_status_chart_data = cache.get('restructuring_status_chart')
+        document_stats_data = cache.get('document_stats')
+        
+        if hierarchy_charts_data:
+            context['hierarchy_charts'] = hierarchy_charts_data
+        if restructuring_trend_chart_data:
+            context['restructuring_trend_chart'] = restructuring_trend_chart_data
+        if restructuring_status_chart_data:
+            context['restructuring_status_chart'] = restructuring_status_chart_data
+        if document_stats_data:
+            context['document_stats'] = document_stats_data
         
         # Add dashboard stats to context
         if dashboard_stats:
