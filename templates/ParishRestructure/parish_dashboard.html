@@ -354,6 +354,222 @@
 </div>
 {% endif %}
 
+<!-- Hierarchy Distribution Section -->
+{% if not error_occurred and not critical_error and hierarchy_charts %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="card-body">
+                <h5 class="card-title mb-4 fw-bold">
+                    <i class="bi bi-diagram-3 me-2"></i>Location Hierarchy Distribution
+                </h5>
+                <p class="text-muted mb-4">Parish distribution across different administrative levels</p>
+                
+                <div class="row">
+                    <!-- Region Distribution -->
+                    {% if hierarchy_charts.region %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>Region Distribution
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="regionHierarchyChart" data-chart-data="{{ hierarchy_charts.region }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- State Distribution -->
+                    {% if hierarchy_charts.state %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-map-fill me-1"></i>State Distribution
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="stateHierarchyChart" data-chart-data="{{ hierarchy_charts.state }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Division Distribution -->
+                    {% if hierarchy_charts.division %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-layers-fill me-1"></i>Division Distribution
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="divisionHierarchyChart" data-chart-data="{{ hierarchy_charts.division }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Subdivision Distribution -->
+                    {% if hierarchy_charts.subdivision %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-grid-fill me-1"></i>Sub Division Distribution
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="subdivisionHierarchyChart" data-chart-data="{{ hierarchy_charts.subdivision }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Area Distribution -->
+                    {% if hierarchy_charts.area %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-compass-fill me-1"></i>Area Distribution
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="areaHierarchyChart" data-chart-data="{{ hierarchy_charts.area }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- District Distribution -->
+                    {% if hierarchy_charts.district %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-building-fill me-1"></i>District Distribution
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="districtHierarchyChart" data-chart-data="{{ hierarchy_charts.district }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Zone Distribution -->
+                    {% if hierarchy_charts.zone %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-pin-map-fill me-1"></i>Zone Distribution
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="zoneHierarchyChart" data-chart-data="{{ hierarchy_charts.zone }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Advanced Restructuring Analytics Section -->
+{% if not error_occurred and not critical_error and restructuring_trend_chart %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="card-body">
+                <h5 class="card-title mb-4 fw-bold">
+                    <i class="bi bi-graph-up me-2"></i>Advanced Restructuring Analytics
+                </h5>
+                
+                <div class="row">
+                    <!-- Restructuring Trends -->
+                    <div class="col-lg-8 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-bar-chart-line-fill me-1"></i>Restructuring Trends & Activity
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="restructuringTrendChart" data-chart-data="{{ restructuring_trend_chart }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Breakdown -->
+                    {% if restructuring_status_chart %}
+                    <div class="col-lg-4 mb-4">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-pie-chart-fill me-1"></i>Status Breakdown
+                                </h6>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="restructuringStatusChart" data-chart-data="{{ restructuring_status_chart }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Document Submission Tracking -->
+                    {% if document_stats %}
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-3 text-muted">
+                                    <i class="bi bi-file-earmark-check-fill me-1"></i>Document Submission Tracking
+                                </h6>
+                                <div class="row text-center">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="p-3 bg-white rounded">
+                                            <h3 class="mb-1 fw-bold text-primary">{{ document_stats.total_restructured }}</h3>
+                                            <p class="mb-0 text-muted small">Total Restructured</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="p-3 bg-white rounded">
+                                            <h3 class="mb-1 fw-bold text-success">{{ document_stats.with_all_docs }}</h3>
+                                            <p class="mb-0 text-muted small">Complete Docs</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="p-3 bg-white rounded">
+                                            <h3 class="mb-1 fw-bold text-warning">{{ document_stats.partial_docs }}</h3>
+                                            <p class="mb-0 text-muted small">Partial Docs</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="p-3 bg-white rounded">
+                                            <h3 class="mb-1 fw-bold text-danger">{{ document_stats.no_docs }}</h3>
+                                            <p class="mb-0 text-muted small">No Docs</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Parish Management Cards -->
 <div class="card-grid">
     <!-- Parish Restructure Card -->
@@ -596,6 +812,111 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         },
                         cutout: '70%'
+                    }
+                });
+            } else if (chartType === 'regionHierarchy' || chartType === 'stateHierarchy' || 
+                       chartType === 'divisionHierarchy' || chartType === 'subdivisionHierarchy' || 
+                       chartType === 'areaHierarchy' || chartType === 'districtHierarchy' || 
+                       chartType === 'zoneHierarchy') {
+                // Hierarchy distribution charts (horizontal bar charts for better readability)
+                new Chart(chartElement, {
+                    type: 'bar',
+                    data: chartData,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + context.parsed.x + ' parishes';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (chartType === 'restructuringTrend') {
+                // Restructuring trends line chart
+                new Chart(chartElement, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (chartType === 'restructuringStatus') {
+                // Restructuring status doughnut chart
+                new Chart(chartElement, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 10
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + context.parsed + ' parishes';
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
                     }
                 });
             }
