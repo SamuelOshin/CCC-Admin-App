@@ -179,6 +179,41 @@
         background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
         transform: translateY(-1px);
     }
+
+    /* Hierarchy and Analytics Sections */
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .card.border-0 {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .card-subtitle {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Document stats cards */
+    .bg-white.rounded {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
+
+    .bg-white.rounded:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Section headers */
+    .card-title i {
+        color: #5e35b1;
+    }
+
+    /* Chart container enhancements */
+    .chart-container canvas {
+        max-width: 100%;
+    }
 </style>
 {% endblock %}
 
