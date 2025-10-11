@@ -76,10 +76,10 @@ New modular code: 739 lines (reusable)
 - **After**: Single `ParishUtils.initParishSelect()` function
 
 ### 2. Parish Data Fetching Functions
-- **Before**: 8+ similar functions
+- **Before**: 8+ similar functions (including some with typos in original code)
   - `fetchParishAddress()`
-  - `fetchParishAddresss()`
-  - `fetchParishAddresssTo()`
+  - `fetchParishAddresss()` *(typo in original)*
+  - `fetchParishAddresssTo()` *(typo in original)*
   - `fetchParishLocation()`
   - `fetchParishLocationI()`
   - `fetchParish()`
