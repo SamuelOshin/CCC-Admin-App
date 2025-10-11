@@ -20,7 +20,7 @@ Successfully refactored JavaScript code across `theme.js` and `restructure.html`
 
 3. **cascading-dropdown-utils.js** (291 lines)
    - Reusable cascading dropdown logic
-   - Supports complex location hierarchy (Diocese → Region → State → Division → Area → District → Zone)
+   - Supports complex location hierarchy (Diocese → Region → State → Division → Sub Division → Area → District → Zone)
    - Prevents race conditions with request cancellation
 
 ### Files Refactored

@@ -70,7 +70,7 @@ UIUtils.initFormValidation();
 
 ### 3. cascading-dropdown-utils.js
 
-Handles cascading dropdown relationships for location hierarchy (Diocese → Region → State → Division → Area → District → Zone).
+Handles cascading dropdown relationships for location hierarchy (Diocese → Region → State → Division → Sub Division → Area → District → Zone).
 
 #### Key Functions:
 

@@ -89,8 +89,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize Select2 for location hierarchy selects
     if (window.CascadingDropdownUtils) {
       CascadingDropdownUtils.initSelect2([
-        'id_diocese', 'id_region', 'id_state', 'id_area', 
-        'id_district', 'id_division', 'id_zone'
+        'id_diocese', 'id_region', 'id_state', 'id_division', 
+        'id_subdivision', 'id_area', 'id_district', 'id_zone'
       ]);
 
       // Initialize cascading dropdown relationships
