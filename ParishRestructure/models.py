@@ -8,6 +8,7 @@ class Location(models.Model):
         ('region', 'Region'),
         ('state', 'State'),
         ('division', 'Division'),
+        ('subdivision', 'Sub Division'),
         ('area', 'Area'),
         ('district', 'District'),
         ('specialdistrict', 'Special District'),

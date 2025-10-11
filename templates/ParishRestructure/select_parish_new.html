@@ -999,35 +999,41 @@ function showLocationHelp() {
 }
 
 function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type} alert-dismissible fade show notification-toast`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        max-width: 400px;
-        animation: slideInRight 0.3s ease;
-    `;
-    
-    notification.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="fas fa-${getNotificationIcon(type)} me-2"></i>
-            <span>${message}</span>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }
-    }, 5000);
+    // Use UIUtils if available, otherwise fallback to original implementation
+    if (window.UIUtils) {
+        UIUtils.showAlert(message, type);
+    } else {
+        // Fallback implementation
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show notification-toast`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease;
+        `;
+        
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${getNotificationIcon(type)} me-2"></i>
+                <span>${message}</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
 }
 
 function getNotificationIcon(type) {
