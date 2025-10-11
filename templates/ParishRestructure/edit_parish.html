@@ -223,6 +223,8 @@ const FORM_FIELD_IDS = {
     diocese: '{{ form.diocese.id_for_label }}',
     region: '{{ form.region.id_for_label }}',
     state: '{{ form.state.id_for_label }}',
+    division: '{{ form.division.id_for_label|default:"id_division" }}',
+    subdivision: '{{ form.subdivision.id_for_label|default:"id_subdivision" }}',
     area: '{{ form.area.id_for_label }}',
     district: '{{ form.district.id_for_label }}',
     zone: '{{ form.zone.id_for_label }}'
@@ -235,6 +237,8 @@ $(document).ready(function() {
         const dioceseSelect = document.getElementById(FORM_FIELD_IDS.diocese);
         const regionSelect = document.getElementById(FORM_FIELD_IDS.region);
         const stateSelect = document.getElementById(FORM_FIELD_IDS.state);
+        const divisionSelect = document.getElementById(FORM_FIELD_IDS.division);
+        const subdivisionSelect = document.getElementById(FORM_FIELD_IDS.subdivision);
         const areaSelect = document.getElementById(FORM_FIELD_IDS.area);
         const districtSelect = document.getElementById(FORM_FIELD_IDS.district);
         const zoneSelect = document.getElementById(FORM_FIELD_IDS.zone);
@@ -243,6 +247,8 @@ $(document).ready(function() {
         if (dioceseSelect) dioceseSelect.id = 'id_diocese';
         if (regionSelect) regionSelect.id = 'id_region';
         if (stateSelect) stateSelect.id = 'id_state';
+        if (divisionSelect) divisionSelect.id = 'id_division';
+        if (subdivisionSelect) subdivisionSelect.id = 'id_subdivision';
         if (areaSelect) areaSelect.id = 'id_area';
         if (districtSelect) districtSelect.id = 'id_district';
         if (zoneSelect) zoneSelect.id = 'id_zone';
@@ -254,6 +260,8 @@ $(document).ready(function() {
         if (dioceseSelect) dioceseSelect.id = FORM_FIELD_IDS.diocese;
         if (regionSelect) regionSelect.id = FORM_FIELD_IDS.region;
         if (stateSelect) stateSelect.id = FORM_FIELD_IDS.state;
+        if (divisionSelect) divisionSelect.id = FORM_FIELD_IDS.division;
+        if (subdivisionSelect) subdivisionSelect.id = FORM_FIELD_IDS.subdivision;
         if (areaSelect) areaSelect.id = FORM_FIELD_IDS.area;
         if (districtSelect) districtSelect.id = FORM_FIELD_IDS.district;
         if (zoneSelect) zoneSelect.id = FORM_FIELD_IDS.zone;
@@ -272,7 +280,7 @@ $(document).ready(function() {
 });
 
 function getNextSelectId(currentId) {
-    const hierarchy = ['diocese', 'region', 'state', 'area', 'district', 'zone'];
+    const hierarchy = ['diocese', 'region', 'state', 'division', 'subdivision', 'area', 'district', 'zone'];
     const currentIndex = hierarchy.findIndex(level => currentId.includes(level));
 
     if (currentIndex !== -1 && currentIndex < hierarchy.length - 1) {
@@ -288,6 +296,8 @@ function resetForm() {
         const fieldsToReset = [
             $(`#${FORM_FIELD_IDS.region}`),
             $(`#${FORM_FIELD_IDS.state}`),
+            $(`#${FORM_FIELD_IDS.division}`),
+            $(`#${FORM_FIELD_IDS.subdivision}`),
             $(`#${FORM_FIELD_IDS.area}`),
             $(`#${FORM_FIELD_IDS.district}`),
             $(`#${FORM_FIELD_IDS.zone}`)

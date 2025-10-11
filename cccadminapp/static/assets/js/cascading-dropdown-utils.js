@@ -225,7 +225,7 @@
                 apiParamName: 'diocese_id',
                 dataKey: 'regions',
                 childPlaceholder: 'Select Region',
-                dependentSelects: ['#id_state', '#id_area', '#id_district', '#id_division', '#id_zone']
+                dependentSelects: ['#id_state', '#id_division', '#id_subdivision', '#id_area', '#id_district', '#id_zone']
             });
 
             // Region -> (Areas - handled via API)
@@ -247,15 +247,26 @@
                 apiParamName: 'state_id',
                 dataKey: 'divisions',
                 childPlaceholder: 'Select Division',
+                dependentSelects: ['#id_subdivision', '#id_area', '#id_district', '#id_zone']
+            });
+
+            // Division -> Sub Divisions
+            this.setupCascade({
+                parentSelectId: 'id_division',
+                childSelectId: 'id_subdivision',
+                apiBaseUrl: apiBaseUrl,
+                apiParamName: 'division_id',
+                dataKey: 'subdivisions',
+                childPlaceholder: 'Select Sub Division',
                 dependentSelects: ['#id_area', '#id_district', '#id_zone']
             });
 
-            // Division -> Areas
+            // Sub Division -> Areas
             this.setupCascade({
-                parentSelectId: 'id_division',
+                parentSelectId: 'id_subdivision',
                 childSelectId: 'id_area',
                 apiBaseUrl: apiBaseUrl,
-                apiParamName: 'division_id',
+                apiParamName: 'subdivision_id',
                 dataKey: 'areas',
                 childPlaceholder: 'Select Area',
                 dependentSelects: ['#id_district', '#id_zone']

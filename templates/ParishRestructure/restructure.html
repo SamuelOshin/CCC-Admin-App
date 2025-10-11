@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize regular select fields without Select2 for better form-floating integration
-    const regularSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_division', '#id_zone'];
+    const regularSelects = ['#id_diocese', '#id_region', '#id_state', '#id_division', '#id_subdivision', '#id_area', '#id_district', '#id_zone'];
     regularSelects.forEach(selector => {
         const selectElement = document.querySelector(selector);
         if (selectElement && selectElement.options.length <= 1) {
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Clear all dependent fields when parish is cleared
     $('#id_parish').on('select2:clear', function () {
-        const dependentSelects = ['#id_diocese', '#id_region', '#id_state', '#id_area', '#id_district', '#id_division', '#id_zone'];
+        const dependentSelects = ['#id_diocese', '#id_region', '#id_state', '#id_division', '#id_subdivision', '#id_area', '#id_district', '#id_zone'];
         dependentSelects.forEach(selector => {
             const selectElement = document.querySelector(selector);
             if (selectElement) {
