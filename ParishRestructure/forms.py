@@ -23,6 +23,7 @@ class ParishForm(forms.ModelForm):
     region = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Region", required=False)
     state = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select State", required=False)
     division = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Division", required=False)
+    subdivision = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Sub Division", required=False)
     area = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select Area", required=False)
     district = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select District", required=False)
     zone = forms.ModelChoiceField(queryset=Location.objects.none(), empty_label="Select zone", required=False)
@@ -41,6 +42,7 @@ class ParishForm(forms.ModelForm):
         self.fields['region'].queryset = Location.objects.none()
         self.fields['state'].queryset = Location.objects.none()
         self.fields['division'].queryset = Location.objects.none()
+        self.fields['subdivision'].queryset = Location.objects.none()
         self.fields['area'].queryset = Location.objects.none()
          # Modify region field queryset to include special option
         self.fields['district'].queryset = Location.objects.filter(
@@ -75,7 +77,15 @@ class ParishForm(forms.ModelForm):
         if 'division' in self.data:
             try:
                 division_id = int(self.data.get('division'))
-                areas = Location.objects.filter(parent_id=division_id, level='area')
+                subdivisions = Location.objects.filter(parent_id=division_id, level='subdivision')
+                self.fields['subdivision'].queryset = subdivisions
+            except (ValueError, TypeError):
+                pass
+
+        if 'subdivision' in self.data:
+            try:
+                subdivision_id = int(self.data.get('subdivision'))
+                areas = Location.objects.filter(parent_id=subdivision_id, level='area')
                 self.fields['area'].queryset = areas
             except (ValueError, TypeError):
                 pass
@@ -101,25 +111,26 @@ class ParishForm(forms.ModelForm):
         diocese = cleaned_data.get('diocese')
         region = cleaned_data.get('region')
         state = cleaned_data.get('state')
+        division = cleaned_data.get('division')
+        subdivision = cleaned_data.get('subdivision')
         area = cleaned_data.get('area')
         district = cleaned_data.get('district')
-        division = cleaned_data.get('division')
         zone = cleaned_data.get('zone')
 
-        if not region and not state and not division and not area and not district and not zone and diocese:
+        if not region and not state and not division and not subdivision and not area and not district and not zone and diocese:
             cleaned_data['location'] = diocese
-        elif not state and not division and not area and not district and not zone and region:
+        elif not state and not division and not subdivision and not area and not district and not zone and region:
             cleaned_data['location'] = region
-        elif not division and not area and not district and not zone and state:
+        elif not division and not subdivision and not area and not district and not zone and state:
             cleaned_data['location'] = state
-        elif not area and not district and not zone and division:
+        elif not subdivision and not area and not district and not zone and division:
             cleaned_data['location'] = division
+        elif not area and not district and not zone and subdivision:
+            cleaned_data['location'] = subdivision
         elif not district and not zone and area:
             cleaned_data['location'] = area
         elif not zone and district:
             cleaned_data['location'] = district
-        elif zone:
-            cleaned_data['location'] = zone
         elif zone:
             cleaned_data['location'] = zone
 
