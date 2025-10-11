@@ -229,8 +229,35 @@ const FORM_FIELD_IDS = {
 };
 
 $(document).ready(function() {
-    // Initialize location hierarchy cascading
-    initializeLocationHierarchy();
+    // Initialize location hierarchy cascading using CascadingDropdownUtils
+    if (window.CascadingDropdownUtils) {
+        // Map the form field IDs to standard IDs for the utility
+        const dioceseSelect = document.getElementById(FORM_FIELD_IDS.diocese);
+        const regionSelect = document.getElementById(FORM_FIELD_IDS.region);
+        const stateSelect = document.getElementById(FORM_FIELD_IDS.state);
+        const areaSelect = document.getElementById(FORM_FIELD_IDS.area);
+        const districtSelect = document.getElementById(FORM_FIELD_IDS.district);
+        const zoneSelect = document.getElementById(FORM_FIELD_IDS.zone);
+
+        // Temporarily rename IDs for compatibility with CascadingDropdownUtils
+        if (dioceseSelect) dioceseSelect.id = 'id_diocese';
+        if (regionSelect) regionSelect.id = 'id_region';
+        if (stateSelect) stateSelect.id = 'id_state';
+        if (areaSelect) areaSelect.id = 'id_area';
+        if (districtSelect) districtSelect.id = 'id_district';
+        if (zoneSelect) zoneSelect.id = 'id_zone';
+
+        // Initialize location hierarchy
+        CascadingDropdownUtils.initLocationHierarchy('/parish/get_regions_and_areas/');
+
+        // Restore original IDs
+        if (dioceseSelect) dioceseSelect.id = FORM_FIELD_IDS.diocese;
+        if (regionSelect) regionSelect.id = FORM_FIELD_IDS.region;
+        if (stateSelect) stateSelect.id = FORM_FIELD_IDS.state;
+        if (areaSelect) areaSelect.id = FORM_FIELD_IDS.area;
+        if (districtSelect) districtSelect.id = FORM_FIELD_IDS.district;
+        if (zoneSelect) zoneSelect.id = FORM_FIELD_IDS.zone;
+    }
 
     // Add loading states for location selects
     $('.location-select').on('change', function() {
@@ -244,118 +271,6 @@ $(document).ready(function() {
     });
 });
 
-function initializeLocationHierarchy() {
-    // Diocese change handler
-    $('#' + FORM_FIELD_IDS.diocese).on('change', function() {
-        const dioceseId = $(this).val();
-        if (dioceseId) {
-            loadRegions(dioceseId);
-        } else {
-            resetLocationFields(['region', 'state', 'area', 'district', 'zone']);
-        }
-    });
-
-    // Region change handler
-    $('#' + FORM_FIELD_IDS.region).on('change', function() {
-        const regionId = $(this).val();
-        if (regionId) {
-            loadStates(regionId);
-        } else {
-            resetLocationFields(['state', 'area', 'district', 'zone']);
-        }
-    });
-
-    // State change handler
-    $('#' + FORM_FIELD_IDS.state).on('change', function() {
-        const stateId = $(this).val();
-        if (stateId) {
-            loadAreas(stateId);
-        } else {
-            resetLocationFields(['area', 'district', 'zone']);
-        }
-    });
-
-    // Area change handler
-    $('#' + FORM_FIELD_IDS.area).on('change', function() {
-        const areaId = $(this).val();
-        if (areaId) {
-            loadDistricts(areaId);
-        } else {
-            resetLocationFields(['district', 'zone']);
-        }
-    });
-
-    // District change handler
-    $('#' + FORM_FIELD_IDS.district).on('change', function() {
-        const districtId = $(this).val();
-        if (districtId) {
-            loadzones(districtId);
-        } else {
-            resetLocationFields(['zone']);
-        }
-    });
-}
-
-function loadRegions(dioceseId) {
-    $.get('/get_regions_and_areas/', { diocese_id: dioceseId })
-        .done(function(data) {
-            updateSelect(FORM_FIELD_IDS.region, data.regions, 'Select Region');
-        })
-        .fail(function() {
-            showError('Failed to load regions');
-        });
-}
-
-function loadStates(regionId) {
-    $.get('/get_regions_and_areas/', { region_id: regionId })
-        .done(function(data) {
-            updateSelect(FORM_FIELD_IDS.state, data.states, 'Select State');
-        })
-        .fail(function() {
-            showError('Failed to load states');
-        });
-}
-
-function loadAreas(stateId) {
-    $.get('/get_regions_and_areas/', { state_id: stateId })
-        .done(function(data) {
-            updateSelect(FORM_FIELD_IDS.area, data.areas, 'Select Area');
-        })
-        .fail(function() {
-            showError('Failed to load areas');
-        });
-}
-
-function loadDistricts(areaId) {
-    // For now, districts are not implemented in the existing API
-    // We'll need to add this functionality later
-    updateSelect(FORM_FIELD_IDS.district, [], 'Select District');
-}
-
-function loadzones(districtId) {
-    // For now, zones are not implemented in the existing API
-    // We'll need to add this functionality later
-    updateSelect(FORM_FIELD_IDS.zone, [], 'Select zone');
-}
-
-function updateSelect(selectId, data, placeholder) {
-    const $select = $('#' + selectId);
-    $select.html(`<option value="">${placeholder}</option>`);
-
-    data.forEach(function(item) {
-        $select.append(`<option value="${item.id}">${item.name}</option>`);
-    });
-
-    $select.prop('disabled', false);
-}
-
-function resetLocationFields(fieldNames) {
-    fieldNames.forEach(function(fieldName) {
-        const fieldId = FORM_FIELD_IDS[fieldName];
-        $('#' + fieldId).html('<option value="">Select ' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + '</option>').prop('disabled', true);
-    });
-}
-
 function getNextSelectId(currentId) {
     const hierarchy = ['diocese', 'region', 'state', 'area', 'district', 'zone'];
     const currentIndex = hierarchy.findIndex(level => currentId.includes(level));
@@ -368,25 +283,17 @@ function getNextSelectId(currentId) {
 
 function resetForm() {
     $('#parishForm')[0].reset();
-    resetLocationFields(['region', 'state', 'area', 'district', 'zone']);
-}
-
-function showError(message) {
-    // Create a temporary alert
-    const alertHtml = `
-        <div class="alert alert-danger alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
-    $('body').append(alertHtml);
-
-    // Auto-remove after 5 seconds
-    setTimeout(function() {
-        $('.alert').fadeOut(function() {
-            $(this).remove();
-        });
-    }, 5000);
+    // Use CascadingDropdownUtils to reset dependent fields
+    if (window.CascadingDropdownUtils) {
+        const fieldsToReset = [
+            $(`#${FORM_FIELD_IDS.region}`),
+            $(`#${FORM_FIELD_IDS.state}`),
+            $(`#${FORM_FIELD_IDS.area}`),
+            $(`#${FORM_FIELD_IDS.district}`),
+            $(`#${FORM_FIELD_IDS.zone}`)
+        ];
+        CascadingDropdownUtils.resetDependentSelects(fieldsToReset);
+    }
 }
 </script>
 <style>
