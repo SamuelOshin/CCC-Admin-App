@@ -124,16 +124,18 @@ def get_regions_and_areas(request):
         diocese_id = request.GET.get('diocese_id')  # Extract diocese ID from query parameters
         region_id = request.GET.get('region_id')    # Extract region ID from query parameters
         state_id = request.GET.get('state_id')      # Extract state ID from query parameters
+        division_id = request.GET.get('division_id') # Extract division ID from query parameters
+        subdivision_id = request.GET.get('subdivision_id') # Extract subdivision ID from query parameters
         area_id = request.GET.get('area_id')        # Extract area ID from query parameters
         district_id = request.GET.get('district_id') # Extract district ID from query parameters
-        division_id = request.GET.get('division_id') # Extract division ID from query parameters
 
-        # Initialize empty lists for regions, states, areas, districts, divisions, and zones
+        # Initialize empty lists for regions, states, divisions, subdivisions, areas, districts, and zones
         regions = []
         states = []
+        divisions = []
+        subdivisions = []
         areas = []
         districts = []
-        divisions = []
         zones = []
 
         # Fetch regions for the selected diocese if diocese_id is provided and not empty
@@ -157,10 +159,17 @@ def get_regions_and_areas(request):
             except (ValueError, TypeError):
                 divisions = []
 
-        # Fetch areas for the selected division if division_id is provided and not empty
+        # Fetch subdivisions for the selected division if division_id is provided and not empty
         if division_id and division_id.strip():
             try:
-                areas = Location.objects.filter(parent_id=int(division_id), level='area')
+                subdivisions = Location.objects.filter(parent_id=int(division_id), level='subdivision')
+            except (ValueError, TypeError):
+                subdivisions = []
+
+        # Fetch areas for the selected subdivision if subdivision_id is provided and not empty
+        if subdivision_id and subdivision_id.strip():
+            try:
+                areas = Location.objects.filter(parent_id=int(subdivision_id), level='area')
             except (ValueError, TypeError):
                 areas = []
 
@@ -178,21 +187,23 @@ def get_regions_and_areas(request):
             except (ValueError, TypeError):
                 zones = []
 
-        # Serialize regions, states, areas, districts, divisions, and zones data
+        # Serialize regions, states, divisions, subdivisions, areas, districts, and zones data
         serialized_regions = [{'id': region.id, 'name': region.name} for region in regions]
         serialized_states = [{'id': state.id, 'name': state.name} for state in states]
+        serialized_divisions = [{'id': division.id, 'name': division.name} for division in divisions]
+        serialized_subdivisions = [{'id': subdivision.id, 'name': subdivision.name} for subdivision in subdivisions]
         serialized_areas = [{'id': area.id, 'name': area.name} for area in areas]
         serialized_districts = [{'id': district.id, 'name': district.name} for district in districts]
-        serialized_divisions = [{'id': division.id, 'name': division.name} for division in divisions]
         serialized_zones = [{'id': zone.id, 'name': zone.name} for zone in zones]
 
         # Return JSON response with all location data
         return JsonResponse({
             'regions': serialized_regions, 
             'states': serialized_states,
+            'divisions': serialized_divisions,
+            'subdivisions': serialized_subdivisions,
             'areas': serialized_areas,
             'districts': serialized_districts,
-            'divisions': serialized_divisions,
             'zones': serialized_zones
         })
 

@@ -161,6 +161,23 @@
                             </div>
                         </div>
 
+                        <!-- Sub Division Selection -->
+                        <div class="col-12">
+                            <div class="form-floating position-relative">
+                                {{ form.subdivision|add_class:"form-select"|attr:"id:id_subdivision" }}
+                                <label for="id_subdivision">
+                                    <i class="bi bi-diagram-2 me-1"></i>{{ form.subdivision.label }}
+                                </label>
+                                {% if form.subdivision.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.subdivision.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         <!-- Area Selection -->
                         <div class="col-12">
                             <div class="form-floating position-relative">
