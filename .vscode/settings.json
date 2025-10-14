@@ -1,36 +1,23 @@
 {
-    "CodeGPT.apiKey": "CodeGPT Plus Beta",
-    "appService.zipIgnorePattern": [
-        "__pycache__{,/**}",
-        "*.py[cod]",
-        "*$py.class",
-        ".Python{,/**}",
-        "build{,/**}",
-        "develop-eggs{,/**}",
-        "dist{,/**}",
-        "downloads{,/**}",
-        "eggs{,/**}",
-        ".eggs{,/**}",
-        "lib{,/**}",
-        "lib64{,/**}",
-        "parts{,/**}",
-        "sdist{,/**}",
-        "var{,/**}",
-        "wheels{,/**}",
-        "share/python-wheels{,/**}",
-        "*.egg-info{,/**}",
-        ".installed.cfg",
-        "*.egg",
-        "MANIFEST",
-        ".env{,/**}",
-        ".venv{,/**}",
-        "env{,/**}",
-        "venv{,/**}",
-        "ENV{,/**}",
-        "env.bak{,/**}",
-        "venv.bak{,/**}",
-        ".vscode{,/**}"
-    ],
-    "appService.defaultWebAppToDeploy": "/subscriptions/9af36c46-89ef-42f1-83f6-357d27d40b56/resourceGroups/CCCAdminApp/providers/Microsoft.Web/sites/cccadminapp",
-    "appService.deploySubpath": "."
+  "search.exclude": {
+    "**/.sst": true
+  },
+  "task.allowAutomaticTasks": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "debug.openDebug": "neverOpen",
+  "problems.autoReveal": true,
+  "terminal.integrated.hideOnStartup": "always",
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "terminal.integrated.inheritEnv": false,
+  "jestrunner.configPath": "jest.unit.config.cjs",
+  "compile-hero.disable-compile-files-on-did-save-code": true,
+  "tasks": {
+    "label": "lint on open",
+    "type": "shell",
+    "command": "npm run lint",
+    "runOn": "folderOpen"
+  }
 }
