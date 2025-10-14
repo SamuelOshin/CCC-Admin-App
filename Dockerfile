@@ -1,45 +1,47 @@
 # Use a Python Debian-slim image
 FROM python:3.11-slim
 
-ENV PATH="/scripts:${PATH}"
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/scripts:${PATH}"
 
-# Copy the requirements file to the container
-COPY ./requirements.txt /requirements.txt
-
-# Install necessary build dependencies, including git and MySQL libraries
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ pkg-config libmariadb-dev git && \
-    pip install -r /requirements.txt && \
-    apt-get remove -y gcc g++ && \
-    apt-get autoremove -y && apt-get clean && \
+    gcc g++ pkg-config libmariadb-dev git curl && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Create a directory for the app files
-RUN mkdir /app
+# Create a non-root user
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} appuser && \
+    useradd -u ${UID} -g appuser -m appuser
 
-# Copy all files from the host to the app directory in the container
-COPY . /app/
+# Create directories
+RUN mkdir -p /app /scripts /vol/web/media /vol/web/static && \
+    chown -R appuser:appuser /app /scripts /vol
 
-# Set the working directory to /app
+# Switch to non-root user
+USER appuser
+
+# Set working directory
 WORKDIR /app
 
-# Copy any scripts to the /scripts directory in the container
-COPY ./scriptts /scripts
+# Copy requirements and install Python dependencies
+COPY --chown=appuser:appuser ./requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Grant execute permissions to all files in the /scripts directory
+# Copy application code
+COPY --chown=appuser:appuser . /app/
+
+# Copy scripts
+COPY --chown=appuser:appuser ./scriptts /scripts/
 RUN chmod +x /scripts/*
 
-# Create directories for media and static files
-RUN mkdir -p /vol/web/media /vol/web/static
-
-# Create a non-root user named 'user' for security purposes
-RUN useradd -m user && chown -R user:user /vol
-
-# Set directory permissions to be accessible by all users
-RUN chmod -R 755 /vol/web
-
-# Switch to the non-root user for running the application
-USER user
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health/ || exit 1
 
 # Specify the command to run when the container starts
 CMD ["entrypoint.sh"]
