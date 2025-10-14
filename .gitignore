@@ -127,7 +127,6 @@ dmypy.json
 .pyre/
 
 # IDEs
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -153,5 +152,5 @@ secrets.json
 *.pyd
 db.sqlite3
 .github/instructions/
-.vscode/
 .playwright-mcp/
+.gitignore
