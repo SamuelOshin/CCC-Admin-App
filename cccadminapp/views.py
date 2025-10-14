@@ -23,6 +23,12 @@ from .utils import get_month_format
 
 logger = logging.getLogger(__name__)
 
+def health_check(request):
+    """
+    Health check endpoint for container monitoring.
+    """
+    return JsonResponse({'status': 'healthy'})
+
 def landing_page(request):
     """
     Landing page for the CCC Administrative Management System.

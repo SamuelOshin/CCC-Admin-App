@@ -1,6 +1,7 @@
 /**
  * Cascading Dropdown Utilities Module
  * Consolidates location hierarchy dropdown logic to follow DRY principle
+ * Version: 1.2 - Added debouncing to prevent broken pipe errors
  */
 
 (function(window) {
@@ -9,6 +10,27 @@
     const CascadingDropdownUtils = {
         // Store active requests to prevent race conditions
         activeRequests: {},
+        // Store debounce timers to prevent rapid successive requests
+        debounceTimers: {},
+
+        /**
+         * Debounce function to prevent rapid successive calls
+         * @param {string} key - Unique key for the debounced function
+         * @param {Function} func - Function to debounce
+         * @param {number} delay - Delay in milliseconds
+         */
+        debounce: function(key, func, delay = 300) {
+            // Clear existing timer
+            if (this.debounceTimers[key]) {
+                clearTimeout(this.debounceTimers[key]);
+            }
+            
+            // Set new timer
+            this.debounceTimers[key] = setTimeout(() => {
+                func();
+                delete this.debounceTimers[key];
+            }, delay);
+        },
 
         /**
          * Initialize Select2 for multiple select elements
@@ -175,40 +197,52 @@
 
             $parent.on('change', () => {
                 const parentValue = $parent.val();
+                const debounceKey = `${parentSelectId}_${apiParamName}`;
 
-                // Cancel related active requests
-                this.cancelActiveRequest(apiParamName);
-                
-                // Cancel requests for dependent fields
-                dependentSelects.forEach(depSelect => {
-                    const depId = depSelect.replace('#', '').replace('id_', '');
-                    this.cancelActiveRequest(depId);
-                });
-
-                // Reset child and dependent selects
-                const selectsToReset = [$child, ...dependentSelects.map(s => $(s))];
-                this.resetDependentSelects(selectsToReset);
-
-                // Only fetch if parent has a value
-                if (!parentValue || parentValue.trim() === '') {
-                    return;
-                }
-
-                // Fetch options for child select
-                const apiUrl = `${apiBaseUrl}?${apiParamName}=${parentValue}`;
-                
-                this.fetchDependentOptions(apiUrl, apiParamName)
-                    .then(data => {
-                        if (data[dataKey]) {
-                            this.populateSelect($child, data[dataKey], childPlaceholder);
-                        }
-                    })
-                    .catch(error => {
-                        console.error(`Error loading ${dataKey}:`, error);
-                        if (window.UIUtils) {
-                            window.UIUtils.showAlert(`Unable to load ${dataKey}. Please try again.`, 'warning');
-                        }
+                // Debounce the request to prevent rapid successive calls
+                this.debounce(debounceKey, () => {
+                    // Cancel related active requests
+                    this.cancelActiveRequest(apiParamName);
+                    
+                    // Cancel requests for dependent fields
+                    dependentSelects.forEach(depSelect => {
+                        const depId = depSelect.replace('#', '').replace('id_', '');
+                        this.cancelActiveRequest(depId);
                     });
+
+                    // Reset child and dependent selects
+                    const selectsToReset = [$child, ...dependentSelects.map(s => $(s))];
+                    this.resetDependentSelects(selectsToReset);
+
+                    // Only fetch if parent has a value
+                    if (!parentValue || parentValue.trim() === '') {
+                        return;
+                    }
+
+                    // Fetch options for child select
+                    const apiUrl = `${apiBaseUrl}?${apiParamName}=${parentValue}`;
+                    
+                    this.fetchDependentOptions(apiUrl, apiParamName)
+                        .then(data => {
+                            if (data[dataKey]) {
+                                this.populateSelect($child, data[dataKey], childPlaceholder);
+                            }
+                        })
+                        .catch(error => {
+                            // Handle AbortError (intentional request cancellation) gracefully
+                            if (error.name === 'AbortError') {
+                                // This is normal - request was cancelled due to rapid user selections
+                                console.log(`Request for ${dataKey} cancelled (normal behavior)`);
+                                return;
+                            }
+                            
+                            // Only log actual errors
+                            console.error(`Error loading ${dataKey}:`, error);
+                            if (window.UIUtils) {
+                                window.UIUtils.showAlert(`Unable to load ${dataKey}. Please try again.`, 'warning');
+                            }
+                        });
+                }, 300); // 300ms debounce delay
             });
         },
 

@@ -12,6 +12,7 @@ from .admin import admin_site  # Import our custom admin site
 
 urlpatterns = [
     path('', admin_views.landing_page, name='landing'),
+    path('health/', admin_views.health_check, name='health_check'),
     path('admin/', admin_site.urls),  # Use our custom admin site
     path('accounts/', include('users.urls')),
     path('clergy/', include('clergy_registration.urls')),
