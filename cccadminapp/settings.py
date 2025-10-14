@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from decouple import config
 import dotenv
+import logging
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -219,3 +220,35 @@ PHONENUMBER_DB_FORMAT = 'E164'  # Store in E164 format for international compati
 PHONENUMBER_DEFAULT_FORMAT = 'INTERNATIONAL'  # Display in international format
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Logging Configuration
+# Suppress harmless "Broken pipe" errors that occur when clients disconnect
+# during cascading dropdown requests (normal behavior due to request cancellation)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'suppress_broken_pipe': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: 'Broken pipe' not in str(record.getMessage()) and 
+                                     (not record.exc_info or 'Broken pipe' not in str(record.exc_info[1])),
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'filters': ['suppress_broken_pipe'],
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

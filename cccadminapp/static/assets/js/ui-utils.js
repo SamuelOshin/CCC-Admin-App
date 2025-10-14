@@ -220,5 +220,7 @@
         UIUtils.autoHideAlerts();
         UIUtils.initLoadingScreen();
     }
+    // Expose to global scope
+    window.UIUtils = UIUtils;
 
 })(window);

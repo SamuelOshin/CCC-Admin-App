@@ -7,12 +7,6 @@
     'use strict';
 
     const ParishUtils = {
-        /**
-         * Fetch parish data from API
-         * @param {string} parishId - The parish ID
-         * @param {string} apiEndpoint - The API endpoint (default: '/parish/api/parish/')
-         * @returns {Promise} - Promise resolving to parish data
-         */
         fetchParishData: function(parishId, apiEndpoint = '/parish/api/parish/') {
             if (!parishId) {
                 return Promise.reject(new Error('Parish ID is required'));
@@ -82,13 +76,23 @@
             }
 
             // Remove existing event handlers to prevent duplicates
-            $select.off('select2:select select2:clear');
+            $select.off('select2:select select2:clear change');
 
             // Attach select event
             if (onSelect && typeof onSelect === 'function') {
                 $select.on('select2:select', function(e) {
                     const parishId = e.params.data.id;
                     onSelect(parishId);
+                });
+                
+                // Also bind to change event as fallback
+                $select.on('change', function() {
+                    const parishId = $(this).val();
+                    if (parishId) {
+                        onSelect(parishId);
+                    } else {
+                        if (onClear) onClear();
+                    }
                 });
             }
 

@@ -1,9 +1,10 @@
 #!/bin/sh
 
-# collect all static files to the root directory
+# Run database migrations
+python manage.py migrate --no-input
+
+# Collect all static files to the root directory
 python manage.py collectstatic --no-input
 
-# start the gunicorn worker processws at the defined port
-gunicorn cccadminapp.wsgi:application --bind 0.0.0.0:8000 &
-
-wait
+# Start the gunicorn worker processes at the defined port
+gunicorn cccadminapp.wsgi:application --bind 0.0.0.0:8000
